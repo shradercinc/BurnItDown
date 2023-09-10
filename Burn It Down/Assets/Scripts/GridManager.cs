@@ -5,6 +5,7 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     int PlayGrid = 0;
+
     // Start is called before the first frame update
     void Start()
     {
