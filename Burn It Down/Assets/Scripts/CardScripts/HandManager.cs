@@ -5,45 +5,38 @@ using UnityEngine;
 public class HandManager : MonoBehaviour
 {
     public static HandManager instance;
-    [HideInInspector] public float opacity = 1;
-    [HideInInspector] public bool decrease = true;
-
     RectTransform handTransform;
     public List<Card> listOfHand = new List<Card>();
 
     Transform deck;
-
-    Card chosenCard;
+    Transform discardPile;
 
     private void Awake()
     {
         deck = GameObject.Find("Deck").transform;
+        discardPile = GameObject.Find("Discard Pile").transform;
         handTransform = this.transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
         instance = this;
     }
 
     private void Start()
     {
-        Debug.Log(handTransform.name);
+        for (int i = 0; i < SaveManager.instance.newSaveData.savedDeck.Count; i++)
+            SaveManager.instance.newSaveData.savedDeck[i].transform.SetParent(deck);
+
         deck.Shuffle();
         DrawCards(4);
-        StartCoroutine(ChooseCardInHand());
-    }
 
-    private void FixedUpdate()
-    {
-        if (decrease)
-            opacity -= 0.05f;
-        else
-            opacity += 0.05f;
-        if (opacity < 0 || opacity > 1)
-            decrease = !decrease;
+        StartCoroutine(PlayGame());
     }
 
     public void DrawCards(int num)
     {
-        for (int i = 0; i<num; i++)
-            AddCardToHand(deck.GetChild(0).GetComponent<Card>());
+        for (int i = 0; i < num; i++)
+        {
+            if (deck.childCount > 0)
+                AddCardToHand(deck.GetChild(0).GetComponent<Card>());
+        }
     }
 
     public void AddCardToHand(Card newCard)
@@ -52,26 +45,16 @@ public class HandManager : MonoBehaviour
         newCard.transform.SetParent(handTransform);
     }
 
-    public void ReceiveChoice(Card chosenCard)
+    IEnumerator PlayGame()
     {
-        this.chosenCard = chosenCard;
+        yield return ChoiceManager.instance.ChooseCard(listOfHand);
+        DiscardCard(ChoiceManager.instance.chosenCard);
     }
 
-    public IEnumerator WaitForDecision()
+    public void DiscardCard(Card discardMe)
     {
-        chosenCard = null;
-        while (chosenCard == null)
-            yield return null;
-    }
-
-    public IEnumerator ChooseCardInHand()
-    {
-        for (int i = 0; i < listOfHand.Count; i++)
-            listOfHand[i].choiceScript.EnableButton(true);
-
-        yield return WaitForDecision();
-
-        for (int i = 0; i < listOfHand.Count; i++)
-            listOfHand[i].choiceScript.DisableButton();
+        discardMe.transform.SetParent(discardPile);
+        listOfHand.Remove(discardMe);
+        discardMe.transform.localPosition = new Vector3(1000, 1000, 0);
     }
 }

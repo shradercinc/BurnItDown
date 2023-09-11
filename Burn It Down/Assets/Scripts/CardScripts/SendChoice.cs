@@ -28,7 +28,7 @@ public class SendChoice : MonoBehaviour
     {
         if (border != null && enableBorder)
         {
-            border.color = new Color(1, 1, 1, HandManager.instance.opacity);
+            border.color = new Color(1, 1, 1, ChoiceManager.instance.opacity);
         }
         else if (border != null && !enableBorder)
         {
@@ -40,7 +40,7 @@ public class SendChoice : MonoBehaviour
     {
         Debug.Log($"you chose {this.name}");
         if (myCard != null)
-            HandManager.instance.ReceiveChoice(myCard);
+            ChoiceManager.instance.ReceiveChoice(myCard);
     }
 
     public void EnableButton(bool border)

@@ -10,10 +10,18 @@ public class Card : MonoBehaviour
     [HideInInspector] public SendChoice choiceScript;
     [HideInInspector] public TMP_Text textBox;
 
-    private void Awake()
+    private void Start()
     {
-        image = GetComponent<Image>();
-        choiceScript = GetComponent<SendChoice>();
-        textBox = this.transform.GetChild(1).GetComponent<TMP_Text>();
+        if (!SaveManager.instance.allCards.Contains(this))
+        {
+            SaveManager.instance.allCards.Add(this);
+            image = GetComponent<Image>();
+            choiceScript = GetComponent<SendChoice>();
+            textBox = this.transform.GetChild(1).GetComponent<TMP_Text>();
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 }

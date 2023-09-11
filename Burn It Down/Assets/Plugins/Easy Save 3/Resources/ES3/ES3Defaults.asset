@@ -32,17 +32,6 @@ MonoBehaviour:
     assemblyNames:
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
-    - Boxophobic.AtmosphericHeightFog.Runtime
-    - Boxophobic.Utils.Scripts
-    - Cinemachine
-    - Crest
-    - Crest.Examples
-    - Enviro3.Runtime
-    - FlatKit.Runtime
-    - MyBox
-    - NWH.Common
-    - NWH.DWP2
-    - sc.posteffects.runtime
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1

@@ -12,7 +12,8 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
-    public List<Card> yourDeck;
+    public List<Card> savedDeck;
+    public List<Card> unlockedCards;
 
     public SaveData()
     {
@@ -22,12 +23,19 @@ public class SaveData
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
+    public SaveData newSaveData = new SaveData();
+    public List<Card> allCards = new List<Card>();
 
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            Destroy(this.gameObject);
         }
     }
 
@@ -35,19 +43,16 @@ public class SaveManager : MonoBehaviour
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
         if (File.Exists(path))
-        {
-            SaveData readData = ES3.Load<SaveData>("saveData");
-            StartCoroutine(Load(readData));
-        }
+            newSaveData = ES3.Load<SaveData>("saveData");
+
+        for (int i = 0; i < newSaveData.unlockedCards.Count; i++)
+            newSaveData.unlockedCards[i].gameObject.SetActive(true);
     }
 
-    public void Save()
+    public void SaveDeck(List<Card> deckToSave)
     {
-
-    }
-
-    public IEnumerator Load(SaveData saveData)
-    {
-        yield return null;
+        List<Card> newCards = deckToSave;
+        newSaveData.savedDeck = newCards;
+        ES3.Save("saveData", newSaveData);
     }
 }
