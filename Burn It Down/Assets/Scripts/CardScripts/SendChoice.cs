@@ -26,6 +26,7 @@ public class SendChoice : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //if this button is able to be pressed, it flashes
         if (border != null && enableBorder)
         {
             border.color = new Color(1, 1, 1, ChoiceManager.instance.opacity);
@@ -38,6 +39,7 @@ public class SendChoice : MonoBehaviour
 
     public void SendName()
     {
+        //give choice manager the card this has
         Debug.Log($"you chose {this.name}");
         if (myCard != null)
             ChoiceManager.instance.ReceiveChoice(myCard);
@@ -45,6 +47,7 @@ public class SendChoice : MonoBehaviour
 
     public void EnableButton(bool border)
     {
+        //this button can now be pressed
         this.gameObject.SetActive(true);
         enableBorder = border;
 
@@ -54,6 +57,7 @@ public class SendChoice : MonoBehaviour
 
     public void DisableButton()
     {
+        //this button can't be pressed
         enableBorder = false;
         if (button != null)
             button.interactable = false;

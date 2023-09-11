@@ -25,6 +25,7 @@ public class ChoiceManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //dicates how cards flash when they can be chosen
         if (decrease)
             opacity -= 0.05f;
         else
@@ -40,6 +41,7 @@ public class ChoiceManager : MonoBehaviour
 
     public IEnumerator WaitForDecision()
     {
+        //waits until you choose a card
         chosenCard = null;
         while (chosenCard == null)
             yield return null;
@@ -47,11 +49,13 @@ public class ChoiceManager : MonoBehaviour
 
     public IEnumerator ChooseCard(List<Card> choices)
     {
+        //turn on all buttons that can be pressed
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.EnableButton(true);
 
         yield return WaitForDecision();
 
+        //turn off all buttons
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.DisableButton();
     }

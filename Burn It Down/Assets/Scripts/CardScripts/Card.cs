@@ -12,6 +12,7 @@ public class Card : MonoBehaviour
 
     private void Start()
     {
+        //if the save manager doesn't already have this card, put it in there
         if (!SaveManager.instance.allCards.Contains(this))
         {
             SaveManager.instance.allCards.Add(this);
