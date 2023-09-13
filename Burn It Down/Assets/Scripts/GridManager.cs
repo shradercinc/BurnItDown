@@ -19,7 +19,7 @@ public class GridManager : MonoBehaviour
     private List<FloorTile> FloorList = new List<FloorTile>();
     [SerializeField] GameObject genericTile;
     [SerializeField] GameObject genericWall;
-
+    public GameObject selectedPlayer;
 
 
     void Start()

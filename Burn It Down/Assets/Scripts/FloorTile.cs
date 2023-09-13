@@ -28,7 +28,15 @@ public class FloorTile : MonoBehaviour
         {
             if (manager.selectTile != gridPosition)
             {
+                if (manager.selectedPlayer != null)
+                {
+                    if (gridPosition.magnitude - manager.selectTile.magnitude > 3)
+                    {
+
+                    }
+                }
                 manager.selectTile = gridPosition;
+
             }
             else
             {
@@ -44,7 +52,15 @@ public class FloorTile : MonoBehaviour
     {
         if (manager.selectTile == gridPosition)
         {
-            hover = true;      
+            hover = true;
+            for (int i = 0; i < this.transform.childCount; i++)
+            {
+                GameObject curChild = transform.GetChild(i).gameObject;
+                if (curChild.tag == "Player")
+                {
+                    manager.selectedPlayer = curChild;
+                }
+            }
         }
 
         if (!hover)
