@@ -156,6 +156,7 @@ MonoBehaviour:
   tileSize: 2
   genericTile: {fileID: 1157966813980953125, guid: 326b9884342bb1f4a89b23d2968d4b40, type: 3}
   baseTileLayer: 0
+  selectTile: {x: -1, y: -1}
 --- !u!4 &123471394
 Transform:
   m_ObjectHideFlags: 0
