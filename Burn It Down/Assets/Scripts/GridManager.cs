@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -21,10 +22,11 @@ public class GridManager : MonoBehaviour
 
 
 
-    // Start is called before the first frame update
     void Start()
     {
         _Grid = new int[GridSize.x, GridSize.y];
+        
+        //generates the base grid tiles, adds them to lists (object list/script list)
         for(int i = 0; i < GridSize.x; i++)
         {
             for (int j = 0; j < GridSize.y; j++)
@@ -37,12 +39,18 @@ public class GridManager : MonoBehaviour
                 FloorList.Add(curFloorScript);
             }
         }
+
         for (int i = 0; i < gridList.Count; i++)
         {
-            if (FloorList[i].gridPosition == new Vector2Int(5, 5))
+            if (FloorList[i].gridPosition.x == 5 && FloorList[i].gridPosition.y <= 5 )
             {
                 GameObject curWall = Instantiate(genericWall, new Vector3(FloorList[i].gridPosition.x * tileSize, baseTileLayer + tileSize, FloorList[i].gridPosition.y * -tileSize), Quaternion.identity);
                 curWall.transform.parent = gridList[i].transform;
+            }
+
+            if (FloorList[i].gridPosition == new Vector2Int(10, 3))
+            {
+                
             }
         }
     }

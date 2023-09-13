@@ -154,9 +154,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridSize: {x: 10, y: 10}
   tileSize: 2
-  genericTile: {fileID: 1157966813980953125, guid: 326b9884342bb1f4a89b23d2968d4b40, type: 3}
   baseTileLayer: 0
   selectTile: {x: -1, y: -1}
+  genericTile: {fileID: 1157966813980953125, guid: 326b9884342bb1f4a89b23d2968d4b40, type: 3}
+  genericWall: {fileID: 5435767722022169398, guid: d1f9e64129c5e424fa5d19af0cabfc29, type: 3}
 --- !u!4 &123471394
 Transform:
   m_ObjectHideFlags: 0
@@ -326,8 +327,8 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 12
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -351,13 +352,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 910317400}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.15766531, y: 0.84759265, z: -0.34875524, w: 0.36755702}
-  m_LocalPosition: {x: -3.76, y: 12.72, z: 3.82}
+  m_LocalRotation: {x: 0.1718908, y: 0.83333504, z: -0.3815707, w: 0.36112338}
+  m_LocalPosition: {x: -8.73, y: 28.01, z: 7.76}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 45, y: 133.478, z: 0.883}
+  m_LocalEulerAnglesHint: {x: 49.473, y: 133.584, z: 0.961}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

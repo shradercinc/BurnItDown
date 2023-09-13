@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7702520538580446255}
   - component: {fileID: 4267539072032665672}
   - component: {fileID: 4143152554932740568}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DefaultWall
   m_TagString: Environmental
   m_Icon: {fileID: 0}
