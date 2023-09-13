@@ -9,11 +9,18 @@ public class GridManager : MonoBehaviour
     [SerializeField] Vector2Int GridSize = new Vector2Int(10,10);
     private static int[,] _Grid;
     [SerializeField] float tileSize = 2;
-    [SerializeField] GameObject genericTile;
     [SerializeField] float baseTileLayer = 0;
-    public Vector2Int selectTile = new Vector2Int(-1,-1);
-    public List<GameObject> gridList = new List<GameObject>();
-    public List<FloorTile> FloorList = new List<FloorTile>();
+    public Vector2Int selectTile = new Vector2Int(-1, -1);
+    [Space(5)]
+
+    [Header("Summonable Objects")]
+    private List<GameObject> gridList = new List<GameObject>();
+    private List<FloorTile> FloorList = new List<FloorTile>();
+    [SerializeField] GameObject genericTile;
+    [SerializeField] GameObject genericWall;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,7 +39,11 @@ public class GridManager : MonoBehaviour
         }
         for (int i = 0; i < gridList.Count; i++)
         {
-           if() 
+            if (FloorList[i].gridPosition == new Vector2Int(5, 5))
+            {
+                GameObject curWall = Instantiate(genericWall, new Vector3(FloorList[i].gridPosition.x * tileSize, baseTileLayer + tileSize, FloorList[i].gridPosition.y * -tileSize), Quaternion.identity);
+                curWall.transform.parent = gridList[i].transform;
+            }
         }
     }
 
