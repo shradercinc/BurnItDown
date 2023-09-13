@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class FloorTile : MonoBehaviour
 {
+   
     public Vector2Int gridPosition;
     [SerializeField] float hoverDistance;
     [SerializeField] float climbSpeed = 0.9f;
@@ -25,7 +26,15 @@ public class FloorTile : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            manager.selectTile = gridPosition;
+            if (manager.selectTile != gridPosition)
+            {
+                manager.selectTile = gridPosition;
+            }
+            else
+            {
+                manager.selectTile = new Vector2Int(-1, -1);
+            }
+
         }
     }
 
