@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
-public class Card : MonoBehaviour
+public class Card : MonoBehaviour, IPointerClickHandler
 {
     [HideInInspector] public Image image;
     [HideInInspector] public SendChoice choiceScript;
@@ -23,6 +24,14 @@ public class Card : MonoBehaviour
         else
         {
             Destroy(this.gameObject);
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            RightClick.instance.ChangeCard(this);
         }
     }
 }

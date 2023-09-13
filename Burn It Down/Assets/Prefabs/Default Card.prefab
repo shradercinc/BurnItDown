@@ -94,6 +94,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 0}
   choiceScript: {fileID: 0}
+  textBox: {fileID: 0}
 --- !u!114 &1241176585895277611
 MonoBehaviour:
   m_ObjectHideFlags: 0
