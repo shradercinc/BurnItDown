@@ -60,4 +60,10 @@ public class HandManager : MonoBehaviour
         listOfHand.Remove(discardMe);
         discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
     }
+
+    public void UnlockedCard(Card unlocked)
+    {
+        SaveManager.instance.newSaveData.unlockedCards.Add(unlocked);
+        unlocked.gameObject.SetActive(true);
+    }
 }

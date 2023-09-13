@@ -38,4 +38,3 @@ public static class SaveLoadDeck
         File.Delete(path);
     }
 }
-
