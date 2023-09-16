@@ -30,6 +30,7 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
+        //creates the base grid, note that all 0 slots are empty to make it easier to reference
         _Grid = new FloorTile[GridSize.x + 1, GridSize.y + 1];
         
         //generates the base grid tiles, adds them to an array that refrences the grid with an x/y position, technically 0,y and x,0 are valid, but nothing is held in them, 0,0 is used as "unselected space"
@@ -51,6 +52,8 @@ public class GridManager : MonoBehaviour
         {
             for (int j = 1; j <= GridSize.y; j++)
             {
+
+                //generates walls (WIP)
                 if (i == 6 && j <= 5)
                 {
                     GameObject curObj = Instantiate(genericWall, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
@@ -58,6 +61,7 @@ public class GridManager : MonoBehaviour
                     curObj.transform.parent = _Grid[i,j].transform;
                 }
 
+                //generates guards (WIP)
                 if (i == 10 && j == 3)
                 {
                     GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
@@ -65,6 +69,7 @@ public class GridManager : MonoBehaviour
                     curObj.transform.parent = _Grid[i, j].transform;
                 }
 
+                //Generates the Player
                 if (i == 1 && j == 1)
                 {
                     GameObject curObj = Instantiate(Player, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
@@ -78,9 +83,4 @@ public class GridManager : MonoBehaviour
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -18,24 +18,22 @@ public class FloorTile : MonoBehaviour
     public ObjectManager AttachedObject;
     // Start is called before the first frame update
 
-    void Start()
-    {
-    }
-
     private void OnMouseOver()
     {
         hover = true;
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            //selects this tile if it's not selected (unselects all tiles otherwise)
             if (manager.selectTile != gridPosition)
             {
+                //checks if an object was selected
                 if (manager.selectObject != null)
                 {
+                    //checks if selected object was a player
                     if (manager.selectObject.gameObject.tag == "Player")
                     {
-
-                        print(MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) + " = Distance");
+                        //moves the player depending on their assigned movement speed, asigning them to this tile
                         if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementSpeed)
                         {
                             AttachedObject = manager.selectObject;
@@ -59,6 +57,7 @@ public class FloorTile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //if this tile is selected, it holds hover and changes the selected object in the manager
         if (manager.selectTile == gridPosition)
         {
             hover = true;
