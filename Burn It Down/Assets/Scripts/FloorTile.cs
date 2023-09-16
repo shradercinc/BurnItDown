@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FloorTile : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class FloorTile : MonoBehaviour
     private bool hover = false;
     private float baseHeight = 0;
     public GridManager manager;
+    public ObjectManager AttachedObject;
     // Start is called before the first frame update
 
     void Start()
@@ -28,11 +30,26 @@ public class FloorTile : MonoBehaviour
         {
             if (manager.selectTile != gridPosition)
             {
+                if (manager.selectObject != null)
+                {
+                    if (manager.selectObject.gameObject.tag == "Player")
+                    {
+
+                        print(MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) + " = Distance");
+                        if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementSpeed)
+                        {
+                            AttachedObject = manager.selectObject;
+                            manager._Grid[manager.selectTile.x, manager.selectTile.y].AttachedObject = null;
+                            AttachedObject.transform.parent = transform;
+                            AttachedObject.transform.position = new Vector3(gridPosition.x * manager.tileSize, transform.position.y + manager.tileSize, gridPosition.y * -manager.tileSize);
+                        }
+                    }
+                }
                 manager.selectTile = gridPosition;
             }
             else
             {
-                manager.selectTile = new Vector2Int(-1, -1);
+                manager.selectTile = new Vector2Int(0, 0);
             }
 
         }
@@ -44,7 +61,8 @@ public class FloorTile : MonoBehaviour
     {
         if (manager.selectTile == gridPosition)
         {
-            hover = true;      
+            hover = true;
+            manager.selectObject = AttachedObject;
         }
 
         if (!hover)

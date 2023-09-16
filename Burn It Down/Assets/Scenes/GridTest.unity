@@ -155,9 +155,11 @@ MonoBehaviour:
   GridSize: {x: 10, y: 10}
   tileSize: 2
   baseTileLayer: 0
-  selectTile: {x: -1, y: -1}
   genericTile: {fileID: 1157966813980953125, guid: 326b9884342bb1f4a89b23d2968d4b40, type: 3}
   genericWall: {fileID: 5435767722022169398, guid: d1f9e64129c5e424fa5d19af0cabfc29, type: 3}
+  genericGuard: {fileID: 8678127380909550091, guid: 0e49f54560729b942be2e6a5fd8df1c3, type: 3}
+  Player: {fileID: 2390432162337819310, guid: 4fa8031e4ab8e6e4e9c3fa883cad7be3, type: 3}
+  selectTile: {x: 0, y: 0}
 --- !u!4 &123471394
 Transform:
   m_ObjectHideFlags: 0
