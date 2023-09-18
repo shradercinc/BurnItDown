@@ -7,11 +7,11 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
-    [SerializeField] Vector2Int GridSize = new Vector2Int(10,10);
+    [SerializeField] Vector2Int GridSize = new Vector2Int(10, 10);
     public FloorTile[,] _Grid;
     [SerializeField] public float tileSize = 2;
     [SerializeField] float baseTileLayer = 0;
-    
+
     [Space(5)]
 
     [Header("Summonable Objects")]
@@ -32,13 +32,13 @@ public class GridManager : MonoBehaviour
     {
         //creates the base grid, note that all 0 slots are empty to make it easier to reference
         _Grid = new FloorTile[GridSize.x + 1, GridSize.y + 1];
-        
+
         //generates the base grid tiles, adds them to an array that refrences the grid with an x/y position, technically 0,y and x,0 are valid, but nothing is held in them, 0,0 is used as "unselected space"
-        for(int i = 1; i <= GridSize.x; i++)
+        for (int i = 1; i <= GridSize.x; i++)
         {
             for (int j = 1; j <= GridSize.y; j++)
             {
-                GameObject curTile = Instantiate(genericTile, new Vector3(i * tileSize,baseTileLayer,j * -tileSize) ,Quaternion.identity);
+                GameObject curTile = Instantiate(genericTile, new Vector3(i * tileSize, baseTileLayer, j * -tileSize), Quaternion.identity);
                 FloorTile curFloorScript = curTile.GetComponent<FloorTile>();
                 curFloorScript.gridPosition = new Vector2Int(i, j);
                 curFloorScript.manager = this;
@@ -58,9 +58,10 @@ public class GridManager : MonoBehaviour
                 {
                     GameObject curObj = Instantiate(genericWall, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
                     ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
-                    curObj.transform.parent = _Grid[i,j].transform;
+                    curObj.transform.parent = _Grid[i, j].transform;
                     _Grid[i, j].AttachedObject = curObjManager;
                     curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
+                    curObjManager.manager = this;
                 }
 
                 //generates guards (WIP)
@@ -71,6 +72,7 @@ public class GridManager : MonoBehaviour
                     curObj.transform.parent = _Grid[i, j].transform;
                     _Grid[i, j].AttachedObject = curObjManager;
                     curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
+                    curObjManager.manager = this;
                 }
 
                 //Generates the Player
@@ -81,9 +83,32 @@ public class GridManager : MonoBehaviour
                     curObj.transform.parent = _Grid[i, j].transform;
                     _Grid[i, j].AttachedObject = curObjManager;
                     curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
+                    curObjManager.manager = this;
                 }
             }
         }
+
+    }
+
+    public void endTurn()
+    {
+        for (int i = 1; i <= GridSize.x; i++)
+        {
+            for (int j = 1; j <= GridSize.y; j++)
+            {
+                if (_Grid[i, j].AttachedObject != null)
+                {
+                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Enemy")
+                    {
+                        _Grid[i, j].AttachedObject.enemyEndTurn();
+                    }
+                }
+            }
+        }
+    }
+
+    public void endRound()
+    {
 
     }
 

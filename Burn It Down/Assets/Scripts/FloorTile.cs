@@ -74,7 +74,7 @@ public class FloorTile : MonoBehaviour
                                     if (direction.y > 0)
                                     {
                                         checkSpace.y += 1;
-                                        if (manager._Grid[checkSpace.y, checkSpace.y].AttachedObject != null)
+                                        if (manager._Grid[checkSpace.x, checkSpace.y].AttachedObject != null)
                                         {
                                             blocked = true;
                                         }
@@ -82,7 +82,7 @@ public class FloorTile : MonoBehaviour
                                     if (direction.y < 0)
                                     {
                                         checkSpace.y -= 1;
-                                        if (manager._Grid[checkSpace.y, checkSpace.y].AttachedObject != null)
+                                        if (manager._Grid[checkSpace.x, checkSpace.y].AttachedObject != null)
                                         {
                                             blocked = true;
                                         }
@@ -100,6 +100,7 @@ public class FloorTile : MonoBehaviour
                                 AttachedObject.transform.parent = transform;
                                 AttachedObject.transform.position = new Vector3(gridPosition.x * manager.tileSize, transform.position.y + manager.tileSize, gridPosition.y * -manager.tileSize);
                                 action = true;
+                                manager.endTurn();
                             }
 
                         }
@@ -108,6 +109,7 @@ public class FloorTile : MonoBehaviour
                 if (!action)
                 {
                     manager.selectTile = gridPosition;
+                    manager.endTurn();
                 }
                 else
                 {
