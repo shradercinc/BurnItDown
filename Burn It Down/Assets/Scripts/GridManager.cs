@@ -59,6 +59,8 @@ public class GridManager : MonoBehaviour
                     GameObject curObj = Instantiate(genericWall, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
                     ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
                     curObj.transform.parent = _Grid[i,j].transform;
+                    _Grid[i, j].AttachedObject = curObjManager;
+                    curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
                 }
 
                 //generates guards (WIP)
@@ -67,6 +69,8 @@ public class GridManager : MonoBehaviour
                     GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
                     ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
                     curObj.transform.parent = _Grid[i, j].transform;
+                    _Grid[i, j].AttachedObject = curObjManager;
+                    curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
                 }
 
                 //Generates the Player

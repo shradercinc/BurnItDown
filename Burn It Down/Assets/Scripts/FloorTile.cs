@@ -20,6 +20,7 @@ public class FloorTile : MonoBehaviour
 
     private void OnMouseOver()
     {
+        bool action = false;
         hover = true;
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -33,17 +34,86 @@ public class FloorTile : MonoBehaviour
                     //checks if selected object was a player
                     if (manager.selectObject.gameObject.tag == "Player")
                     {
+                        print(AttachedObject);
                         //moves the player depending on their assigned movement speed, asigning them to this tile
-                        if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementSpeed)
+                        if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementSpeed && AttachedObject == null)
                         {
-                            AttachedObject = manager.selectObject;
-                            manager._Grid[manager.selectTile.x, manager.selectTile.y].AttachedObject = null;
-                            AttachedObject.transform.parent = transform;
-                            AttachedObject.transform.position = new Vector3(gridPosition.x * manager.tileSize, transform.position.y + manager.tileSize, gridPosition.y * -manager.tileSize);
+                            Vector2Int direction = new Vector2Int(gridPosition.x - manager.selectTile.x, gridPosition.y - manager.selectTile.y);
+                            Vector2Int checkSpace = manager.selectTile;
+                            bool blocked = false;
+                            print("New direction" + direction);
+
+                            //loops through all the spaces you would move through to get to the new location
+                            while (direction != new Vector2(0, 0))
+                            {
+                                //print("current checkspace " + checkSpace);
+                                if (direction.x != 0)
+                                {
+                                    if (direction.x > 0)
+                                    {
+                                        checkSpace.x += 1;
+                                        if (manager._Grid[checkSpace.x, checkSpace.y].AttachedObject != null)
+                                        {
+                                            blocked = true;
+                                        }
+                                    }
+                                    if (direction.x < 0)
+                                    {
+                                        checkSpace.x -= 1;
+                                        if (manager._Grid[checkSpace.x, checkSpace.y].AttachedObject != null)
+                                        {
+                                            blocked = true;
+                                        }
+                                    }
+                                    direction.x -= (int)Mathf.Sign(direction.x);
+                                    print("new direction " + direction);
+                                }
+
+                                if (direction.y != 0)
+                                {
+                                    if (direction.y > 0)
+                                    {
+                                        checkSpace.y += 1;
+                                        if (manager._Grid[checkSpace.y, checkSpace.y].AttachedObject != null)
+                                        {
+                                            blocked = true;
+                                        }
+                                    }
+                                    if (direction.y < 0)
+                                    {
+                                        checkSpace.y -= 1;
+                                        if (manager._Grid[checkSpace.y, checkSpace.y].AttachedObject != null)
+                                        {
+                                            blocked = true;
+                                        }
+                                    }
+                                    direction.y -= (int)Mathf.Sign(direction.y);
+                                    print("new direction " + direction);
+                                }
+
+
+                            }
+                            if (!blocked)
+                            {
+                                AttachedObject = manager.selectObject;
+                                manager._Grid[manager.selectTile.x, manager.selectTile.y].AttachedObject = null;
+                                AttachedObject.transform.parent = transform;
+                                AttachedObject.transform.position = new Vector3(gridPosition.x * manager.tileSize, transform.position.y + manager.tileSize, gridPosition.y * -manager.tileSize);
+                                action = true;
+                            }
+
                         }
                     }
                 }
-                manager.selectTile = gridPosition;
+                if (!action)
+                {
+                    manager.selectTile = gridPosition;
+                }
+                else
+                {
+                    manager.selectTile = new Vector2Int(0, 0);
+                }
+
             }
             else
             {
