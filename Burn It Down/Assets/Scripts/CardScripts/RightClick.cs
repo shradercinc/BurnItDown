@@ -8,11 +8,22 @@ public class RightClick : MonoBehaviour
 {
     public static RightClick instance;
     public Image bigImage;
-    public TMP_Text cardText;
+
+    public TMP_Text cardName;
+    public TMP_Text cardCost;
+    public TMP_Text cardDescr;
 
     private void Awake()
     {
-        instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            this.transform.GetChild(0).gameObject.SetActive(false);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
     }
 
     private void Update()
@@ -23,8 +34,12 @@ public class RightClick : MonoBehaviour
 
     public void ChangeCard(Card newCard)
     {
+        Debug.Log(newCard.name);
         this.transform.GetChild(0).gameObject.SetActive(true);
         bigImage = newCard.image;
-        cardText = newCard.textBox;
+
+        this.cardName.text = newCard.textName.text;
+        this.cardCost.text = newCard.textCost.text;
+        this.cardDescr.text = newCard.textDescr.text;
     }
 }

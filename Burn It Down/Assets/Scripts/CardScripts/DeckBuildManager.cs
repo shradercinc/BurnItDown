@@ -13,6 +13,7 @@ public class DeckBuildManager : MonoBehaviour
 
     private void Start()
     {
+        RightClick.instance.transform.SetParent(this.transform.parent);
         StartCoroutine(Setup());
     }
 
@@ -40,7 +41,7 @@ public class DeckBuildManager : MonoBehaviour
 
     IEnumerator Setup()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
 
         //take all cards and put them on the bottom
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)

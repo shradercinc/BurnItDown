@@ -14,6 +14,7 @@ public class SaveData
 {
     public List<Card> savedDeck; //the cards you've chosen for each level
     public List<Card> unlockedCards; //cards that you unlock during the game
+    public List<Card> burnedCards; //cards that have been burned away
 
     public SaveData()
     {
@@ -47,6 +48,9 @@ public class SaveManager : MonoBehaviour
 
         for (int i = 0; i < newSaveData.unlockedCards.Count; i++) //enable all unlocked cards
             newSaveData.unlockedCards[i].gameObject.SetActive(true);
+
+        for (int i = 0; i < newSaveData.burnedCards.Count; i++) //disable all burnt cards
+            newSaveData.burnedCards[i].gameObject.SetActive(false);
     }
 
     public void SaveDeck(List<Card> deckToSave)

@@ -9,7 +9,14 @@ public class Card : MonoBehaviour, IPointerClickHandler
 {
     [HideInInspector] public Image image;
     [HideInInspector] public SendChoice choiceScript;
-    [HideInInspector] public TMP_Text textBox;
+
+    [HideInInspector] public int energyCost;
+    public enum CardType { Violent, NonViolent};
+    [HideInInspector] public CardType thisType;
+
+    [HideInInspector] public TMP_Text textName;
+    [HideInInspector] public TMP_Text textCost;
+    [HideInInspector] public TMP_Text textDescr;
 
     private void Start()
     {
@@ -19,7 +26,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
             SaveManager.instance.allCards.Add(this);
             image = GetComponent<Image>();
             choiceScript = GetComponent<SendChoice>();
-            textBox = this.transform.GetChild(1).GetComponent<TMP_Text>();
+
+            textName = this.transform.GetChild(1).GetComponent<TMP_Text>();
+            textCost = this.transform.GetChild(2).GetComponent<TMP_Text>();
+            textDescr = this.transform.GetChild(3).GetComponent<TMP_Text>();
+
+            Setup();
         }
         else
         {
@@ -27,11 +39,21 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public virtual void Setup()
+    {
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
+            Debug.Log("right clicked");
             RightClick.instance.ChangeCard(this);
         }
+    }
+
+    public virtual IEnumerator PlayEffect()
+    {
+        yield return null;
     }
 }

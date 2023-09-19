@@ -15,6 +15,9 @@ public class LoadScene : MonoBehaviour
             DontDestroyOnLoad(SaveManager.instance.allCards[i].gameObject);
         }
 
+        RightClick.instance.transform.SetParent(null);
+        DontDestroyOnLoad(RightClick.instance);
+
         SceneManager.LoadScene(n);
     }
 }
