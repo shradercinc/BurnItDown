@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GridManager : MonoBehaviour
-{
+{ 
     [Header("Grid Settings")]
     //controls the grid size with x,y length (1-10 instead of 0-10)
     [SerializeField] public Vector2Int GridSize = new Vector2Int(10, 10);
@@ -39,12 +40,17 @@ public class GridManager : MonoBehaviour
     public int Turn = 1;
     //checks to make sure enemies arn't still taking their turn before swapping back to player control
     public float enemiesActive = 0;
+    Button endRoundButton;
 
-
+    private void Awake()
+    {
+        endRoundButton = GameObject.Find("End Round Button").GetComponent<Button>();
+        endRoundButton.onClick.AddListener(endRound);
+    }
 
     void Start()
     {
-        //creates the base grid, note that all 0 slots are empty to make it easier to reference
+        endRoundButton.gameObject.SetActive(true);
         _Grid = new FloorTile[GridSize.x + 1, GridSize.y + 1];
 
         //generates the base grid tiles, adds them to an array that refrences the grid with an x/y position, technically 0,y and x,0 are valid, but nothing is held in them, 0,0 is used as "unselected space"
@@ -113,12 +119,15 @@ public class GridManager : MonoBehaviour
             if (enemiesActive == 0)
             {
                 Turn = 1;
+                endRoundButton.gameObject.SetActive(true);
             }
         }
     }
 
     public void endTurn()
     {
+        endRoundButton.gameObject.SetActive(false);
+
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         Turn = 2;
         for (int i = 1; i <= GridSize.x; i++)
@@ -139,6 +148,9 @@ public class GridManager : MonoBehaviour
 
     public void endRound()
     {
+        TurnManager.instance.ChangeEnergy(3 - (int)TurnManager.instance.energyBar.value);
+        endRoundButton.gameObject.SetActive(false);
+
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         Turn = 2;
         for (int i = 1; i <= GridSize.x; i++)

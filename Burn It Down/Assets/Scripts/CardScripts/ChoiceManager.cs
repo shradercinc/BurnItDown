@@ -47,16 +47,17 @@ public class ChoiceManager : MonoBehaviour
             yield return null;
     }
 
-    public IEnumerator ChooseCard(List<Card> choices)
+    public void ChooseCard(List<Card> choices)
     {
         //turn on all buttons that can be pressed
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.EnableButton(true);
+    }
 
-        yield return WaitForDecision();
-
-        //turn off all buttons
-        for (int i = 0; i < choices.Count; i++)
-            choices[i].choiceScript.DisableButton();
+    public void DisableCards()
+    {
+        //turn off all cards
+        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
+            SaveManager.instance.allCards[i].choiceScript.DisableButton();
     }
 }
