@@ -10,7 +10,7 @@ public class Dash : Card
         textName.text = "Dash";
         energyCost = 0;
         textCost.text = $"{energyCost} Energy";
-        textDescr.text = "You can move 3 more spots this round.";
+        textDescr.text = "Gain +3 movement this turn.";
         thisType = CardType.NonViolent;
     }
 

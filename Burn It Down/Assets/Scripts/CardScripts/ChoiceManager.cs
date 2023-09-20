@@ -36,15 +36,8 @@ public class ChoiceManager : MonoBehaviour
 
     public void ReceiveChoice(Card chosenCard)
     {
+        Debug.Log($"chosen {chosenCard.name}");
         this.chosenCard = chosenCard;
-    }
-
-    public IEnumerator WaitForDecision()
-    {
-        //waits until you choose a card
-        chosenCard = null;
-        while (chosenCard == null)
-            yield return null;
     }
 
     public void ChooseCard(List<Card> choices)

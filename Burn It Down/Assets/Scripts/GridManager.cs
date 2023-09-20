@@ -141,7 +141,6 @@ public class GridManager : MonoBehaviour
     public void endTurn()
     {
         endRoundButton.gameObject.SetActive(false);
-        TurnManager.instance.StopAllCoroutines();
         ChoiceManager.instance.DisableCards();
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously

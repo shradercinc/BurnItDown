@@ -120,3 +120,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentGrid: {x: 0, y: 0}
   movementSpeed: 3
+  movementPoints: 0
+  movePauseTime: 0.5
+  patrol: 0
+  manager: {fileID: 0}
+  direction: {x: -1, y: 0}
