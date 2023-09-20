@@ -139,7 +139,27 @@ public class GridManager : MonoBehaviour
 
     public void endRound()
     {
+        //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
+        Turn = 2;
+        for (int i = 1; i <= GridSize.x; i++)
+        {
+            for (int j = 1; j <= GridSize.y; j++)
+            {
+                if (_Grid[i, j].AttachedObject != null)
+                {
+                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Player")
+                    {
+                        _Grid[i, j].AttachedObject.movementPoints = _Grid[i, j].AttachedObject.movementSpeed;
 
+                    }
+                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Enemy")
+                    {
+                        enemiesActive++;
+                        _Grid[i, j].AttachedObject.enemyEndTurn();
+                    }
+                }
+            }
+        }
     }
 
 }
