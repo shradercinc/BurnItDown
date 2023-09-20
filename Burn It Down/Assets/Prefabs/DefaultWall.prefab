@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 525753170708258711}
   m_Layer: 2
   m_Name: DefaultWall
-  m_TagString: Environmental
+  m_TagString: Wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,3 +125,5 @@ MonoBehaviour:
   patrol: 0
   manager: {fileID: 0}
   direction: {x: -1, y: 0}
+  DetectionRangePatrol: 3
+  stunned: 0

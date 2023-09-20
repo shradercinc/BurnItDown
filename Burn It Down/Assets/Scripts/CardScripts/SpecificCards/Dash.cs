@@ -14,6 +14,11 @@ public class Dash : Card
         thisType = CardType.NonViolent;
     }
 
+    public override bool CanPlay()
+    {
+        return TurnManager.instance.energyBar.value >= energyCost;
+    }
+
     public override IEnumerator PlayEffect()
     {
         GridManager.instance.Player1.movementPoints += 3;
