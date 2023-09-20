@@ -45,7 +45,7 @@ public class GridManager : MonoBehaviour
 
     private void Awake()
     {
-        instance = this 
+        instance = this;
         endRoundButton = GameObject.Find("End Round Button").GetComponent<Button>();
         endRoundButton.onClick.AddListener(endRound);
     }
