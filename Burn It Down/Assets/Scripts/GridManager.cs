@@ -150,7 +150,7 @@ public class GridManager : MonoBehaviour
 
     public void endRound()
     {
-        TurnManager.instance.ChangeEnergy(3 - (int)TurnManager.instance.energyBar.value);
+        TurnManager.instance.ChangeEnergy(3);
         endRoundButton.gameObject.SetActive(false);
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
