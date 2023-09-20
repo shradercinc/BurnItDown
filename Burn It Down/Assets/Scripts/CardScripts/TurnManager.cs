@@ -63,6 +63,7 @@ public class TurnManager : MonoBehaviour
 
         deck.Shuffle(); //shuffle that deck
         ChangeHealth(3);
+        ChangeEnergy(3);
     }
 
     public IEnumerator CanPlayCard()
@@ -97,7 +98,7 @@ public class TurnManager : MonoBehaviour
 
     public void ChangeEnergy(int n)
     {
-        currentEnergy += n;
+        currentEnergy = n;
         energyText.text = $"Energy: {currentEnergy}";
         energyBar.value = currentEnergy;
     }
