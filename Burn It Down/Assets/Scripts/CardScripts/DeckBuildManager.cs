@@ -59,7 +59,9 @@ public class DeckBuildManager : MonoBehaviour
 
     IEnumerator SwapCards()
     {
-        yield return ChoiceManager.instance.ChooseCard(SaveManager.instance.allCards);
+        ChoiceManager.instance.ChooseCard(SaveManager.instance.allCards);
+        while (ChoiceManager.instance.chosenCard == null)
+            yield return null;
 
         //swap cards between your deck and collection
         if (ChoiceManager.instance.chosenCard.transform.parent == yourDeck)
