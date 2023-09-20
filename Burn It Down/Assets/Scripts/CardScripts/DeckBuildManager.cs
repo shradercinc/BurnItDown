@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class DeckBuildManager : MonoBehaviour
 {
+    List<Card> cardsInHand = new List<Card>();
     List<Card> cardsInDeck = new List<Card>();
-    List<Card> cardsInCollector = new List<Card>();
 
+    public RectTransform yourHand;
     public RectTransform yourDeck;
-    public RectTransform yourCollection;
 
     private void Start()
     {
@@ -17,26 +17,29 @@ public class DeckBuildManager : MonoBehaviour
         StartCoroutine(Setup());
     }
 
-    public void AddToDeck(Card newCard, bool save)
+    public void AddToHand(Card newCard, bool save)
     {
-        //put that card on the top row
-        cardsInCollector.Remove(newCard);
+        if (cardsInHand.Count < 5)
+        {
+            //put that card on the top row
+            cardsInDeck.Remove(newCard);
+            cardsInHand.Add(newCard);
+            newCard.transform.SetParent(yourHand);
+
+            if (save)
+                SaveManager.instance.SaveHand(cardsInHand);
+        }
+    }
+
+    public void RemoveFromHand(Card newCard, bool save)
+    {
+        //put that card on the bottom row
+        cardsInHand.Remove(newCard);
         cardsInDeck.Add(newCard);
         newCard.transform.SetParent(yourDeck);
 
         if (save)
-            SaveManager.instance.SaveDeck(cardsInDeck);
-    }
-
-    public void RemoveFromDeck(Card newCard, bool save)
-    {
-        //put that card on the bottom row
-        cardsInDeck.Remove(newCard);
-        cardsInCollector.Add(newCard);
-        newCard.transform.SetParent(yourCollection);
-
-        if (save)
-            SaveManager.instance.SaveDeck(cardsInDeck);
+            SaveManager.instance.SaveHand(cardsInHand);
     }
 
     IEnumerator Setup()
@@ -45,11 +48,11 @@ public class DeckBuildManager : MonoBehaviour
 
         //take all cards and put them on the bottom
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            RemoveFromDeck(SaveManager.instance.allCards[i], false);
+            RemoveFromHand(SaveManager.instance.allCards[i], false);
 
         //take all cards already saved in your deck and put them on the top
-        for (int i = 0; i < SaveManager.instance.newSaveData.savedDeck.Count; i++)
-            AddToDeck(SaveManager.instance.newSaveData.savedDeck[i], false);
+        for (int i = 0; i < SaveManager.instance.newSaveData.startingHand.Count; i++)
+            AddToHand(SaveManager.instance.newSaveData.startingHand[i], false);
 
         StartCoroutine(SwapCards());
     }
@@ -60,9 +63,9 @@ public class DeckBuildManager : MonoBehaviour
 
         //swap cards between your deck and collection
         if (ChoiceManager.instance.chosenCard.transform.parent == yourDeck)
-            RemoveFromDeck(ChoiceManager.instance.chosenCard, true);
+            AddToHand(ChoiceManager.instance.chosenCard, true);
         else
-            AddToDeck(ChoiceManager.instance.chosenCard, true);
+            RemoveFromHand(ChoiceManager.instance.chosenCard, true);
 
         yield return SwapCards();
     }

@@ -12,7 +12,7 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
-    public List<Card> savedDeck; //the cards you've chosen for each level
+    public List<Card> startingHand; //the cards you've chosen for each level
     public List<Card> unlockedCards; //cards that you unlock during the game
     public List<Card> burnedCards; //cards that have been burned away
 
@@ -53,11 +53,11 @@ public class SaveManager : MonoBehaviour
             newSaveData.burnedCards[i].gameObject.SetActive(false);
     }
 
-    public void SaveDeck(List<Card> deckToSave)
+    public void SaveHand(List<Card> deckToSave)
     {
         //save the new cards for your deck
         List<Card> newCards = deckToSave;
-        newSaveData.savedDeck = newCards;
+        newSaveData.startingHand = newCards;
         ES3.Save("saveData", newSaveData);
     }
 }

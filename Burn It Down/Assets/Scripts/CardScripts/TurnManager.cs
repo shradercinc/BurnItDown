@@ -19,7 +19,7 @@ public class TurnManager : MonoBehaviour
 
     Slider healthBar;
     TMP_Text healthText;
-    Slider energyBar;
+    [HideInInspector] public Slider energyBar;
     TMP_Text energyText;
 
     public TMP_Text gameOverText;
@@ -46,13 +46,19 @@ public class TurnManager : MonoBehaviour
         //since the right click script is under dontdestroyonload, we have to bring it back to the canvas
         RightClick.instance.transform.SetParent(this.transform.parent);
 
-        //get the cards you added to your deck
-        for (int i = 0; i < SaveManager.instance.newSaveData.savedDeck.Count; i++)
+        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
         {
-            Card nextCard = SaveManager.instance.newSaveData.savedDeck[i];
-            nextCard.choiceScript.DisableButton();
+            Card nextCard = SaveManager.instance.allCards[i];
             nextCard.transform.SetParent(deck);
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
+        }
+
+        //get the cards you added to your deck
+        for (int i = 0; i < SaveManager.instance.newSaveData.startingHand.Count; i++)
+        {
+            Card nextCard = SaveManager.instance.newSaveData.startingHand[i];
+            nextCard.choiceScript.DisableButton();
+            AddCardToHand(nextCard);
         }
 
         deck.Shuffle(); //shuffle that deck
@@ -63,11 +69,11 @@ public class TurnManager : MonoBehaviour
     IEnumerator TakeTurn()
     {
         yield return null;
-        DrawCards(5 - listOfHand.Count);
         ChangeEnergy((int)energyBar.maxValue - currentEnergy);
 
         //yield return ChoiceManager.instance.ChooseCard(listOfHand);
         //DiscardCard(ChoiceManager.instance.chosenCard);
+        DrawCards(5 - listOfHand.Count);
     }
 
     public void ChangeHealth(int n)
