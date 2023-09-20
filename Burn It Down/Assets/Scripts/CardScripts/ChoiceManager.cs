@@ -49,6 +49,7 @@ public class ChoiceManager : MonoBehaviour
 
     public void ChooseCard(List<Card> choices)
     {
+        chosenCard = null;
         //turn on all buttons that can be pressed
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.EnableButton(true);

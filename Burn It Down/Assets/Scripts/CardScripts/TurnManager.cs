@@ -65,7 +65,7 @@ public class TurnManager : MonoBehaviour
         ChangeHealth(3);
     }
 
-    public void CanPlayCard()
+    public IEnumerator CanPlayCard()
     {
         List<Card> canBePlayed = new List<Card>();
         for (int i = 0; i<listOfHand.Count; i++)
@@ -74,6 +74,9 @@ public class TurnManager : MonoBehaviour
                 canBePlayed.Add(listOfHand[i]);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
+        while (ChoiceManager.instance.chosenCard == null)
+            yield return null;
+        yield return PlayCard(ChoiceManager.instance.chosenCard);
     }
 
     public IEnumerator PlayCard(Card playMe)
