@@ -126,4 +126,13 @@ public class ObjectManager : MonoBehaviour
         }
 
     }
+
+    private void Update()
+    {
+        if (gameObject.tag == "Enemy")
+        {
+            
+        }
+    }
+
 }

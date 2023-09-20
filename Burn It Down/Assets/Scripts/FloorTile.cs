@@ -36,7 +36,7 @@ public class FloorTile : MonoBehaviour
                     {
                         print(AttachedObject);
                         //moves the player depending on their assigned movement speed, asigning them to this tile
-                        if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementSpeed && AttachedObject == null)
+                        if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementPoints && AttachedObject == null)
                         {
                             Vector2Int direction = new Vector2Int(gridPosition.x - manager.selectTile.x, gridPosition.y - manager.selectTile.y);
                             Vector2Int checkSpace = manager.selectTile;
@@ -100,7 +100,9 @@ public class FloorTile : MonoBehaviour
                                 AttachedObject.transform.parent = transform;
                                 AttachedObject.transform.position = new Vector3(gridPosition.x * manager.tileSize, transform.position.y + manager.tileSize, gridPosition.y * -manager.tileSize);
                                 action = true;
+                                AttachedObject.movementPoints -= MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y);
                                 manager.endTurn();
+
                             }
 
                         }

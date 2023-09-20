@@ -26,6 +26,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] GameObject genericWall;
     [SerializeField] GameObject genericGuard;
     [SerializeField] GameObject Player;
+    public ObjectManager Player1;
 
     [Space(5)]
 
@@ -107,6 +108,8 @@ public class GridManager : MonoBehaviour
                     _Grid[i, j].AttachedObject = curObjManager;
                     curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
                     curObjManager.manager = this;
+                    curObjManager.movementPoints = curObjManager.movementSpeed;
+                    Player1 = curObjManager;
                 }
             }
         }
