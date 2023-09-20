@@ -6,7 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GridManager : MonoBehaviour
-{ 
+{
+    public static GridManager instance;
     [Header("Grid Settings")]
     //controls the grid size with x,y length (1-10 instead of 0-10)
     [SerializeField] public Vector2Int GridSize = new Vector2Int(10, 10);
@@ -44,6 +45,7 @@ public class GridManager : MonoBehaviour
 
     private void Awake()
     {
+        instance = this 
         endRoundButton = GameObject.Find("End Round Button").GetComponent<Button>();
         endRoundButton.onClick.AddListener(endRound);
     }

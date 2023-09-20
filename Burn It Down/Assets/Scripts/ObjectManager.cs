@@ -44,8 +44,8 @@ public class ObjectManager : MonoBehaviour
         bool validSpace = true;
         bool trapped = false;
         //checking to see that the tile it wants to move onto is A) within the map and B) not a wall
-        if (CurrentGrid.x + direction.x > 0 && CurrentGrid.x + direction.x < manager.GridSize.x &&
-            CurrentGrid.y + direction.y > 0 && CurrentGrid.y + direction.y < manager.GridSize.y)
+        if (CurrentGrid.x + direction.x > 0 && CurrentGrid.x + direction.x < manager.GridSize.x + 1 &&
+            CurrentGrid.y + direction.y > 0 && CurrentGrid.y + direction.y < manager.GridSize.y + 1)
         {
             if (manager._Grid[CurrentGrid.x + direction.x, CurrentGrid.y + direction.y].AttachedObject != null)
             {
@@ -82,9 +82,7 @@ public class ObjectManager : MonoBehaviour
         else //if not a valid space ahead
         {
             //flips the guard 180 degrees
-            int storeX = direction.x;
-            direction.x = -direction.y;
-            direction.y = -storeX;
+            direction = -direction;
 
             //checks to make sure the guard isn't trapped
             if (CurrentGrid.x + direction.x > 0 && CurrentGrid.x + direction.x < manager.GridSize.x &&
