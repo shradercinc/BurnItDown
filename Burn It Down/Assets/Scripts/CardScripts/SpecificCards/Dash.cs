@@ -10,7 +10,13 @@ public class Dash : Card
         textName.text = "Dash";
         energyCost = 0;
         textCost.text = $"{energyCost} Energy";
-        textDescr.text = "When you move this turn, you can move 3 more spots.";
+        textDescr.text = "Gain +3 movement this turn.";
         thisType = CardType.NonViolent;
+    }
+
+    public override IEnumerator PlayEffect()
+    {
+        GridManager.instance.Player1.movementPoints += 3;
+        yield return null;
     }
 }

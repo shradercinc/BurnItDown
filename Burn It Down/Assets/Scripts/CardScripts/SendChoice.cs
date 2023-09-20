@@ -40,7 +40,6 @@ public class SendChoice : MonoBehaviour
     public void SendName()
     {
         //give choice manager the card this has
-        Debug.Log($"you chose {this.name}");
         if (myCard != null)
             ChoiceManager.instance.ReceiveChoice(myCard);
     }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GridManager : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] GameObject genericGuard;
     [SerializeField] GameObject Player;
     public ObjectManager Player1;
+    Slider movementBar;
+    TMP_Text movementText;
 
     [Space(5)]
 
@@ -49,6 +52,8 @@ public class GridManager : MonoBehaviour
         instance = this;
         endRoundButton = GameObject.Find("End Round Button").GetComponent<Button>();
         endRoundButton.onClick.AddListener(endRound);
+        movementBar = GameObject.Find("Movement Slider").GetComponent<Slider>();
+        movementText = movementBar.transform.GetChild(2).GetComponent<TMP_Text>();
     }
 
     void Start()
@@ -118,6 +123,9 @@ public class GridManager : MonoBehaviour
 
     private void Update()
     {
+        movementText.text = $"Movement: {Player1.movementPoints}";
+        movementBar.value = Player1.movementPoints;
+
         //checks to make sure all the enemies are done before switching back to player control
         if (Turn == 2)
         {
@@ -125,6 +133,7 @@ public class GridManager : MonoBehaviour
             {
                 Turn = 1;
                 endRoundButton.gameObject.SetActive(true);
+                StartCoroutine(TurnManager.instance.CanPlayCard());
             }
         }
     }
@@ -132,6 +141,7 @@ public class GridManager : MonoBehaviour
     public void endTurn()
     {
         endRoundButton.gameObject.SetActive(false);
+        ChoiceManager.instance.DisableCards();
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         Turn = 2;
@@ -154,29 +164,8 @@ public class GridManager : MonoBehaviour
     public void endRound()
     {
         TurnManager.instance.ChangeEnergy(3);
-        endRoundButton.gameObject.SetActive(false);
-
-        //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
-        Turn = 2;
-        for (int i = 1; i <= GridSize.x; i++)
-        {
-            for (int j = 1; j <= GridSize.y; j++)
-            {
-                if (_Grid[i, j].AttachedObject != null)
-                {
-                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Player")
-                    {
-                        _Grid[i, j].AttachedObject.movementPoints = _Grid[i, j].AttachedObject.movementSpeed;
-
-                    }
-                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Enemy")
-                    {
-                        enemiesActive++;
-                        _Grid[i, j].AttachedObject.enemyEndTurn();
-                    }
-                }
-            }
-        }
+        TurnManager.instance.DrawCards(5 - TurnManager.instance.listOfHand.Count);
+        Player1.movementPoints = Player1.movementSpeed;
+        endTurn();
     }
-
 }

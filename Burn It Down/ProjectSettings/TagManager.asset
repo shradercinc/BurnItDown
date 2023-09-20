@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Environmental
   - Enemy
+  - Wall
   layers:
   - Default
   - TransparentFX
