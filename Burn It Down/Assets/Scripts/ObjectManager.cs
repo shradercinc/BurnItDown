@@ -13,11 +13,14 @@ public class ObjectManager : MonoBehaviour
     public float movementPoints = 0;
     [SerializeField] float movePauseTime = 0.5f;
 
-    public bool patrol;
+    public bool patrol = true;
     public GridManager manager;
     //direction determins the way they'll patrol and the tiles that are highlighted
     //south east = (-1,0),south west = (0,-1),north east = (1,0), North west = (0,1) 
     [SerializeField] Vector2Int direction = new Vector2Int(-1,0);
+
+    [SerializeField] int DetectionRangePatrol = 3;
+    public int stunned = 0;
 
 
 
@@ -27,8 +30,17 @@ public class ObjectManager : MonoBehaviour
     //called at end of a round or turn, only in effect for enemy tagged objects
     public void enemyEndTurn()
     {
-        movementPoints = movementSpeed;
-        StartCoroutine(guardPatrol(movePauseTime));
+        if (stunned == 0)
+        {
+            movementPoints = movementSpeed;
+            StartCoroutine(guardPatrol(movePauseTime));
+        }
+        else
+        {
+            stunned--;
+            manager.enemiesActive--;
+        }
+
     }
 
     IEnumerator guardPatrol(float pauseTimer)
@@ -131,7 +143,24 @@ public class ObjectManager : MonoBehaviour
     {
         if (gameObject.tag == "Enemy")
         {
-            
+            if (patrol && stunned == 0)
+            {
+                for (int i = 1; i == DetectionRangePatrol; i++)
+                {
+                    FloorTile targetGrid = manager._Grid[CurrentGrid.x + (direction.x * i), CurrentGrid.y + (direction.y * i)];
+                    if (targetGrid.AttachedObject == null)
+                    {
+                        targetGrid.underSurveillance = true;
+                    }
+                    else
+                    {
+                        if (targetGrid.AttachedObject.tag == "Environmental")
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 

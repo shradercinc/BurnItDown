@@ -123,3 +123,6 @@ MonoBehaviour:
   climbSpeed: 0.05
   dropSpeed: 0.1
   manager: {fileID: 0}
+  AttachedObject: {fileID: 0}
+  defaultTexture: {fileID: 2100000, guid: ae9e0d7672583e547a9912e912f91e98, type: 2}
+  HazardTexture: {fileID: 2100000, guid: 057681984cc384844b89893c561cd19e, type: 2}

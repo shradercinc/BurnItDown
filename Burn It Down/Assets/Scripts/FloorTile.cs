@@ -16,7 +16,17 @@ public class FloorTile : MonoBehaviour
     private float baseHeight = 0;
     public GridManager manager;
     public ObjectManager AttachedObject;
+
+    [SerializeField] Material defaultTexture;
+    [SerializeField] Material HazardTexture;
+    public bool underSurveillance = false;
+    private Material currentMaterial;
     // Start is called before the first frame update
+
+    private void Awake()
+    {
+       currentMaterial = GetComponent<Material>();
+    }
 
     private void OnMouseOver()
     {
@@ -147,5 +157,14 @@ public class FloorTile : MonoBehaviour
         }
 
         hover = false;
+
+        if (underSurveillance)
+        {
+            currentMaterial = HazardTexture;
+        }
+        else
+        {
+            currentMaterial = defaultTexture;
+        }
     }
 }
