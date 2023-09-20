@@ -64,6 +64,7 @@ public class TurnManager : MonoBehaviour
         deck.Shuffle(); //shuffle that deck
         ChangeHealth(3);
         ChangeEnergy(3);
+        StartCoroutine(TurnManager.instance.CanPlayCard());
     }
 
     public IEnumerator CanPlayCard()
@@ -84,7 +85,7 @@ public class TurnManager : MonoBehaviour
     {
         ChoiceManager.instance.DisableCards();
         DiscardCard(playMe);
-        ChangeEnergy(-playMe.energyCost);
+        ChangeEnergy((int)energyBar.value - playMe.energyCost);
         yield return playMe.PlayEffect();
         GridManager.instance.endTurn();
     }
