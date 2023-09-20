@@ -82,6 +82,7 @@ public class TurnManager : MonoBehaviour
         DiscardCard(playMe);
         ChangeEnergy(-playMe.energyCost);
         yield return playMe.PlayEffect();
+        GridManager.instance.endTurn();
     }
 
     public void ChangeHealth(int n)
