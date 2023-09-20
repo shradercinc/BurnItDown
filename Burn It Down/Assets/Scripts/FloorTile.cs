@@ -28,8 +28,8 @@ public class FloorTile : MonoBehaviour
             //selects this tile if it's not selected (unselects all tiles otherwise)
             if (manager.selectTile != gridPosition)
             {
-                //checks if an object was selected
-                if (manager.selectObject != null)
+                //checks if an object was selected and that it's the player's turn
+                if (manager.selectObject != null && manager.Turn == 1)
                 {
                     //checks if selected object was a player
                     if (manager.selectObject.gameObject.tag == "Player")
@@ -109,7 +109,6 @@ public class FloorTile : MonoBehaviour
                 if (!action)
                 {
                     manager.selectTile = gridPosition;
-                    manager.endTurn();
                 }
                 else
                 {

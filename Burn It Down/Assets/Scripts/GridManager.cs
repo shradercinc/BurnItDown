@@ -7,14 +7,19 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [Header("Grid Settings")]
-    [SerializeField] Vector2Int GridSize = new Vector2Int(10, 10);
+    //controls the grid size with x,y length (1-10 instead of 0-10)
+    [SerializeField] public Vector2Int GridSize = new Vector2Int(10, 10);
+    //grid of all floor tiles for quick reference
     public FloorTile[,] _Grid;
+    //controls the spacing between each tile
     [SerializeField] public float tileSize = 2;
+    //controls how high up the floor tiles are set
     [SerializeField] float baseTileLayer = 0;
 
     [Space(5)]
 
     [Header("Summonable Objects")]
+    //these are generic for hard coading levels, tile is used for the flooring
     [SerializeField] GameObject genericTile;
     [SerializeField] GameObject genericWall;
     [SerializeField] GameObject genericGuard;
@@ -23,8 +28,17 @@ public class GridManager : MonoBehaviour
     [Space(5)]
 
     [Header("Selection Settings")]
+    //checks currently selected tile
     public Vector2Int selectTile = new Vector2Int(0, 0);
+    //quick refrence for the object within select tile
     public ObjectManager selectObject;
+
+
+    [Header("Turn Management")]
+    //in turn, 1 = player, 2 = Enemy, not a bool incase we need more states
+    public int Turn = 1;
+    //checks to make sure enemies arn't still taking their turn before swapping back to player control
+    public float enemiesActive = 0;
 
 
 
@@ -52,8 +66,9 @@ public class GridManager : MonoBehaviour
         {
             for (int j = 1; j <= GridSize.y; j++)
             {
+                //honestly these generation scripts are all the same and could be made into a single void
 
-                //generates walls (WIP)
+                //generates walls
                 if (i == 6 && j <= 5)
                 {
                     GameObject curObj = Instantiate(genericWall, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
@@ -64,7 +79,7 @@ public class GridManager : MonoBehaviour
                     curObjManager.manager = this;
                 }
 
-                //generates guards (WIP)
+                //generates guards
                 if (i == 10 && j == 3)
                 {
                     GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
@@ -90,8 +105,22 @@ public class GridManager : MonoBehaviour
 
     }
 
+    private void Update()
+    {
+        //checks to make sure all the enemies are done before switching back to player control
+        if (Turn == 2)
+        {
+            if (enemiesActive == 0)
+            {
+                Turn = 1;
+            }
+        }
+    }
+
     public void endTurn()
     {
+        //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
+        Turn = 2;
         for (int i = 1; i <= GridSize.x; i++)
         {
             for (int j = 1; j <= GridSize.y; j++)
@@ -100,6 +129,7 @@ public class GridManager : MonoBehaviour
                 {
                     if (_Grid[i, j].AttachedObject.gameObject.tag == "Enemy")
                     {
+                        enemiesActive++;
                         _Grid[i, j].AttachedObject.enemyEndTurn();
                     }
                 }
