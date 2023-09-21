@@ -20,12 +20,12 @@ public class FloorTile : MonoBehaviour
     [SerializeField] Material defaultTexture;
     [SerializeField] Material HazardTexture;
     public bool underSurveillance = false;
-    private Material currentMaterial;
+    private MeshRenderer currentMaterial;
     // Start is called before the first frame update
 
     private void Awake()
     {
-       currentMaterial = GetComponent<Material>();
+        currentMaterial = GetComponent<MeshRenderer>();
     }
 
     private void OnMouseOver()
@@ -160,11 +160,12 @@ public class FloorTile : MonoBehaviour
 
         if (underSurveillance)
         {
-            currentMaterial = HazardTexture;
+            currentMaterial.material = HazardTexture;
         }
         else
         {
-            currentMaterial = defaultTexture;
+            currentMaterial.material = defaultTexture;
         }
+        underSurveillance = false;
     }
 }

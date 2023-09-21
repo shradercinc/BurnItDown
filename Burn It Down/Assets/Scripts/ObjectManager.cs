@@ -17,7 +17,7 @@ public class ObjectManager : MonoBehaviour
     public GridManager manager;
     //direction determins the way they'll patrol and the tiles that are highlighted
     //south east = (-1,0),south west = (0,-1),north east = (1,0), North west = (0,1) 
-    [SerializeField] Vector2Int direction = new Vector2Int(-1,0);
+    [SerializeField] Vector2Int direction = new Vector2Int(0,-1);
 
     [SerializeField] int DetectionRangePatrol = 3;
     public int stunned = 0;
@@ -145,19 +145,50 @@ public class ObjectManager : MonoBehaviour
         {
             if (patrol && stunned == 0)
             {
-                for (int i = 1; i == DetectionRangePatrol; i++)
+                //creates a vector 2 to check to the left
+                Vector2Int Side = Vector2Int.RoundToInt(Vector3.Cross((Vector2)direction, Vector3.forward));
+
+                print("Side = " + Side);
+                List<FloorTile> tilesToCheck = new List<FloorTile>()
                 {
-                    FloorTile targetGrid = manager._Grid[CurrentGrid.x + (direction.x * i), CurrentGrid.y + (direction.y * i)];
-                    if (targetGrid.AttachedObject == null)
+                    (manager._Grid[CurrentGrid.x + Side.x, CurrentGrid.y + Side.y]),
+                    (manager._Grid[CurrentGrid.x + Side.x + direction.x, CurrentGrid.y + Side.y + direction.y]),
+                    (manager._Grid[CurrentGrid.x - Side.x, CurrentGrid.y - Side.y]),
+                    (manager._Grid[CurrentGrid.x - Side.x + direction.x, CurrentGrid.y - Side.y + direction.y])
+                };
+                foreach(FloorTile Tile in tilesToCheck)
+                {
+                    if (Tile.AttachedObject != null)
                     {
-                        targetGrid.underSurveillance = true;
+                        if (Tile.AttachedObject.tag != "Environmental")
+                        {
+                            Tile.underSurveillance = true;
+                        }
                     }
                     else
                     {
-                        if (targetGrid.AttachedObject.tag == "Environmental")
+                        Tile.underSurveillance = true;
+                    }
+                }
+
+
+                for (int i = 1; i <= DetectionRangePatrol; i++)
+                {
+                    FloorTile targetGrid = manager._Grid[CurrentGrid.x + (direction.x * i), CurrentGrid.y + (direction.y * i)];
+                    if (targetGrid.AttachedObject != null)
+                    {
+                        if (targetGrid.AttachedObject.tag != "Environmental")
                         {
-                            break;
+                            targetGrid.underSurveillance = true;
                         }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        targetGrid.underSurveillance = true;
                     }
                 }
             }

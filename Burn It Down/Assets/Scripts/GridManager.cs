@@ -94,7 +94,7 @@ public class GridManager : MonoBehaviour
                 }
 
                 //generates guards
-                if (i == 10 && j == 3)
+                if (i == 9 && j == 3)
                 {
                     GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
                     ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
