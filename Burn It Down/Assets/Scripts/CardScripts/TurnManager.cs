@@ -69,10 +69,11 @@ public class TurnManager : MonoBehaviour
 
     public IEnumerator CanPlayCard()
     {
+        yield return new WaitForSeconds(0.25f);
         List<Card> canBePlayed = new List<Card>();
         for (int i = 0; i<listOfHand.Count; i++)
         {
-            if (energyBar.value >= listOfHand[i].energyCost)
+            if (listOfHand[i].CanPlay())
                 canBePlayed.Add(listOfHand[i]);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);

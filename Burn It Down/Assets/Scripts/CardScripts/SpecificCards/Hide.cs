@@ -13,4 +13,15 @@ public class Hide : Card
         textDescr.text = "Guards won't spot you this turn.";
         thisType = CardType.NonViolent;
     }
+
+    public override bool CanPlay()
+    {
+        return base.CanPlay();
+    }
+
+    public override IEnumerator PlayEffect()
+    {
+        return base.PlayEffect();
+    }
+
 }

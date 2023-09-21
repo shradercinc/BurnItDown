@@ -6,8 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class FloorTile : MonoBehaviour
-{
-   
+{ 
     public Vector2Int gridPosition;
     [SerializeField] float hoverDistance;
     [SerializeField] float climbSpeed = 0.9f;
@@ -136,7 +135,6 @@ public class FloorTile : MonoBehaviour
         }
     }
 
-
     // Update is called once per frame
     void Update()
     {
@@ -149,11 +147,11 @@ public class FloorTile : MonoBehaviour
 
         if (!hover)
         { 
-                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, baseHeight, transform.position.z), dropSpeed);
+            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, baseHeight, transform.position.z), dropSpeed);
         }
         else
         {
-                transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, hoverDistance, transform.position.z), climbSpeed);
+            transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, hoverDistance, transform.position.z), climbSpeed);
         }
 
         hover = false;

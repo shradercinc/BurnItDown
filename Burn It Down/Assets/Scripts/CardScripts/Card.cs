@@ -39,10 +39,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public virtual void Setup()
-    {
-    }
-
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Right)
@@ -50,6 +46,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
             Debug.Log("right clicked");
             RightClick.instance.ChangeCard(this);
         }
+    }
+
+    public virtual void Setup()
+    {
+    }
+
+    public virtual bool CanPlay()
+    {
+        return false;
     }
 
     public virtual IEnumerator PlayEffect()
