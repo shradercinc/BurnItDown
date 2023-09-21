@@ -79,7 +79,7 @@ public class TurnManager : MonoBehaviour
         while (ChoiceManager.instance.chosenCard == null)
         {
             if (GridManager.instance.Turn != 1)
-                yield break;
+                StopAllCoroutines();
             else
                 yield return null;
         }
