@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using UnityEngine;
 
@@ -21,7 +22,7 @@ public class ObjectManager : MonoBehaviour
 
     [SerializeField] int DetectionRangePatrol = 3;
     public int stunned = 0;
-
+    public int hidden = 0;
 
 
 
@@ -41,6 +42,26 @@ public class ObjectManager : MonoBehaviour
             manager.enemiesActive--;
         }
 
+    }
+
+    public void endPlayerTurn()
+    {
+
+        if (stunned != 0)
+        {
+            stunned--;
+        }
+        if (hidden != 0)
+        {
+            hidden--;
+        }
+        else
+        {
+            if (manager._Grid[CurrentGrid.x, CurrentGrid.y].underSurveillance)
+            {
+                TurnManager.instance.ChangeHealth((int)TurnManager.instance.healthBar.value - 1);
+            }
+        }
     }
 
     IEnumerator guardPatrol(float pauseTimer)

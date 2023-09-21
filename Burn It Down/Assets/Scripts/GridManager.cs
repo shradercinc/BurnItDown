@@ -156,6 +156,10 @@ public class GridManager : MonoBehaviour
                         enemiesActive++;
                         _Grid[i, j].AttachedObject.enemyEndTurn();
                     }
+                    if (_Grid[i, j].AttachedObject.gameObject.tag == "Player")
+                    {
+                        _Grid[i, j].AttachedObject.endPlayerTurn();
+                    }
                 }
             }
         }
