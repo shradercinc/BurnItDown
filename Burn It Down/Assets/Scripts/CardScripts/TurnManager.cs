@@ -16,8 +16,7 @@ public class TurnManager : MonoBehaviour
     Transform deck;
     Transform discardPile;
     Transform exhausted;
-
-    Slider healthBar;
+    [HideInInspector] public Slider healthBar;
     TMP_Text healthText;
     [HideInInspector] public Slider energyBar;
     TMP_Text energyText;
