@@ -250,7 +250,7 @@ public class ObjectManager : MonoBehaviour
                 }
                 if (target.hidden > 0)
                 {
-                    patrol = false;
+                    patrol = true;
                 }
 
             }
