@@ -81,7 +81,6 @@ public class Stun : Card
     public override IEnumerator PlayEffect()
     {
         adjacentEnemy.stunned += 3;
-        SoundManager.instance.PlaySound(SoundManager.instance.stun);
         yield return null;
     }
 }

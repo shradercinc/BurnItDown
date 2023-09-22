@@ -118,15 +118,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f244ee31658491448d31ebcfcbd3104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentGrid: {x: 0, y: 0}
   movementSpeed: 3
   movementPoints: 0
-  movePauseTime: 0.5
-  patrol: 1
+  CurrentGrid: {x: 0, y: 0}
   manager: {fileID: 0}
   direction: {x: 0, y: -1}
+  movePauseTime: 0.5
+  patrol: 1
+  target: {fileID: 0}
   DetectionRangePatrol: 3
-  noticeSound: {fileID: 8300000, guid: b2840b113c3034640a55435cafc6daa5, type: 3}
-  moveSound: {fileID: 8300000, guid: 67bb0ea5aceba7947afec25461b7c36c, type: 3}
   stunned: 0
+  guardAmmoMax: 1
   hidden: 0
+  DefaultPlayerMaterial: {fileID: 2100000, guid: 45a64f8b4e4389d439abbe911839cca1, type: 2}
+  HiddenPlayerMaterial: {fileID: 2100000, guid: 32c205198ec541d43aaacf4aa68e4441, type: 2}

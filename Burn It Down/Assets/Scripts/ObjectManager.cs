@@ -32,7 +32,6 @@ public class ObjectManager : MonoBehaviour
     public ObjectManager target;
     [SerializeField] int DetectionRangePatrol = 3;
 
-    [SerializeField] AudioClip noticeSound, moveSound;
     public int stunned = 0;
 
     [SerializeField] private int guardAmmoMax = 1;
@@ -69,14 +68,6 @@ public class ObjectManager : MonoBehaviour
         if (hidden != 0)
         {
             hidden--;
-        }
-        else
-        {
-            if (manager._Grid[CurrentGrid.x, CurrentGrid.y].underSurveillance)
-            {
-                TurnManager.instance.ChangeHealth((int)TurnManager.instance.healthBar.value - 1);
-                SoundManager.instance.PlaySound(noticeSound);
-            }
         }
     }
 
@@ -144,7 +135,7 @@ public class ObjectManager : MonoBehaviour
             yield return null;
         }
 
-        SoundManager.instance.PlaySound(moveSound);
+
         bool validSpace = true;
         bool trapped = false;
         //checking to see that the tile it wants to move onto is A) within the map and B) not a wall

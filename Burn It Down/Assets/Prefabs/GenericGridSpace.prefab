@@ -126,7 +126,3 @@ MonoBehaviour:
   AttachedObject: {fileID: 0}
   defaultTexture: {fileID: 2100000, guid: ae9e0d7672583e547a9912e912f91e98, type: 2}
   HazardTexture: {fileID: 2100000, guid: 057681984cc384844b89893c561cd19e, type: 2}
-  underSurveillance: 0
-  selectTileSound: {fileID: 8300000, guid: 34f694e9ef112504f8f7e71585f288ae, type: 3}
-  moveSound: {fileID: 8300000, guid: 67bb0ea5aceba7947afec25461b7c36c, type: 3}
-  buttonBaseSound: {fileID: 8300000, guid: 71383829443a9a34d8306fa704527491, type: 3}

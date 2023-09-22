@@ -10,19 +10,18 @@ public class Hide : Card
         textName.text = "Hide";
         energyCost = 2;
         textCost.text = $"{energyCost} Energy";
-        textDescr.text = "Guards won't spot you for 2 turns.";
+        textDescr.text = "Guards won't spot you this turn.";
         thisType = CardType.NonViolent;
     }
 
     public override bool CanPlay()
     {
-        return TurnManager.instance.energyBar.value >= energyCost;
+        return base.CanPlay();
     }
 
     public override IEnumerator PlayEffect()
     {
-        yield return null;
-        GridManager.instance.Player1.hidden += 2;
+        return base.PlayEffect();
     }
 
 }

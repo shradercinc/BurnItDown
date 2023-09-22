@@ -1089,11 +1089,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   listOfHand: []
-  healthBar: {fileID: 0}
   energyBar: {fileID: 0}
   gameOverText: {fileID: 1122984015}
-  cardMove: {fileID: 8300000, guid: e4a45bf2f84cdb649b748b5e60fa464c, type: 3}
-  cardPlay: {fileID: 8300000, guid: 01f2a427124f5ba45a0e48c5f1433eea, type: 3}
 --- !u!1 &672621784
 GameObject:
   m_ObjectHideFlags: 0
@@ -2083,8 +2080,6 @@ MonoBehaviour:
   selectObject: {fileID: 0}
   Turn: 1
   enemiesActive: 0
-  endTurnSound: {fileID: 8300000, guid: ee2f9f968519a9146bf81d6275db32e4, type: 3}
-  buttonBaseSound: {fileID: 8300000, guid: 71383829443a9a34d8306fa704527491, type: 3}
 --- !u!4 &1127697369
 Transform:
   m_ObjectHideFlags: 0
