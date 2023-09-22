@@ -131,4 +131,4 @@ MonoBehaviour:
   guardAmmoMax: 1
   hidden: 0
   DefaultPlayerMaterial: {fileID: 2100000, guid: 45a64f8b4e4389d439abbe911839cca1, type: 2}
-  HiddenPlayerMaterial: {fileID: 2100000, guid: 32c205198ec541d43aaacf4aa68e4441, type: 2}
+  HiddenPlayerMaterial: {fileID: 2100000, guid: e8e5ddb61c4c6544990a826e9b2abebc, type: 2}
