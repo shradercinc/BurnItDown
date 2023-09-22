@@ -22,8 +22,6 @@ public class ObjectManager : MonoBehaviour
     [SerializeField] public Vector2Int direction = new Vector2Int(0, -1);
 
     private MeshRenderer Renderer;
-
-    [SerializeField] AudioClip noticeSound, moveSound;
     [Space(5)]
 
 
@@ -34,6 +32,7 @@ public class ObjectManager : MonoBehaviour
     public ObjectManager target;
     [SerializeField] int DetectionRangePatrol = 3;
 
+    [SerializeField] AudioClip noticeSound, moveSound;
     public int stunned = 0;
 
     [SerializeField] private int guardAmmoMax = 1;
@@ -71,6 +70,14 @@ public class ObjectManager : MonoBehaviour
         {
             hidden--;
         }
+        else
+        {
+            if (manager._Grid[CurrentGrid.x, CurrentGrid.y].underSurveillance)
+            {
+                TurnManager.instance.ChangeHealth((int)TurnManager.instance.healthBar.value - 1);
+                SoundManager.instance.PlaySound(noticeSound);
+            }
+        }
     }
 
     //                  ENEMY VOIDS
@@ -89,7 +96,6 @@ public class ObjectManager : MonoBehaviour
             else
             {
                 StartCoroutine(guardAttack(movePauseTime));
-                SoundManager.instance.PlaySound(noticeSound);
             }
         }
         else
@@ -100,7 +106,7 @@ public class ObjectManager : MonoBehaviour
 
     }
 
-
+    
     IEnumerator guardAttack(float pauseTimer)
     {
         float Timer = 0;
@@ -127,7 +133,7 @@ public class ObjectManager : MonoBehaviour
         {
             manager.enemiesActive--;
         }
-
+        
     }
     IEnumerator guardPatrol(float pauseTimer)
     {
