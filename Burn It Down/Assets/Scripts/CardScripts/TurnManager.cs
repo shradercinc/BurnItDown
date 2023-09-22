@@ -104,6 +104,10 @@ public class TurnManager : MonoBehaviour
         currentHealth += n;
         healthText.text = $"Health: {currentHealth}";
         healthBar.value = currentHealth;
+
+        if (currentHealth <= 0)
+            GameOver("You were caught too many times.");
+
     }
 
     public void ChangeEnergy(int n)
