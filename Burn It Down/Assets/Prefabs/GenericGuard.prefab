@@ -126,4 +126,7 @@ MonoBehaviour:
   manager: {fileID: 0}
   direction: {x: 0, y: -1}
   DetectionRangePatrol: 3
+  noticeSound: {fileID: 8300000, guid: b2840b113c3034640a55435cafc6daa5, type: 3}
+  moveSound: {fileID: 8300000, guid: 67bb0ea5aceba7947afec25461b7c36c, type: 3}
   stunned: 0
+  hidden: 0

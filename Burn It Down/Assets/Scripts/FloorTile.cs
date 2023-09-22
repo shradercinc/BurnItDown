@@ -20,6 +20,7 @@ public class FloorTile : MonoBehaviour
     [SerializeField] Material HazardTexture;
     public bool underSurveillance = false;
     private MeshRenderer currentMaterial;
+    [SerializeField] AudioClip selectTileSound, moveSound, buttonBaseSound;
     // Start is called before the first frame update
 
     private void Awake()
@@ -34,6 +35,7 @@ public class FloorTile : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
+            SoundManager.instance.PlaySound(buttonBaseSound);
             //selects this tile if it's not selected (unselects all tiles otherwise)
             if (manager.selectTile != gridPosition)
             {
@@ -44,6 +46,7 @@ public class FloorTile : MonoBehaviour
                     if (manager.selectObject.gameObject.tag == "Player")
                     {
                         print(AttachedObject);
+                        SoundManager.instance.PlaySound(moveSound);
                         //moves the player depending on their assigned movement speed, asigning them to this tile
                         if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementPoints && AttachedObject == null)
                         {
@@ -120,6 +123,7 @@ public class FloorTile : MonoBehaviour
                 if (!action)
                 {
                     manager.selectTile = gridPosition;
+                    SoundManager.instance.PlaySound(selectTileSound);
                 }
                 else
                 {

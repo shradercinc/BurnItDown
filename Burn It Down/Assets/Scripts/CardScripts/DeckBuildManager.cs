@@ -11,6 +11,8 @@ public class DeckBuildManager : MonoBehaviour
     public RectTransform yourHand;
     public RectTransform yourDeck;
 
+    [SerializeField] AudioClip cardMoveSound;
+
     private void Start()
     {
         RightClick.instance.transform.SetParent(this.transform.parent);
@@ -25,6 +27,7 @@ public class DeckBuildManager : MonoBehaviour
             cardsInDeck.Remove(newCard);
             cardsInHand.Add(newCard);
             newCard.transform.SetParent(yourHand);
+            SoundManager.instance.PlaySound(cardMoveSound);
 
             if (save)
                 SaveManager.instance.SaveHand(cardsInHand);
@@ -37,6 +40,7 @@ public class DeckBuildManager : MonoBehaviour
         cardsInHand.Remove(newCard);
         cardsInDeck.Add(newCard);
         newCard.transform.SetParent(yourDeck);
+        SoundManager.instance.PlaySound(cardMoveSound);
 
         if (save)
             SaveManager.instance.SaveHand(cardsInHand);
