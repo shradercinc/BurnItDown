@@ -94,7 +94,7 @@ public class GridManager : MonoBehaviour
                 }
 
                 //generates guards
-                if (i == 7 && j == 3)
+                if (i == 9 && j == 3)
                 {
                     GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
                     ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
@@ -103,19 +103,6 @@ public class GridManager : MonoBehaviour
                     curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
                     curObjManager.manager = this;
                 }
-
-                /*
-                if ((i == 8 && j == 7) || (i == 3 && j == 8))
-                {
-                    GameObject curObj = Instantiate(genericGuard, new Vector3(_Grid[i, j].gridPosition.x * tileSize, baseTileLayer + tileSize, _Grid[i, j].gridPosition.y * -tileSize), Quaternion.identity);
-                    ObjectManager curObjManager = curObj.GetComponent<ObjectManager>();
-                    curObj.transform.parent = _Grid[i, j].transform;
-                    _Grid[i, j].AttachedObject = curObjManager;
-                    curObjManager.CurrentGrid = _Grid[i, j].gridPosition;
-                    curObjManager.manager = this;
-                    curObjManager.direction = new Vector2Int(-1, 0);
-                }
-                */
 
                 //Generates the Player
                 if (i == 1 && j == 1)
