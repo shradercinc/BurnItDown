@@ -22,9 +22,12 @@ public class TurnManager : MonoBehaviour
     TMP_Text energyText;
 
     public TMP_Text gameOverText;
+    public GameObject gameOverButton;
+    public GameObject gameOverScreen;
 
     private void Awake()
     {
+        
         deck = GameObject.Find("Deck").transform;
         discardPile = GameObject.Find("Discard Pile").transform;
         exhausted = GameObject.Find("Exhausted").transform;
@@ -106,8 +109,9 @@ public class TurnManager : MonoBehaviour
         healthBar.value = currentHealth;
 
         if (currentHealth <= 0)
-            GameOver("You were caught too many times.");
-
+        {
+            GameOver("You were caught too many times.", "Retry");
+        }
     }
 
     public void ChangeEnergy(int n)
@@ -164,9 +168,12 @@ public class TurnManager : MonoBehaviour
         unlocked.gameObject.SetActive(true);
     }
 
-    public void GameOver(string cause)
+    public void GameOver(string cause, string buttonTxt)
     {
         gameOverText.gameObject.SetActive(true);
+        gameOverScreen.gameObject.SetActive(true);
+        gameOverButton.gameObject.SetActive(true);
         gameOverText.text = cause;
+        gameOverButton.GetComponentInChildren<TMP_Text>().text = buttonTxt;
     }
 }
