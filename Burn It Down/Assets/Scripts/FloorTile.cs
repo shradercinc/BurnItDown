@@ -19,6 +19,8 @@ public class FloorTile : MonoBehaviour
     [SerializeField] Material defaultTexture;
     [SerializeField] Material HazardTexture;
     public bool underSurveillance = false;
+    public ObjectManager patrollingGuard;
+
     private MeshRenderer currentMaterial;
     // Start is called before the first frame update
 
@@ -43,14 +45,14 @@ public class FloorTile : MonoBehaviour
                     //checks if selected object was a player
                     if (manager.selectObject.gameObject.tag == "Player")
                     {
-                        print(AttachedObject);
+                        //print(AttachedObject);
                         //moves the player depending on their assigned movement speed, asigning them to this tile
                         if (MathF.Abs(gridPosition.x - manager.selectTile.x) + MathF.Abs(gridPosition.y - manager.selectTile.y) <= manager.selectObject.movementPoints && AttachedObject == null)
                         {
                             Vector2Int direction = new Vector2Int(gridPosition.x - manager.selectTile.x, gridPosition.y - manager.selectTile.y);
                             Vector2Int checkSpace = manager.selectTile;
                             bool blocked = false;
-                            print("New direction" + direction);
+                            //print("New direction" + direction);
 
                             //loops through all the spaces you would move through to get to the new location
                             while (direction != new Vector2(0, 0))
@@ -75,7 +77,7 @@ public class FloorTile : MonoBehaviour
                                         }
                                     }
                                     direction.x -= (int)Mathf.Sign(direction.x);
-                                    print("new direction " + direction);
+                                    //print("new direction " + direction);
                                 }
 
                                 if (direction.y != 0)
@@ -97,7 +99,7 @@ public class FloorTile : MonoBehaviour
                                         }
                                     }
                                     direction.y -= (int)Mathf.Sign(direction.y);
-                                    print("new direction " + direction);
+                                    //print("new direction " + direction);
                                 }
 
 
@@ -159,6 +161,15 @@ public class FloorTile : MonoBehaviour
         if (underSurveillance)
         {
             currentMaterial.material = HazardTexture;
+            if (AttachedObject != null)
+            {
+                print("TARGET SIGHTED!!");
+                if (AttachedObject.tag == "Player" && AttachedObject.hidden == 0)
+                {
+                    patrollingGuard.patrol = false;
+                    patrollingGuard.target = AttachedObject;
+                }
+            }
         }
         else
         {
