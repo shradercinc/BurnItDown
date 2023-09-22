@@ -119,18 +119,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f244ee31658491448d31ebcfcbd3104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentGrid: {x: 0, y: 0}
   movementSpeed: 3
   movementPoints: 0
+  CurrentGrid: {x: 0, y: 0}
+  manager: {fileID: 0}
+  direction: {x: 0, y: -1}
   movePauseTime: 0.5
   patrol: 1
   target: {fileID: 0}
-  manager: {fileID: 0}
-  direction: {x: 0, y: -1}
   DetectionRangePatrol: 3
   stunned: 0
-  hidden: 0
   guardAmmoMax: 1
+  hidden: 0
+  DefaultPlayerMaterial: {fileID: 0}
+  HiddenPlayerMaterial: {fileID: 0}
 --- !u!120 &-7054796891989327120
 LineRenderer:
   serializedVersion: 2
@@ -152,7 +154,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bc142086e32ed3a4eb50a439592cd1de, type: 2}
+  - {fileID: 2100000, guid: 74a46a5c46f13ab4d8e5c5330abc14cf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
