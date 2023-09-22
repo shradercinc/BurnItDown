@@ -46,6 +46,7 @@ public class GridManager : MonoBehaviour
     //checks to make sure enemies arn't still taking their turn before swapping back to player control
     public float enemiesActive = 0;
     Button endRoundButton;
+    [SerializeField] AudioClip endTurnSound, buttonBaseSound;
 
     private void Awake()
     {
@@ -183,6 +184,8 @@ public class GridManager : MonoBehaviour
         TurnManager.instance.ChangeEnergy(3);
         TurnManager.instance.DrawCards(5 - TurnManager.instance.listOfHand.Count);
         Player1.movementPoints = Player1.movementSpeed;
+        SoundManager.instance.PlaySound(endTurnSound);
+        SoundManager.instance.PlaySound(buttonBaseSound);
         endTurn();
     }
 }

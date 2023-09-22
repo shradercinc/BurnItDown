@@ -81,6 +81,7 @@ public class BrassKnuckles : Card
     public override IEnumerator PlayEffect()
     {
         adjacentEnemy.stunned += 5;
+        SoundManager.instance.PlaySound(SoundManager.instance.stun);
         yield return null;
     }
 }

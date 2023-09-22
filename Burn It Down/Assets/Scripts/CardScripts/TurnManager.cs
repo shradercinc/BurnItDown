@@ -22,6 +22,7 @@ public class TurnManager : MonoBehaviour
     TMP_Text energyText;
 
     public TMP_Text gameOverText;
+    [SerializeField] AudioClip cardMove, cardPlay;
 
     private void Awake()
     {
@@ -79,7 +80,7 @@ public class TurnManager : MonoBehaviour
         while (ChoiceManager.instance.chosenCard == null)
         {
             if (GridManager.instance.Turn != 1)
-                yield break;
+                StopAllCoroutines();
             else
                 yield return null;
         }
@@ -94,6 +95,7 @@ public class TurnManager : MonoBehaviour
             ChoiceManager.instance.DisableCards();
             DiscardCard(playMe);
             ChangeEnergy((int)energyBar.value - playMe.energyCost);
+            SoundManager.instance.PlaySound(cardPlay);
             yield return playMe.PlayEffect();
             GridManager.instance.endTurn();
         }
@@ -138,6 +140,7 @@ public class TurnManager : MonoBehaviour
         listOfHand.Add(newCard);
         newCard.transform.SetParent(handTransform);
         newCard.transform.localScale = new Vector3(1, 1, 1);
+        SoundManager.instance.PlaySound(cardMove);
     }
 
     public void DiscardCard(Card discardMe)
@@ -145,6 +148,7 @@ public class TurnManager : MonoBehaviour
         discardMe.transform.SetParent(discardPile);
         listOfHand.Remove(discardMe);
         discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
+        SoundManager.instance.PlaySound(cardMove);
     }
 
     public void ExhaustCard(Card exhaustMe)
@@ -152,6 +156,7 @@ public class TurnManager : MonoBehaviour
         exhaustMe.transform.SetParent(exhausted);
         listOfHand.Remove(exhaustMe);
         exhaustMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
+        SoundManager.instance.PlaySound(cardMove);
     }
 
     public void UnlockedCard(Card unlocked)

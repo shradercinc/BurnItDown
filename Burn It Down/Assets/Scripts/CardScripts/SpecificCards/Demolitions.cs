@@ -82,6 +82,7 @@ public class Demolitions : Card
     public override IEnumerator PlayEffect()
     {
         Destroy(adjacentWall);
+        SoundManager.instance.PlaySound(SoundManager.instance.demolish);
         yield return null;
     }
 }
