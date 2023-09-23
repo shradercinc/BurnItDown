@@ -27,7 +27,6 @@ public class TurnManager : MonoBehaviour
 
     private void Awake()
     {
-        
         deck = GameObject.Find("Deck").transform;
         discardPile = GameObject.Find("Discard Pile").transform;
         exhausted = GameObject.Find("Exhausted").transform;
