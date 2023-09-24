@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Demolitions : Card
+public class BrassKnuckles : Card
 {
-    GameObject adjacentWall;
+    GuardEntity adjacentEnemy;
 
     public override void Setup()
     {
-        this.name = "Demolitions";
-        textName.text = "Demolitions";
-        energyCost = 1;
+        this.name = "Brass Knuckles";
+        textName.text = "Brass Knuckles";
+        energyCost = 2;
         textCost.text = $"{energyCost} Energy";
-        textDescr.text = "Break down an adjacent wall.";
-        thisType = CardType.NonViolent;
+        textDescr.text = "Knock out an adjacent guard for 5 turns.";
+        thisType = CardType.Violent;
     }
 
     public override bool CanPlay()
@@ -25,7 +25,7 @@ public class Demolitions : Card
 
             try
             {
-                adjacent[0] = NewManager.instance.tilesInGrid[currentTile.x - 1, currentTile.y];
+                adjacent[0] = NewManager.instance.listOfTiles[currentTile.x - 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -33,7 +33,7 @@ public class Demolitions : Card
             }
             try
             {
-                adjacent[1] = NewManager.instance.tilesInGrid[currentTile.x + 1, currentTile.y];
+                adjacent[1] = NewManager.instance.listOfTiles[currentTile.x + 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -41,7 +41,7 @@ public class Demolitions : Card
             }
             try
             {
-                adjacent[2] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y - 1];
+                adjacent[2] = NewManager.instance.listOfTiles[currentTile.x, currentTile.y - 1];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -49,20 +49,19 @@ public class Demolitions : Card
             }
             try
             {
-                adjacent[3] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y + 1];
+                adjacent[3] = NewManager.instance.listOfTiles[currentTile.x, currentTile.y + 1];
             }
             catch (System.IndexOutOfRangeException)
             {
                 adjacent[3] = null;
             }
-
             for (int i = 0; i < adjacent.Length; i++)
             {
                 if (adjacent[i] != null)
                 {
-                    if (CheckForWall(adjacent[i]))
+                    if (CheckForEnemy(adjacent[i]))
                     {
-                        adjacentWall = adjacent[i].myEntity.gameObject;
+                        adjacentEnemy = adjacent[i].myEntity.GetComponent<GuardEntity>();
                         return true;
                     }
                 }
@@ -71,17 +70,17 @@ public class Demolitions : Card
         return false;
     }
 
-    bool CheckForWall(TileData nextTile)
+    bool CheckForEnemy(TileData nextTile)
     {
         if (nextTile == null || nextTile.myEntity == null)
             return false;
         Debug.Log("checking attached object");
-        return nextTile.myEntity.CompareTag("Wall");
+        return nextTile.myEntity.CompareTag("Enemy");
     }
 
     public override IEnumerator PlayEffect()
     {
-        Destroy(adjacentWall);
+        adjacentEnemy.stunned += 5;
         yield return null;
     }
 }

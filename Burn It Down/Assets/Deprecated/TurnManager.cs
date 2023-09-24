@@ -65,7 +65,7 @@ public class TurnManager : MonoBehaviour
         deck.Shuffle(); //shuffle that deck
         ChangeHealth(3);
         ChangeEnergy(3);
-        StartCoroutine(TurnManager.instance.CanPlayCard());
+        StartCoroutine(CanPlayCard());
     }
 
     public IEnumerator CanPlayCard()

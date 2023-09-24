@@ -21,7 +21,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Your discard pile in the canvas")]Transform discardPile;
         [Tooltip("Your exhausted cards in the canvas")]Transform exhausted;
     
-    [Foldout("Player Stats", true)]
+    [Foldout("UI Elements", true)]
         [Tooltip("Your health")]int currentHealth;
         [Tooltip("Health bar")]Slider healthBar;
         [Tooltip("Health bar's textbox")]TMP_Text healthText;
@@ -31,6 +31,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Movement bar")] Slider movementBar;
         [Tooltip("Movement bar's textbox")]TMP_Text movementText;
         [Tooltip("Regain energy/health/cards")] Button regainResources;
+        [Tooltip("Button to stop moving")] Button stopMovingButton;
 
     [Foldout("GameOver", true)]
         [SerializeField] TMP_Text gameOverText;
@@ -39,9 +40,9 @@ public class NewManager : MonoBehaviour
 
     [Foldout("Grid", true)]
         [Tooltip("Tiles in the inspector")] Transform gridContainer; 
-        [Tooltip("Storage of tiles")] [ReadOnly] public TileData[,] tilesInGrid;
-        [Tooltip("Spacing between tiles")] float tileSpacing;
-        [Tooltip("Tile height")] float tileHeight;
+        [Tooltip("Storage of tiles")] [ReadOnly] public TileData[,] listOfTiles;
+        [Tooltip("Spacing between tiles")] [SerializeField] float tileSpacing = 2;
+        [Tooltip("Tile height")] [SerializeField] float tileHeight = 2;
     
     [Foldout("Prefabs", true)]
         [Tooltip("Floor tile prefab")] public TileData floorTile;
@@ -50,12 +51,12 @@ public class NewManager : MonoBehaviour
         [Tooltip("Guard prefab")] public GuardEntity guard;
 
     [Foldout("Setup", true)]
-        [Tooltip("Size of the level")][SerializeField] Vector2Int gridSize;
+        [Tooltip("Size of the level")] public Vector2Int gridSize;
         [Tooltip("Entities and their starting positions")] [SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
     
     public enum TurnSystem {You, Resolving, Enemy};
     [Foldout("Turn System", true)]     
-        public TurnSystem currentTurn;
+        [ReadOnly] public TurnSystem currentTurn;
 
     void Awake()
     {
@@ -72,15 +73,18 @@ public class NewManager : MonoBehaviour
         movementBar = GameObject.Find("Movement Slider").GetComponent<Slider>();
         movementText = movementBar.transform.GetChild(2).GetComponent<TMP_Text>();
         
-        handTransform = this.transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
+        handTransform = GameObject.Find("Player Hand").transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
         gridContainer = GameObject.Find("Grid Container").transform;
 
-        regainResources = GameObject.Find("Regain Resources").GetComponent<Button>();
+        regainResources = GameObject.Find("Regain Resources Button").GetComponent<Button>();
         regainResources.onClick.AddListener(Regain);
+        stopMovingButton = GameObject.Find("Stop Moving Button").GetComponent<Button>();
+        stopMovingButton.onClick.AddListener(StopMoving);
     }
     void Start()
     {
         gameOverText.transform.parent.gameObject.SetActive(false);
+        gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
         //since the right click script is under dontdestroyonload, we have to bring it back to the canvas
         RightClick.instance.transform.SetParent(this.transform.parent);
@@ -104,13 +108,15 @@ public class NewManager : MonoBehaviour
 
         deck.Shuffle(); //shuffle your deck
 
+        listOfTiles = new TileData[gridSize.x, gridSize.y];
         for (int i = 0; i<gridSize.x; i++) //create the tiles
         {
             for (int j = 0; j<gridSize.y; j++)
             {
                 TileData nextTile = Instantiate(floorTile, gridContainer);
-                nextTile.transform.localPosition = new Vector3(i*tileSpacing, tileHeight, j*tileSpacing);
-                tilesInGrid[i, j] = nextTile;
+                nextTile.transform.localPosition = new Vector3(i*-tileSpacing, tileHeight, j*-tileSpacing);
+                nextTile.name = $"Tile {i},{j}";
+                listOfTiles[i, j] = nextTile;
                 nextTile.gridPosition = new Vector2Int(i,j);
             }
         }
@@ -118,23 +124,28 @@ public class NewManager : MonoBehaviour
         {
             for (int j = 0; j<gridSize.y; j++)
             {
-                FindAdjacent(tilesInGrid[i, j]);
+                FindAdjacent(listOfTiles[i, j]);
             }
         }
 
         for (int i = 0; i<entityStarts.Count; i++) //spawn all entities in their starting positions
         {
-            TileData spawnHere = tilesInGrid[(int)entityStarts[i].startingPosition.x, (int)entityStarts[i].startingPosition.y];
+            TileData spawnHere = listOfTiles[(int)entityStarts[i].startingPosition.x, (int)entityStarts[i].startingPosition.y];
             Entity nextEntity = null;
             switch (entityStarts[i].entity)
             {
                 case EntityAndPosition.EntityType.Player:
                     nextEntity = Instantiate(player, spawnHere.transform);
-                    listOfPlayers.Add(nextEntity.GetComponent<PlayerEntity>());
+                    PlayerEntity thePlayer = nextEntity.GetComponent<PlayerEntity>();
+                    thePlayer.movementLeft = thePlayer.movesPerTurn;
+                    listOfPlayers.Add(thePlayer);
                     break;
                 case EntityAndPosition.EntityType.Guard:
                     nextEntity = Instantiate(guard, spawnHere.transform);
-                    listOfGuards.Add(nextEntity.GetComponent<GuardEntity>());
+                    GuardEntity theGuard = nextEntity.GetComponent<GuardEntity>();
+                    theGuard.movementLeft = theGuard.movesPerTurn;
+                    theGuard.direction = entityStarts[i].direction;
+                    listOfGuards.Add(theGuard);
                     break;
                 case EntityAndPosition.EntityType.Wall:
                     nextEntity = Instantiate(wall, spawnHere.transform);
@@ -143,6 +154,14 @@ public class NewManager : MonoBehaviour
             }
             nextEntity.MoveTile(spawnHere);
         }
+
+        SetEnergy(3);
+        SetHealth(3);
+        movementBar.value = 3;
+        movementText.text = $"Movement: {3}";
+
+        stopMovingButton.gameObject.SetActive(false);
+        StartCoroutine(StartPlayerTurn());
     }
     void Update()
     {
@@ -162,50 +181,14 @@ public class NewManager : MonoBehaviour
         if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
             return null;
         else
-            return tilesInGrid[(int)vector.x, (int)vector.y];
+            return listOfTiles[(int)vector.x, (int)vector.y];
     }
     public TileData FindTile(Vector2Int vector) //find a tile based off Vector2Int
     {
         if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
             return null;
         else
-            return tilesInGrid[(int)vector.x, (int)vector.y];    
-    }
-    void MadeDecision()
-    {
-        ChoiceManager.instance.DisableCards();
-        currentTurn = TurnSystem.Resolving;
-    }
-    public IEnumerator CanPlayCard() //choose a card to play
-    {
-        yield return new WaitForSeconds(0.25f);
-        List<Card> canBePlayed = new List<Card>();
-        for (int i = 0; i<listOfHand.Count; i++)
-        {
-            if (listOfHand[i].CanPlay())
-                canBePlayed.Add(listOfHand[i]);
-        }
-        ChoiceManager.instance.ChooseCard(canBePlayed);
-        while (ChoiceManager.instance.chosenCard == null)
-        {
-            if (currentTurn != TurnSystem.You)
-                yield break;
-            else
-                yield return null;
-        }
-
-        yield return PlayCard(ChoiceManager.instance.chosenCard);
-    }
-    public IEnumerator PlayCard(Card playMe) //resolve that card
-    {
-        if (playMe != null)
-        {
-            MadeDecision();
-            DiscardCard(playMe);
-            ChangeEnergy((int)energyBar.value - playMe.energyCost);
-            yield return playMe.PlayEffect();
-            StartCoroutine(EndTurn());
-        }
+            return listOfTiles[(int)vector.x, (int)vector.y];    
     }
     public bool EnoughEnergy(int n)//check if n is larger than current energy
     {
@@ -214,7 +197,7 @@ public class NewManager : MonoBehaviour
     public void SetEnergy(int n) //if you want to set energy to 2, type SetEnergy(2);
     {
         ChangeEnergy(n - (int)currentEnergy);
-    }  
+    }
     public void ChangeEnergy(int n) //if you want to subtract 3 energy, type ChangeEnergy(-3);
     {
         currentEnergy += n;
@@ -224,7 +207,7 @@ public class NewManager : MonoBehaviour
     public void SetHealth(int n) //if you want to set health to 2, type SetHealth(2);
     {
         ChangeHealth(n - (int)currentHealth);
-    }  
+    }
     public void ChangeHealth(int n) //if you want to subtract 3 health, type SetHealth(-3);
     {
         currentHealth += n;
@@ -271,14 +254,125 @@ public class NewManager : MonoBehaviour
     public void GameOver(string cause, string buttonTxt)
     {
         gameOverText.gameObject.SetActive(true);
-        gameOverScreen.gameObject.SetActive(true);
-        gameOverButton.gameObject.SetActive(true);
+        gameOverScreen.SetActive(true);
+        gameOverButton.SetActive(true);
         gameOverText.text = cause;
         gameOverButton.GetComponentInChildren<TMP_Text>().text = buttonTxt;
     }
-    public IEnumerator EndTurn()
+    IEnumerator StartPlayerTurn()
+    {
+        currentTurn = TurnSystem.You;
+        StartCoroutine(CanPlayCard());
+        StartCoroutine(ChoosePlayerToMove());
+        yield return null;
+    }
+    void MadeDecision()
+    {
+        currentTurn = TurnSystem.Resolving;
+        ChoiceManager.instance.DisableCards();
+        ChoiceManager.instance.DisableTiles();
+    }
+    IEnumerator ChoosePlayerToMove()
+    {
+        List<TileData> playerTiles = new List<TileData>();
+        for (int i = 0; i < listOfPlayers.Count; i++)
+        {
+            if (listOfPlayers[i].movementLeft > 0)
+                playerTiles.Add(listOfPlayers[i].currentTile);
+        }
+        ChoiceManager.instance.ChooseTile(playerTiles);
+
+        while (ChoiceManager.instance.chosenTile == null)
+        {
+            if (currentTurn != TurnSystem.You)
+                yield break;
+            else
+                yield return null;
+        }
+        yield return MovePlayer(ChoiceManager.instance.chosenTile);
+    }
+    IEnumerator MovePlayer(TileData currentTile)
+    {
+        MadeDecision();
+        stopMovingButton.gameObject.SetActive(true);
+        List<TileData> possibleTiles = new List<TileData>();
+        for (int i = 0; i < currentTile.adjacentTiles.Count; i++)
+            possibleTiles.Add(currentTile.adjacentTiles[i]);
+        ChoiceManager.instance.ChooseTile(possibleTiles);
+
+        while (ChoiceManager.instance.chosenTile == null)
+        {
+            if (currentTurn != TurnSystem.Resolving)
+                yield break;
+            else
+                yield return null;
+        }
+
+        PlayerEntity player = currentTile.myEntity.GetComponent<PlayerEntity>();
+        player.movementLeft--;
+        player.MoveTile(ChoiceManager.instance.chosenTile);
+
+        movementBar.value = player.movementLeft;
+        movementText.text = $"Movement: {player.movementLeft}";
+
+        if (player.movementLeft <= 0)
+            StopMoving();
+        else
+            yield return MovePlayer(ChoiceManager.instance.chosenTile);
+    }
+    public void StopMoving()
+    {
+        StartCoroutine(EndTurn());
+    }
+    IEnumerator CanPlayCard() //choose a card to play
+    {
+        List<Card> canBePlayed = new List<Card>();
+        for (int i = 0; i<listOfHand.Count; i++)
+        {
+            if (listOfHand[i].CanPlay())
+                canBePlayed.Add(listOfHand[i]);
+        }
+        ChoiceManager.instance.ChooseCard(canBePlayed);
+
+        while (ChoiceManager.instance.chosenCard == null)
+        {
+            if (currentTurn != TurnSystem.You)
+                yield break;
+            else
+                yield return null;
+        }
+        yield return PlayCard(ChoiceManager.instance.chosenCard);
+    }
+    IEnumerator PlayCard(Card playMe) //resolve that card
+    {
+        if (playMe != null)
+        {
+            MadeDecision();
+            DiscardCard(playMe);
+            ChangeEnergy((int)energyBar.value - playMe.energyCost);
+            yield return playMe.PlayEffect();
+            StartCoroutine(EndTurn());
+        }
+    }
+    public void Regain()
+    {
+        MadeDecision();
+        SetEnergy(3);
+        DrawCards(5 - listOfHand.Count);
+        for (int i = 0; i < listOfPlayers.Count; i++)
+        {
+            listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
+        }
+        StartCoroutine(EndTurn());
+    }
+    IEnumerator EndTurn()
     {
         ChoiceManager.instance.DisableCards();
+        ChoiceManager.instance.DisableTiles();
+        stopMovingButton.gameObject.SetActive(false);
+
+        for (int i = 0; i < listOfPlayers.Count; i++)
+            yield return listOfPlayers[i].EndOfTurn();
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         currentTurn = TurnSystem.Enemy;
@@ -289,17 +383,6 @@ public class NewManager : MonoBehaviour
             yield return listOfGuards[i].EndOfTurn();
         }
 
-        currentTurn = TurnSystem.You;
-    }
-    public void Regain()
-    {
-        MadeDecision();
-        SetEnergy(3);
-        DrawCards(5 - TurnManager.instance.listOfHand.Count);
-        for (int i = 0; i<listOfPlayers.Count; i++)
-        {
-            listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
-        }
-        StartCoroutine(EndTurn());
+        StartCoroutine(StartPlayerTurn());
     }
 }

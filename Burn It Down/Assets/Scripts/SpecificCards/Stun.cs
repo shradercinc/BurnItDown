@@ -25,7 +25,7 @@ public class Stun : Card
 
             try
             {
-                adjacent[0] = NewManager.instance.tilesInGrid[currentTile.x - 1, currentTile.y];
+                adjacent[0] = NewManager.instance.listOfTiles[currentTile.x - 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -33,7 +33,7 @@ public class Stun : Card
             }
             try
             {
-                adjacent[1] = NewManager.instance.tilesInGrid[currentTile.x + 1, currentTile.y];
+                adjacent[1] = NewManager.instance.listOfTiles[currentTile.x + 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -41,7 +41,7 @@ public class Stun : Card
             }
             try
             {
-                adjacent[2] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y - 1];
+                adjacent[2] = NewManager.instance.listOfTiles[currentTile.x, currentTile.y - 1];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -49,7 +49,7 @@ public class Stun : Card
             }
             try
             {
-                adjacent[3] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y + 1];
+                adjacent[3] = NewManager.instance.listOfTiles[currentTile.x, currentTile.y + 1];
             }
             catch (System.IndexOutOfRangeException)
             {

@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/BuildDeck.unity
     guid: 00616dac27d734841b73107db8041dd2
   - enabled: 1
-    path: Assets/Scenes/DZ Game Test.unity
+    path: Assets/Deprecated/DZ Game Test.unity
     guid: 3a4d8ad3f3c984ccebdb4a14ef5e09c8
   - enabled: 1
     path: Assets/Scenes/New Scene.unity

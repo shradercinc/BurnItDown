@@ -6,9 +6,9 @@ using MyBox;
 public class MovingEntity : Entity
 {
     [Foldout("Moving Entity", true)]
-        [Tooltip("Remaining moves")] public int movementLeft;
-        [Tooltip("How many tiles this moves per turn")]public int movesPerTurn;
-    
+        [Tooltip("Remaining moves")] [ReadOnly]public int movementLeft;
+        [Tooltip("How many tiles this moves per turn")] public int movesPerTurn = 3;
+
     public virtual IEnumerator EndOfTurn()
     {
         yield return null;

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using MyBox;
 
-[RequireComponent(typeof(Button))]
 public class SendChoice : MonoBehaviour
 {
-    [HideInInspector] public Button button;
-    [HideInInspector] public Image image;
-    [HideInInspector] public Image border;
-    [HideInInspector] public Card myCard;
+    [ReadOnly] public Button button;
+    [ReadOnly] public Image image;
+    [ReadOnly] public Image border;
+    [ReadOnly] public Card myCard;
     bool enableBorder;
 
     void Awake()

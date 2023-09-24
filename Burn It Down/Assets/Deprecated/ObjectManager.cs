@@ -71,7 +71,7 @@ public class ObjectManager : MonoBehaviour
         }
     }
 
-    //                  ENEMY VOIDS
+    // ENEMY VOIDS
 
     //called at end of a round or turn, only in effect for enemy tagged objects
     public void enemyEndTurn()

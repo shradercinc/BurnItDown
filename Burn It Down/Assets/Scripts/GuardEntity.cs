@@ -7,11 +7,11 @@ public class GuardEntity : MovingEntity
 {
     [Foldout("Guard Entity", true)]
         [Tooltip("Tiles this is searching")] List<TileData> inDetection = new List<TileData>();
-        [Tooltip("Pauses between movement")][SerializeField] float movePauseTime = 0.25f;
-        [Tooltip("How far this can see")][SerializeField] int DetectionRangePatrol = 3;
-        [Tooltip("Turns which this does nothing")]public int stunned = 0;
-        [Tooltip("Times this attacks")] public int attacksPerTurn = 1;
-        [Tooltip("Where this moves and looks")] public Vector2Int direction;
+        [Tooltip("Pauses between movement")] float movePauseTime = 0.25f;
+        [Tooltip("How far this can see")] int DetectionRangePatrol = 3;
+        [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
+        [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
+        [Tooltip("Where this moves and looks")] [ReadOnly]public Vector2Int direction;
 
     public override void CalculateTiles()
     {
@@ -36,7 +36,7 @@ public class GuardEntity : MovingEntity
     {
         for (int i = 0; i<inDetection.Count; i++)
         {
-            if (inDetection[i].myEntity.CompareTag("Player"))
+            if (inDetection[i].myEntity != null && inDetection[i].myEntity.CompareTag("Player"))
                 return inDetection[i].myEntity.GetComponent<PlayerEntity>();
         }
         return null;

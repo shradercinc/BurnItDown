@@ -10,9 +10,9 @@ using MyBox;
 public class Entity : MonoBehaviour
 {
     [Foldout("Base Entity", true)]
-        [Tooltip("Store this entity's position")]public TileData currentTile;
-        MeshRenderer meshRenderer;
-        public LineRenderer lineRenderer;
+        [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
+        [ReadOnly] public MeshRenderer meshRenderer;
+        [ReadOnly] public LineRenderer lineRenderer;
     
     void Awake()
     {
@@ -28,7 +28,8 @@ public class Entity : MonoBehaviour
         newTile.myEntity = this;
         this.currentTile = newTile;
         this.transform.SetParent(newTile.transform);
-        this.transform.localPosition = new Vector3(0, 0, 0);
+        this.transform.localScale = new Vector3(1, 1, 1);
+        this.transform.localPosition = new Vector3(0, 1, 0);
         CalculateTiles();
     }
 
