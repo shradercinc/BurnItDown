@@ -16,7 +16,7 @@ public class Hide : Card
 
     public override bool CanPlay()
     {
-        return TurnManager.instance.energyBar.value >= energyCost;
+        return NewManager.instance.EnoughEnergy(energyCost);
     }
 
     public override IEnumerator PlayEffect()

@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using MyBox;
+
 public class NewManager : MonoBehaviour
 {
     public static NewManager instance;
 
     [Foldout("Storing Things", true)]
-         [Tooltip("Reference to players")] List<PlayerEntity> listOfPlayers = new List<PlayerEntity>();
-         [Tooltip("Reference to walls")] List<WallEntity> listOfWalls = new List<WallEntity>();
-         [Tooltip("Reference to guards")] List<GuardEntity> listOfGuards = new List<GuardEntity>();
+         [Tooltip("Reference to players")] [ReadOnly] public List<PlayerEntity> listOfPlayers = new List<PlayerEntity>();
+         [Tooltip("Reference to walls")] [ReadOnly] public List<WallEntity> listOfWalls = new List<WallEntity>();
+         [Tooltip("Reference to guards")] [ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")]RectTransform handTransform;
@@ -38,7 +39,7 @@ public class NewManager : MonoBehaviour
 
     [Foldout("Grid", true)]
         [Tooltip("Tiles in the inspector")] Transform gridContainer; 
-        [Tooltip("Storage of tiles")] TileData[,] tilesInGrid;
+        [Tooltip("Storage of tiles")] [ReadOnly] public TileData[,] tilesInGrid;
         [Tooltip("Spacing between tiles")] float tileSpacing;
         [Tooltip("Tile height")] float tileHeight;
     
@@ -72,7 +73,6 @@ public class NewManager : MonoBehaviour
         movementText = movementBar.transform.GetChild(2).GetComponent<TMP_Text>();
         
         handTransform = this.transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
-
         gridContainer = GameObject.Find("Grid Container").transform;
 
         regainResources = GameObject.Find("Regain Resources").GetComponent<Button>();
@@ -141,26 +141,21 @@ public class NewManager : MonoBehaviour
                     listOfWalls.Add(nextEntity.GetComponent<WallEntity>());
                     break;            
             }
-            spawnHere.myEntity = nextEntity;
+            nextEntity.MoveTile(spawnHere);
         }
+    }
+    void Update()
+    {
+        regainResources.gameObject.SetActive(currentTurn == TurnSystem.You);
     }
     void FindAdjacent(TileData tile)
     {   //check each adjacent tile; if it's not null, add it to the list
-        TileData nextTile = FindTile(new Vector2(tile.gridPosition.x+1, tile.gridPosition.y));
-        if (nextTile != null)
-            tile.adjacentTiles.Add(nextTile);
-
-        nextTile = FindTile(new Vector2(tile.gridPosition.x-1, tile.gridPosition.y));
-        if (nextTile != null)
-            tile.adjacentTiles.Add(nextTile);        
-            
-        nextTile = FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y+1));
-        if (nextTile != null)
-            tile.adjacentTiles.Add(nextTile);        
-            
-        nextTile = FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y-1));
-        if (nextTile != null)
-            tile.adjacentTiles.Add(nextTile); 
+        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x+1, tile.gridPosition.y)));
+        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x-1, tile.gridPosition.y)));
+        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y+1)));
+        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y-1)));
+        
+        tile.adjacentTiles.RemoveAll(item => item == null); //delete all tiles that are null
     }
     public TileData FindTile(Vector2 vector) //find a tile based off Vector2
     {
@@ -211,6 +206,10 @@ public class NewManager : MonoBehaviour
             yield return playMe.PlayEffect();
             StartCoroutine(EndTurn());
         }
+    }
+    public bool EnoughEnergy(int n)//check if n is larger than current energy
+    {
+        return (energyBar.value >= n);
     }
     public void SetEnergy(int n) //if you want to set energy to 2, type SetEnergy(2);
     {
@@ -279,7 +278,6 @@ public class NewManager : MonoBehaviour
     }
     public IEnumerator EndTurn()
     {
-        regainResources.gameObject.SetActive(false);
         ChoiceManager.instance.DisableCards();
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
@@ -288,19 +286,19 @@ public class NewManager : MonoBehaviour
         for (int i = 0; i<listOfGuards.Count; i++)
         {
             yield return null;
-            //yield return listOfGuards[i].Patrol();
+            yield return listOfGuards[i].EndOfTurn();
         }
 
         currentTurn = TurnSystem.You;
     }
     public void Regain()
     {
-        currentTurn = TurnSystem.Resolving;
+        MadeDecision();
         SetEnergy(3);
         DrawCards(5 - TurnManager.instance.listOfHand.Count);
         for (int i = 0; i<listOfPlayers.Count; i++)
         {
-            //listOfPlayers[i].movementPoints = listOfPlayers[i].movementSpeed;
+            listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
         }
         StartCoroutine(EndTurn());
     }

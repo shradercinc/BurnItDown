@@ -17,10 +17,34 @@ public class TileData : MonoBehaviour
     [Tooltip("The entity on this tile")] public Entity myEntity;
     [Tooltip("Default texture")][SerializeField] Material defaultTexture;
     [Tooltip("Texture when under surveillance")][SerializeField] Material surveillanceTexture;
-    [Tooltip("The entity on this tile")] public bool underSurveillance = false;
     [Tooltip("Renders the material")] MeshRenderer currentMaterial;
     private void Awake()
     {
         currentMaterial = GetComponent<MeshRenderer>();
+    }
+
+    public void SurveillanceState(bool underSurveillance)
+    {
+        if (underSurveillance)
+            currentMaterial.material = surveillanceTexture;
+        else
+            currentMaterial.material = defaultTexture;
+    }
+
+    public TileData WestTile()
+    {
+        return NewManager.instance.FindTile(new Vector2(gridPosition.x-1, gridPosition.y));
+    }
+    public TileData EastTile()
+    {
+        return NewManager.instance.FindTile(new Vector2(gridPosition.x+1, gridPosition.y));
+    }    
+    public TileData NorthTile()
+    {
+        return NewManager.instance.FindTile(new Vector2(gridPosition.x, gridPosition.y+1));
+    }    
+    public TileData SouthTile()
+    {
+        return NewManager.instance.FindTile(new Vector2(gridPosition.x, gridPosition.y-1));
     }
 }

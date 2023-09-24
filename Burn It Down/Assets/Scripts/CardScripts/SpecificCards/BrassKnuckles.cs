@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BrassKnuckles : Card
 {
-    ObjectManager adjacentEnemy;
+    GuardEntity adjacentEnemy;
 
     public override void Setup()
     {
@@ -18,14 +18,14 @@ public class BrassKnuckles : Card
 
     public override bool CanPlay()
     {
-        if (TurnManager.instance.energyBar.value > energyCost)
+        if (NewManager.instance.EnoughEnergy(energyCost))
         {
-            Vector2Int currentTile = GridManager.instance.Player1.transform.parent.GetComponent<FloorTile>().gridPosition;
-            FloorTile[] adjacent = new FloorTile[4];
+            Vector2Int currentTile = NewManager.instance.listOfPlayers[0].currentTile.gridPosition;
+            TileData[] adjacent = new TileData[4];
 
             try
             {
-                adjacent[0] = GridManager.instance._Grid[currentTile.x - 1, currentTile.y];
+                adjacent[0] = NewManager.instance.tilesInGrid[currentTile.x - 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -33,7 +33,7 @@ public class BrassKnuckles : Card
             }
             try
             {
-                adjacent[1] = GridManager.instance._Grid[currentTile.x + 1, currentTile.y];
+                adjacent[1] = NewManager.instance.tilesInGrid[currentTile.x + 1, currentTile.y];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -41,7 +41,7 @@ public class BrassKnuckles : Card
             }
             try
             {
-                adjacent[2] = GridManager.instance._Grid[currentTile.x, currentTile.y - 1];
+                adjacent[2] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y - 1];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -49,7 +49,7 @@ public class BrassKnuckles : Card
             }
             try
             {
-                adjacent[3] = GridManager.instance._Grid[currentTile.x, currentTile.y + 1];
+                adjacent[3] = NewManager.instance.tilesInGrid[currentTile.x, currentTile.y + 1];
             }
             catch (System.IndexOutOfRangeException)
             {
@@ -61,7 +61,7 @@ public class BrassKnuckles : Card
                 {
                     if (CheckForEnemy(adjacent[i]))
                     {
-                        adjacentEnemy = adjacent[i].AttachedObject;
+                        adjacentEnemy = adjacent[i].myEntity.GetComponent<GuardEntity>();
                         return true;
                     }
                 }
@@ -70,12 +70,12 @@ public class BrassKnuckles : Card
         return false;
     }
 
-    bool CheckForEnemy(FloorTile nextTile)
+    bool CheckForEnemy(TileData nextTile)
     {
-        if (nextTile == null || nextTile.AttachedObject == null)
+        if (nextTile == null || nextTile.myEntity == null)
             return false;
         Debug.Log("checking attached object");
-        return nextTile.AttachedObject.CompareTag("Enemy");
+        return nextTile.myEntity.CompareTag("Enemy");
     }
 
     public override IEnumerator PlayEffect()

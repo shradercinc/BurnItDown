@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DZ Game Test.unity
     guid: 3a4d8ad3f3c984ccebdb4a14ef5e09c8
-  - enabled: 0
-    path: Assets/Scenes/CardTest.unity
-    guid: d9377ddc42bd74141b586fb05a8954ef
+  - enabled: 1
+    path: Assets/Scenes/New Scene.unity
+    guid: 4c29105d24e1848ffb25942c5ddc01ee
   m_configObjects: {}

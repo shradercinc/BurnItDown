@@ -16,12 +16,12 @@ public class Dash : Card
 
     public override bool CanPlay()
     {
-        return TurnManager.instance.energyBar.value >= energyCost;
+        return NewManager.instance.EnoughEnergy(energyCost);
     }
 
     public override IEnumerator PlayEffect()
     {
-        GridManager.instance.Player1.movementPoints += 3;
+        NewManager.instance.listOfPlayers[0].movementLeft += 3;
         yield return null;
     }
 }
