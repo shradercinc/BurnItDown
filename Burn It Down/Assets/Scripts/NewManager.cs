@@ -52,11 +52,13 @@ public class NewManager : MonoBehaviour
 
     [Foldout("Setup", true)]
         [Tooltip("Size of the level")] public Vector2Int gridSize;
+        [Tooltip("Starting hand")] Transform startingHand;
         [Tooltip("Entities and their starting positions")] [SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
     
     public enum TurnSystem {You, Resolving, Enemy};
-    [Foldout("Turn System", true)]     
-        [ReadOnly] public TurnSystem currentTurn;
+    [Foldout("Turn System", true)]
+        [Tooltip("What's happening in the game")] [ReadOnly] public TurnSystem currentTurn;
+        [Tooltip("Number of actions you can do before enemy's turn")] [ReadOnly] public int numActions;
 
     void Awake()
     {
@@ -75,6 +77,7 @@ public class NewManager : MonoBehaviour
         
         handTransform = GameObject.Find("Player Hand").transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
         gridContainer = GameObject.Find("Grid Container").transform;
+        startingHand = GameObject.Find("Starting Hand").transform;
 
         regainResources = GameObject.Find("Regain Resources Button").GetComponent<Button>();
         regainResources.onClick.AddListener(Regain);
@@ -99,9 +102,9 @@ public class NewManager : MonoBehaviour
         }
 
         //get the cards in your starting hand
-        for (int i = 0; i < SaveManager.instance.newSaveData.startingHand.Count; i++)
+        for (int i = 0; i < startingHand.childCount; i++)
         {
-            Card nextCard = SaveManager.instance.newSaveData.startingHand[i];
+            Card nextCard = startingHand.GetChild(i).GetComponent<Card>();
             nextCard.choiceScript.DisableButton();
             AddCardToHand(nextCard);
         }
