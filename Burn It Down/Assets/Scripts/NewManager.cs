@@ -13,6 +13,7 @@ public class NewManager : MonoBehaviour
          [Tooltip("Reference to players")] [ReadOnly] public List<PlayerEntity> listOfPlayers = new List<PlayerEntity>();
          [Tooltip("Reference to walls")] [ReadOnly] public List<WallEntity> listOfWalls = new List<WallEntity>();
          [Tooltip("Reference to guards")] [ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
+         [Tooltip("Reference to active environmental objects")][ReadOnly] public List<EnvironmentalEntity> listOfEnvironmentals = new List<EnvironmentalEntity>();
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")]RectTransform handTransform;
@@ -32,6 +33,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Movement bar's textbox")]TMP_Text movementText;
         [Tooltip("Regain energy/health/cards")] Button regainResources;
         [Tooltip("Button to stop moving")] Button stopMovingButton;
+        [Tooltip("info on entities")] public EntityToolTip toolTip;
 
     [Foldout("GameOver", true)]
         [SerializeField] TMP_Text gameOverText;
@@ -55,7 +57,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Starting hand")] Transform startingHand;
         [Tooltip("Entities and their starting positions")] [SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
     
-    public enum TurnSystem {You, Resolving, Enemy};
+    public enum TurnSystem {You, Resolving, Environmentals, Enemy};
     [Foldout("Turn System", true)]
         [Tooltip("What's happening in the game")] [ReadOnly] public TurnSystem currentTurn;
         [Tooltip("Number of actions you can do before enemy's turn")] [ReadOnly] public int numActions;
@@ -317,15 +319,14 @@ public class NewManager : MonoBehaviour
 
         movementBar.value = player.movementLeft;
         movementText.text = $"Movement: {player.movementLeft}";
-
-        if (player.movementLeft <= 0)
+            if (player.movementLeft <= 0)
             StopMoving();
         else
             yield return MovePlayer(ChoiceManager.instance.chosenTile);
     }
     public void StopMoving()
     {
-        StartCoroutine(EndTurn());
+        //StartCoroutine(EndTurn());
     }
     IEnumerator CanPlayCard() //choose a card to play
     {
@@ -354,7 +355,7 @@ public class NewManager : MonoBehaviour
             DiscardCard(playMe);
             ChangeEnergy((int)energyBar.value - playMe.energyCost);
             yield return playMe.PlayEffect();
-            StartCoroutine(EndTurn());
+            //StartCoroutine(EndTurn());
         }
     }
     public void Regain()
@@ -366,9 +367,27 @@ public class NewManager : MonoBehaviour
         {
             listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
         }
-        StartCoroutine(EndTurn());
+        StartCoroutine(EnvironmentalPhase());
     }
-    IEnumerator EndTurn()
+
+    IEnumerator EnvironmentalPhase()
+    {
+        ChoiceManager.instance.DisableCards();
+        ChoiceManager.instance.DisableTiles();
+        stopMovingButton.gameObject.SetActive(false);
+
+        for (int i = 0; i < listOfPlayers.Count; i++)
+            yield return listOfPlayers[i].EndOfTurn();
+        currentTurn = TurnSystem.Environmentals;
+        for (int i = 0; i < listOfEnvironmentals.Count; i++)
+        {
+            yield return null;
+            yield return listOfEnvironmentals[i].EndOfTurn();
+        }
+        StartCoroutine(EndTurn());
+        yield return null;
+    }
+    IEnumerator EndTurn()       //Starts Guard Phase
     {
         ChoiceManager.instance.DisableCards();
         ChoiceManager.instance.DisableTiles();

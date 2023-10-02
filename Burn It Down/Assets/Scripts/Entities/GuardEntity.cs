@@ -8,7 +8,7 @@ public class GuardEntity : MovingEntity
     [Foldout("Guard Entity", true)]
         [Tooltip("Tiles this is searching")] List<TileData> inDetection = new List<TileData>();
         [Tooltip("Pauses between movement")] float movePauseTime = 0.25f;
-        [Tooltip("How far this can see")] int DetectionRangePatrol = 3;
+        [Tooltip("How far this can see")][SerializeField] int DetectionRangePatrol = 3;
         [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
         [Tooltip("Where this moves and looks")] [ReadOnly]public Vector2Int direction;
@@ -23,8 +23,11 @@ public class GuardEntity : MovingEntity
         for (int i = 0; i < DetectionRangePatrol; i++)
         {
             inDetection.Add(NewManager.instance.FindTile(currentTile.gridPosition + new Vector2Int(direction.x * i, direction.y * i)));
-            inDetection.Add(NewManager.instance.FindTile(currentTile.gridPosition + side + new Vector2Int(direction.x * i, direction.y * i)));
-            inDetection.Add(NewManager.instance.FindTile(currentTile.gridPosition - side + new Vector2Int(direction.x * i, direction.y * i)));
+            if (i <= 1)
+            {
+                inDetection.Add(NewManager.instance.FindTile(currentTile.gridPosition + side + new Vector2Int(direction.x * i, direction.y * i)));
+                inDetection.Add(NewManager.instance.FindTile(currentTile.gridPosition - side + new Vector2Int(direction.x * i, direction.y * i)));
+            }
         }
 
         inDetection.RemoveAll(item => item == null); //delete all tiles that are null
@@ -37,7 +40,11 @@ public class GuardEntity : MovingEntity
         for (int i = 0; i<inDetection.Count; i++)
         {
             if (inDetection[i].myEntity != null && inDetection[i].myEntity.CompareTag("Player"))
-                return inDetection[i].myEntity.GetComponent<PlayerEntity>();
+
+                if (inDetection[i].myEntity.GetComponent<PlayerEntity>().hidden !> 0)
+                {
+                    return inDetection[i].myEntity.GetComponent<PlayerEntity>();
+                }
         }
         return null;
     }

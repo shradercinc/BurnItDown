@@ -228,6 +228,7 @@ MonoBehaviour:
   lineRenderer: {fileID: 0}
   movementLeft: 0
   movesPerTurn: 3
+  DetectionRangePatrol: 4
   stunned: 0
   attacksPerTurn: 1
   direction: {x: 0, y: 0}

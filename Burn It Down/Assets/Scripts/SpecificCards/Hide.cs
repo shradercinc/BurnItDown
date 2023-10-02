@@ -21,7 +21,7 @@ public class Hide : Card
 
     public override IEnumerator PlayEffect()
     {
-        GridManager.instance.Player1.hidden += 2;
+        NewManager.instance.listOfPlayers[0].hidden += 2;
         yield return null;
     }
 

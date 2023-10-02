@@ -10,6 +10,7 @@ using MyBox;
 public class Entity : MonoBehaviour
 {
     [Foldout("Base Entity", true)]
+        [Tooltip("Entity name displayed in in-game tooltip")][SerializeField] public string entityName = "Defualt";
         [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
         [ReadOnly] public MeshRenderer meshRenderer;
         [ReadOnly] public LineRenderer lineRenderer;
@@ -18,6 +19,11 @@ public class Entity : MonoBehaviour
     {
         meshRenderer = GetComponent<MeshRenderer>();
         lineRenderer = GetComponent<LineRenderer>();
+    }
+
+    public virtual string hoverBoxText()
+    {
+        return "";
     }
 
     public void MoveTile(TileData newTile)
