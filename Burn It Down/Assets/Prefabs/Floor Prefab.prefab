@@ -222,3 +222,4 @@ MonoBehaviour:
   defaultTexture: {fileID: 2100000, guid: ae9e0d7672583e547a9912e912f91e98, type: 2}
   surveillanceTexture: {fileID: 2100000, guid: 057681984cc384844b89893c561cd19e, type: 2}
   clickable: 0
+  timeTillToolTip: 0.5

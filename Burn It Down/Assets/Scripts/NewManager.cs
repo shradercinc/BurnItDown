@@ -103,6 +103,7 @@ public class NewManager : MonoBehaviour
             nextCard.choiceScript.DisableButton();     
         }
 
+        /*
         //get the cards in your starting hand
         for (int i = 0; i < startingHand.childCount; i++)
         {
@@ -110,8 +111,10 @@ public class NewManager : MonoBehaviour
             nextCard.choiceScript.DisableButton();
             AddCardToHand(nextCard);
         }
+        */
 
         deck.Shuffle(); //shuffle your deck
+        DrawCards(5);
 
         listOfTiles = new TileData[gridSize.x, gridSize.y];
         for (int i = 0; i<gridSize.x; i++) //create the tiles

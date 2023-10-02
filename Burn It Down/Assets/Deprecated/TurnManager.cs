@@ -54,6 +54,7 @@ public class TurnManager : MonoBehaviour
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
         }
 
+        /*
         //get the cards you added to your deck
         for (int i = 0; i < SaveManager.instance.newSaveData.startingHand.Count; i++)
         {
@@ -61,6 +62,7 @@ public class TurnManager : MonoBehaviour
             nextCard.choiceScript.DisableButton();
             AddCardToHand(nextCard);
         }
+        */
 
         deck.Shuffle(); //shuffle that deck
         ChangeHealth(3);
