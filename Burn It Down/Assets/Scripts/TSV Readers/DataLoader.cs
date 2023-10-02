@@ -29,8 +29,10 @@ public class CardData
     public string nextAct; //action to do next turn
 }
 
+//Uses TSVReader class to translate values from the CardData CSV.
 public class CardDataLoader
 {
+    //Call this function at the beginning of your script to generate the cards and deck
     public static List<CardData> ReadCardData()
     {
         List<CardData> cardData = new List<CardData>();
