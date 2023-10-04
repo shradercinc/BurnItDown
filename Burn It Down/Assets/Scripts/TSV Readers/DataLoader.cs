@@ -61,6 +61,8 @@ public class CardDataLoader
             newCard.select = line[18];
             newCard.action = line[19];
             newCard.nextAct = line[20];
+
+            cardData.Add(newCard);
         }
         return cardData;
     }
