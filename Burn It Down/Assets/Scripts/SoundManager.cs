@@ -9,11 +9,14 @@ public class SoundManager : MonoBehaviour
     AudioSource source;
     void Awake()
     {
-        if (instance == null) instance = this;
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
         else
         {
-            Destroy(gameObject);
-            return;
+            Destroy(this.gameObject);
         }
 
         source = GetComponent<AudioSource>();
@@ -32,14 +35,12 @@ public class SoundManager : MonoBehaviour
 
     public void PlaySoundDelayed(AudioClip sound, float delay)
     {
-        IEnumerator d = SoundDelayCoroutine(sound, delay);
-        StartCoroutine(d);
+        StartCoroutine(SoundDelayCoroutine(sound, delay));
     }
 
     IEnumerator SoundDelayCoroutine(AudioClip sound, float delay)
     {
         yield return new WaitForSeconds(delay);
-
         source.PlayOneShot(sound);
     }
 }

@@ -40,5 +40,5 @@ MonoBehaviour:
   addAllPrefabsToManager: 1
   collectDependenciesDepth: 4
   logDebugInfo: 0
-  logWarnings: 1
+  logWarnings: 0
   logErrors: 1

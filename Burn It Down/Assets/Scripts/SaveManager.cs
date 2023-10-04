@@ -60,4 +60,10 @@ public class SaveManager : MonoBehaviour
         newSaveData.chosenDeck = newCards;
         ES3.Save("saveData", newSaveData);
     }
+
+    public void DeleteData()
+    {
+        string path = $"{Application.persistentDataPath}/SaveFile.es3";
+        File.Delete(path);
+    }
 }

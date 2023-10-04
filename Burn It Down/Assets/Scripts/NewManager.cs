@@ -5,6 +5,16 @@ using UnityEngine.UI;
 using TMPro;
 using MyBox;
 
+[System.Serializable]
+public class EntityAndPosition
+{
+    public enum EntityType { Player, Wall, Guard, Exit };
+
+    [Tooltip("Entity that should be spawned")] public EntityType entity;
+    [Tooltip("Their starting position in the grid")] public Vector2 startingPosition;
+    [ConditionalField(nameof(entity), false, EntityType.Guard)] public Vector2Int direction;
+}
+
 public class NewManager : MonoBehaviour
 {
     public static NewManager instance;
@@ -14,6 +24,7 @@ public class NewManager : MonoBehaviour
          [Tooltip("Reference to walls")] [ReadOnly] public List<WallEntity> listOfWalls = new List<WallEntity>();
          [Tooltip("Reference to guards")] [ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
          [Tooltip("Reference to active environmental objects")][ReadOnly] public List<EnvironmentalEntity> listOfEnvironmentals = new List<EnvironmentalEntity>();
+        [Tooltip("Reference to objectives")][ReadOnly] public List<ObjectiveEntity> listOfObjectives = new List<ObjectiveEntity>();
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")]RectTransform handTransform;
@@ -51,6 +62,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Player prefab")] public PlayerEntity player;
         [Tooltip("Wall prefab")] public WallEntity wall;
         [Tooltip("Guard prefab")] public GuardEntity guard;
+        [Tooltip("Exit prefab")] public ExitEntity exit;
 
     [Foldout("Setup", true)]
         [Tooltip("Size of the level")] public Vector2Int gridSize;
@@ -91,13 +103,10 @@ public class NewManager : MonoBehaviour
         gameOverText.transform.parent.gameObject.SetActive(false);
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
-        //since the right click script is under dontdestroyonload, we have to bring it back to the canvas
-        RightClick.instance.transform.SetParent(this.transform.parent);
-
-        //get all the cards in the game
-        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
+        //get all the cards in the deck
+        for (int i = 0; i < SaveManager.instance.newSaveData.chosenDeck.Count; i++)
         {
-            Card nextCard = SaveManager.instance.allCards[i];
+            Card nextCard = SaveManager.instance.newSaveData.chosenDeck[i];
             nextCard.transform.SetParent(deck);
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
             nextCard.choiceScript.DisableButton();     
@@ -158,7 +167,11 @@ public class NewManager : MonoBehaviour
                 case EntityAndPosition.EntityType.Wall:
                     nextEntity = Instantiate(wall, spawnHere.transform);
                     listOfWalls.Add(nextEntity.GetComponent<WallEntity>());
-                    break;            
+                    break;
+                case EntityAndPosition.EntityType.Exit:
+                    nextEntity = Instantiate(exit, spawnHere.transform);
+                    listOfObjectives.Add(nextEntity.GetComponent<ObjectiveEntity>());
+                    break;
             }
             nextEntity.MoveTile(spawnHere);
         }
@@ -186,17 +199,18 @@ public class NewManager : MonoBehaviour
     }
     public TileData FindTile(Vector2 vector) //find a tile based off Vector2
     {
-        if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
-            return null;
-        else
+        try
+        {
             return listOfTiles[(int)vector.x, (int)vector.y];
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            return null;
+        }
     }
     public TileData FindTile(Vector2Int vector) //find a tile based off Vector2Int
     {
-        if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
-            return null;
-        else
-            return listOfTiles[(int)vector.x, (int)vector.y];    
+        return FindTile(new Vector2(vector.x, vector.y));
     }
     public bool EnoughEnergy(int n)//check if n is larger than current energy
     {
@@ -224,21 +238,31 @@ public class NewManager : MonoBehaviour
     }
     public void DrawCards(int num)
     {
-        for (int i = 0; i < num; i++)
+        for (int i = 0; i<num; i++)
         {
-            //if deck's empty, shuffle discard pile and add those cards to the deck
-            //exhausted cards are not included in the shuffle
-
-            if (deck.childCount > 0)
+            try
             {
-                discardPile.Shuffle();
-                while (discardPile.childCount > 0)
-                    discardPile.GetChild(0).SetParent(deck);
+                AddCardToHand(GetTopCard());
             }
-
-            if (deck.childCount > 0) //get the top card of the deck if there is one
-                AddCardToHand(deck.GetChild(0).GetComponent<Card>());
+            catch (System.NullReferenceException)
+            {
+                break;
+            }
         }
+    }
+    public Card GetTopCard()
+    {
+        if (deck.childCount > 0)
+        {
+            discardPile.Shuffle();
+            while (discardPile.childCount > 0)
+                discardPile.GetChild(0).SetParent(deck);
+        }
+
+        if (deck.childCount > 0) //get the top card of the deck if there is one
+            return (deck.GetChild(0).GetComponent<Card>());
+        else
+            return null;
     }
     public void AddCardToHand(Card newCard)
     {

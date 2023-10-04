@@ -18,8 +18,6 @@ public class DeckBuildManager : MonoBehaviour
 
     private void Start()
     {
-        Application.targetFrameRate = 60;
-        RightClick.instance.transform.SetParent(this.transform.parent);
         StartCoroutine(Setup());
     }
 

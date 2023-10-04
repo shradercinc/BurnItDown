@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1790,6 +1790,7 @@ MonoBehaviour:
   listOfWalls: []
   listOfGuards: []
   listOfEnvironmentals: []
+  listOfObjectives: []
   toolTip: {fileID: 1051534387}
   gameOverText: {fileID: 2073059604}
   gameOverButton: {fileID: 1527282418}
@@ -1800,6 +1801,7 @@ MonoBehaviour:
   player: {fileID: 6421295861255831564, guid: e68cbc9ff88a24d4d9abfef76230b41f, type: 3}
   wall: {fileID: 3780071206512033230, guid: dc8aa844dc4e549bbb30d8da98a75ea1, type: 3}
   guard: {fileID: 127779131077801882, guid: 13d7840c131d341de8dbd9115b5fec71, type: 3}
+  exit: {fileID: -7563352408502380383, guid: 118fc5b90705644c59316bccbf8dfa3b, type: 3}
   gridSize: {x: 10, y: 10}
   entityStarts:
   - entity: 0
@@ -1828,6 +1830,9 @@ MonoBehaviour:
     direction: {x: 1, y: 0}
   - entity: 2
     startingPosition: {x: 6, y: 5}
+    direction: {x: 0, y: -1}
+  - entity: 3
+    startingPosition: {x: 9, y: 9}
     direction: {x: 0, y: -1}
   currentTurn: 0
   numActions: 0

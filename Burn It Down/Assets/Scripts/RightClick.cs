@@ -7,11 +7,10 @@ using TMPro;
 public class RightClick : MonoBehaviour
 {
     public static RightClick instance;
-    public Image bigImage;
-
-    public TMP_Text cardName;
-    public TMP_Text cardCost;
-    public TMP_Text cardDescr;
+    [SerializeField] Image bigImage;
+    [SerializeField] TMP_Text cardName;
+    [SerializeField] TMP_Text cardCost;
+    [SerializeField] TMP_Text cardDescr;
 
     private void Awake()
     {
