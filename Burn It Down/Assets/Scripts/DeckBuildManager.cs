@@ -6,8 +6,8 @@ using TMPro;
 
 public class DeckBuildManager : MonoBehaviour
 {
-    List<Card> cardsInDeck = new List<Card>();
-    List<Card> cardsInCollection = new List<Card>();
+    List<Transform> cardsInDeck = new List<Transform>();
+    List<Transform> cardsInCollection = new List<Transform>();
 
     [SerializeField] RectTransform yourDeck;
     [SerializeField] RectTransform yourCollection;
@@ -26,9 +26,9 @@ public class DeckBuildManager : MonoBehaviour
         playGameButton.gameObject.SetActive(yourDeck.childCount == deckSize);
     }
 
-    public void AddToDeck(Card newCard, bool save)
+    public void AddToDeck(Transform newCard, bool save)
     {
-        if (cardsInDeck.Count < 15)
+        if (cardsInDeck.Count < deckSize)
         {
             //put that card on the top row
             cardsInCollection.Remove(newCard);
@@ -40,7 +40,7 @@ public class DeckBuildManager : MonoBehaviour
         }
     }
 
-    public void RemoveFromDeck(Card newCard, bool save)
+    public void RemoveFromDeck(Transform newCard, bool save)
     {
         //put that card on the bottom row
         cardsInDeck.Remove(newCard);
@@ -55,19 +55,20 @@ public class DeckBuildManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.25f);
 
-        //take all cards and put them on the bottom
+        //take all cards and put them on the top
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            RemoveFromDeck(SaveManager.instance.allCards[i], false);
+            RemoveFromDeck(SaveManager.instance.allCards[i].transform, false);
 
-        //take all cards already saved in your deck and put them on the top
+        //take all cards already saved in your deck and put them on the bottom
         for (int i = 0; i < SaveManager.instance.newSaveData.chosenDeck.Count; i++)
-            AddToDeck(SaveManager.instance.newSaveData.chosenDeck[i], false);
+            AddToDeck(yourCollection.transform.Find(SaveManager.instance.newSaveData.chosenDeck[i]), false);
 
         StartCoroutine(SwapCards());
     }
 
     IEnumerator SwapCards()
     {
+        //choose a card
         deckSizeText.text = $"Your Deck ({yourDeck.childCount}/{deckSize})";
         ChoiceManager.instance.ChooseCard(SaveManager.instance.allCards);
         while (ChoiceManager.instance.chosenCard == null)
@@ -75,9 +76,9 @@ public class DeckBuildManager : MonoBehaviour
 
         //swap cards between your deck and collection
         if (ChoiceManager.instance.chosenCard.transform.parent == yourCollection)
-            AddToDeck(ChoiceManager.instance.chosenCard, true);
+            AddToDeck(ChoiceManager.instance.chosenCard.transform, true);
         else
-            RemoveFromDeck(ChoiceManager.instance.chosenCard, true);
+            RemoveFromDeck(ChoiceManager.instance.chosenCard.transform, true);
 
         yield return SwapCards();
     }

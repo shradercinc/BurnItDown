@@ -10,13 +10,16 @@ public class CardData
     public string desc;    //card explanation displayed on the card itself
     public string cat1;    //atk (attack), draw, dist (distraction), eng (energy), mvmt (movement), misc (miscellaneous)
     public string cat2;    //same categories as above
+
     public int maxInv;     //number of cards in inventory
     public int epCost;     //EP cost to play card
     public bool isViolent; //violent or nonviolent
+
     public int chHP;       //HP change
     public int chMP;       //MP change
     public int chEP;       //EP change
     public int draw;       //number of cards to draw
+
     public int stun;       //number of turns the action stuns
     public int range;      //range of action
     public int aoe;        //area of action effect
@@ -24,6 +27,7 @@ public class CardData
     public int wHP;        //change in wall HP
     public int burn;       //amount to burn
     public int intn;       //distraction intensity
+
     public string select;  //any extra condition needed to select a tile
     public string action;  //action to do
     public string nextAct; //action to do next turn
@@ -40,6 +44,8 @@ public class CardDataLoader
         foreach (string[] line in data)
         {
             CardData newCard = new CardData();
+            cardData.Add(newCard);
+
             newCard.name =   line[0];
             newCard.desc =   line[1];
             newCard.cat1 =   line[2];
@@ -61,8 +67,6 @@ public class CardDataLoader
             newCard.select = line[18];
             newCard.action = line[19];
             newCard.nextAct = line[20];
-
-            cardData.Add(newCard);
         }
         return cardData;
     }

@@ -8,6 +8,7 @@ using TMPro;
 
 public class GridManager : MonoBehaviour
 {
+    /*
     public static GridManager instance;
     [Header("Grid Settings")]
     //controls the grid size with x,y length (1-10 instead of 0-10)
@@ -183,4 +184,5 @@ public class GridManager : MonoBehaviour
         Player1.movementPoints = Player1.movementSpeed;
         endTurn();
     }
+    */
 }

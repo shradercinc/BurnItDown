@@ -103,10 +103,15 @@ public class NewManager : MonoBehaviour
         gameOverText.transform.parent.gameObject.SetActive(false);
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
+        //store all the cards here
+        Transform emptyObject = new GameObject("EmptyObject").transform;
+        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
+            SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
+
         //get all the cards in the deck
         for (int i = 0; i < SaveManager.instance.newSaveData.chosenDeck.Count; i++)
         {
-            Card nextCard = SaveManager.instance.newSaveData.chosenDeck[i];
+            Card nextCard = emptyObject.transform.Find(SaveManager.instance.newSaveData.chosenDeck[i]).GetComponent<Card>();
             nextCard.transform.SetParent(deck);
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
             nextCard.choiceScript.DisableButton();     
@@ -178,8 +183,7 @@ public class NewManager : MonoBehaviour
 
         SetEnergy(3);
         SetHealth(3);
-        movementBar.value = 3;
-        movementText.text = $"Movement: {3}";
+        SetMovement(3);
 
         stopMovingButton.gameObject.SetActive(false);
         StartCoroutine(StartPlayerTurn());
@@ -230,11 +234,21 @@ public class NewManager : MonoBehaviour
     {
         ChangeHealth(n - (int)currentHealth);
     }
-    public void ChangeHealth(int n) //if you want to subtract 3 health, type SetHealth(-3);
+    public void ChangeHealth(int n) //if you want to subtract 3 health, type ChangeHealth(-3);
     {
         currentHealth += n;
         healthText.text = $"Health: {currentHealth}";
         healthBar.value = currentHealth;
+    }
+    public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
+    {
+        ChangeMovement(n - (int)listOfPlayers[0].movementLeft);
+    }
+    public void ChangeMovement(int n) //if you want to subtract 3 movement, type ChangeMovement(-3);
+    {
+        listOfPlayers[0].movementLeft += n;
+        movementText.text = $"Movement: {listOfPlayers[0].movementLeft}";
+        movementBar.value = listOfPlayers[0].movementLeft;
     }
     public void DrawCards(int num)
     {
@@ -360,7 +374,7 @@ public class NewManager : MonoBehaviour
         List<Card> canBePlayed = new List<Card>();
         for (int i = 0; i<listOfHand.Count; i++)
         {
-            if (listOfHand[i].CanPlay())
+            if (listOfHand[i].CanPlay(listOfPlayers[0]))
                 canBePlayed.Add(listOfHand[i]);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
@@ -379,9 +393,9 @@ public class NewManager : MonoBehaviour
         if (playMe != null)
         {
             MadeDecision();
+            ChangeEnergy(-1*playMe.energyCost);
+            yield return playMe.OnPlayEffect();
             DiscardCard(playMe);
-            ChangeEnergy((int)energyBar.value - playMe.energyCost);
-            yield return playMe.PlayEffect();
             //StartCoroutine(EndTurn());
         }
     }

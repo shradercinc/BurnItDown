@@ -8,6 +8,7 @@ using UnityEngine;
 
 public class ObjectManager : MonoBehaviour
 {
+    /*
     [Header("General Variables")]
     //movement speed is the max distance an object can move on its turn
     [SerializeField] public int movementSpeed = 3;
@@ -358,5 +359,5 @@ public class ObjectManager : MonoBehaviour
 
 
     }
-
+    */
 }

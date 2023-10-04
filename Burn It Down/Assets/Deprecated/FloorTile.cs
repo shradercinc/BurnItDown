@@ -6,7 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class FloorTile : MonoBehaviour
-{ 
+{
+    /*
     public Vector2Int gridPosition;
     [SerializeField] float hoverDistance;
     [SerializeField] float climbSpeed = 0.9f;
@@ -177,4 +178,5 @@ public class FloorTile : MonoBehaviour
         }
         underSurveillance = false;
     }
+    */
 }
