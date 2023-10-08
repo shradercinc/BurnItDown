@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DeleteFile : MonoBehaviour
+public class TitleScreen : MonoBehaviour
 {
-    Button button;
+    Button deleteFile;
 
     private void Awake()
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(Delete);
+        deleteFile = GameObject.Find("Delete Deck").GetComponent<Button>();
+        deleteFile.onClick.AddListener(Delete);
     }
 
     public void Delete()

@@ -19,6 +19,8 @@ public class StringAndMethod
         dictionary["CHANGEMP"] = card.ChangeMovement();
         dictionary["FINDZERO"] = card.FindZero();
         dictionary["DISCARDHAND"] = card.DiscardHand();
+        dictionary["STUNADJACENTGUARD"] = card.StunAdjacentGuard();
+        dictionary["DESTROYADJACENTWALL"] = card.DestroyAdjacentWall();
     }
 
 }
@@ -59,6 +61,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [ReadOnly] public TMP_Text textDescr { get; private set; }
 
     [ReadOnly] PlayerEntity currentPlayer;
+    [ReadOnly] GuardEntity adjacentGuard;
+    [ReadOnly] WallEntity adjacentWall;
 
 #endregion
 
@@ -154,13 +158,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
         for (int k = 0; k < methodsInStrings.Length; k++)
         {
-            if (methodsInStrings[k] != "" || methodsInStrings[k] != "NONE")
-            {
-                if (dic.dictionary.TryGetValue(methodsInStrings[k], out IEnumerator method))
-                    list.Add(method);
-                else
-                    Debug.LogError($"\"{methodsInStrings[k]}\" isn't a method");
-            }
+            if (methodsInStrings[k] == "" || methodsInStrings[k] == "NONE")
+                continue;
+            else if (dic.dictionary.TryGetValue(methodsInStrings[k], out IEnumerator method))
+                list.Add(method);
+            else
+                Debug.LogError($"\"{methodsInStrings[k]}\" for {this.name} isn't in the dictionary");
         }
     }
 
@@ -175,8 +178,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
         {
             return selectCondition switch
             {
-                CanPlayCondition.Guard => SearchAdjacent(OccupiedAdjacent(player.currentTile), "Enemy"),
-                CanPlayCondition.Wall => SearchAdjacent(OccupiedAdjacent(player.currentTile), "Wall"),
+                CanPlayCondition.Guard => SearchAdjacentGuard(player.currentTile) != null,
+                CanPlayCondition.Wall => SearchAdjacentWall(player.currentTile) != null,
                 CanPlayCondition.Occupied => (OccupiedAdjacent(player.currentTile).Count > 0),
                 _ => true,
             };
@@ -198,17 +201,34 @@ public class Card : MonoBehaviour, IPointerClickHandler
         return adjacentOccupied;
     }
 
-    bool SearchAdjacent(List<TileData> adjacentOccupied, string tag)
+    GuardEntity SearchAdjacentGuard(TileData playerTile)
     {
-        for (int i = 0; i<adjacentOccupied.Count; i++)
+        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
         {
-            if (adjacentOccupied[i].myEntity.CompareTag(tag))
-                return true;
+            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Guard"))
+            {
+                adjacentGuard = playerTile.adjacentTiles[i].myEntity.GetComponent<GuardEntity>();
+                return adjacentGuard;
+            }
         }
-        return false;
+
+        return null;
     }
 
-    #endregion
+    WallEntity SearchAdjacentWall(TileData playerTile)
+    {
+        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
+        {
+            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Wall"))
+            {
+                adjacentWall = playerTile.adjacentTiles[i].myEntity.GetComponent<WallEntity>();
+                return adjacentWall;
+            }
+        }
+
+        return null;
+    }
+#endregion
 
 #region Play Effect
 
@@ -313,5 +333,18 @@ public class Card : MonoBehaviour, IPointerClickHandler
         yield return null;
     }
 
-#endregion
+    public IEnumerator DestroyAdjacentWall()
+    {
+        NewManager.instance.listOfWalls.Remove(adjacentWall);
+        Destroy(adjacentWall.gameObject);
+        yield return null;
+    }
+
+    public IEnumerator StunAdjacentGuard()
+    {
+        adjacentGuard.stunned += stunDuration;
+        yield return null;
+    }
+
+    #endregion
 }
