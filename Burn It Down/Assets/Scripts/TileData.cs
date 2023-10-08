@@ -51,9 +51,9 @@ public class TileData : MonoBehaviour
         }
         if (myEntity != null)
         {
-            print("has entity");
+            //print("has entity");
             toolTipHoverTimer += Time.deltaTime;
-            print(toolTipHoverTimer);
+            //print(toolTipHoverTimer);
             if (toolTipHoverTimer >= timeTillToolTip)
             {
                 print("activating");

@@ -17,6 +17,8 @@ public class StringAndMethod
         dictionary["CHANGEHP"] = card.ChangeHealth();
         dictionary["CHANGEEP"] = card.ChangeEnergy();
         dictionary["CHANGEMP"] = card.ChangeMovement();
+        dictionary["FINDZERO"] = card.FindZero();
+        dictionary["DISCARDHAND"] = card.DiscardHand();
     }
 
 }
@@ -52,9 +54,9 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [ReadOnly] List<IEnumerator> effectsInorder = new List<IEnumerator>();
     [ReadOnly] List<IEnumerator> nextTurnEffectsInOrder = new List<IEnumerator>();
 
-    [ReadOnly] public TMP_Text textName;
-    [ReadOnly] public TMP_Text textCost;
-    [ReadOnly] public TMP_Text textDescr;
+    [ReadOnly] public TMP_Text textName { get; private set; } 
+    [ReadOnly] public TMP_Text textCost { get; private set; }
+    [ReadOnly] public TMP_Text textDescr { get; private set; }
 
     [ReadOnly] PlayerEntity currentPlayer;
 
@@ -229,7 +231,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         while (foundCard == null)
         {
             Card nextCard = NewManager.instance.GetTopCard();
-            if (NewManager.instance.GetTopCard() == null)
+            if (nextCard == null)
             {
                 break;
             }
@@ -255,7 +257,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         while (foundCard == null)
         {
             Card nextCard = NewManager.instance.GetTopCard();
-            if (NewManager.instance.GetTopCard() == null)
+            if (nextCard == null)
             {
                 break;
             }
@@ -271,7 +273,26 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
         for (int i = 0; i < invalidCards.Count; i++)
             NewManager.instance.DiscardCard(invalidCards[i]);
+
         return foundCard;
+    }
+
+    public IEnumerator DiscardHand()
+    {
+        while (NewManager.instance.listOfHand.Count>0)
+        {
+            NewManager.instance.DiscardCard(NewManager.instance.listOfHand[0]);
+        }
+        yield return null;
+    }
+
+    public IEnumerator FindZero()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            yield return new WaitForSeconds(0.5f);
+            NewManager.instance.AddCardToHand(FindCardCost(0));
+        }
     }
 
     public IEnumerator ChangeHealth()

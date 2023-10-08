@@ -28,7 +28,7 @@ public class NewManager : MonoBehaviour
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")]RectTransform handTransform;
-        [Tooltip("Reference to card scripts")] List<Card> listOfHand = new List<Card>();
+        [Tooltip("Reference to card scripts")] [ReadOnly] public List<Card> listOfHand = new List<Card>();
         [Tooltip("Your deck in the canvas")] Transform deck;
         [Tooltip("Your discard pile in the canvas")]Transform discardPile;
         [Tooltip("Your exhausted cards in the canvas")]Transform exhausted;
@@ -109,9 +109,9 @@ public class NewManager : MonoBehaviour
             SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
 
         //get all the cards in the deck
-        for (int i = 0; i < SaveManager.instance.newSaveData.chosenDeck.Count; i++)
+        for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
         {
-            Card nextCard = emptyObject.transform.Find(SaveManager.instance.newSaveData.chosenDeck[i]).GetComponent<Card>();
+            Card nextCard = emptyObject.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>();
             nextCard.transform.SetParent(deck);
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
             nextCard.choiceScript.DisableButton();     
@@ -274,16 +274,19 @@ public class NewManager : MonoBehaviour
         }
 
         if (deck.childCount > 0) //get the top card of the deck if there is one
-            return (deck.GetChild(0).GetComponent<Card>());
+            return deck.GetChild(0).GetComponent<Card>();
         else
             return null;
     }
     public void AddCardToHand(Card newCard)
     {
         //add the new card to your hand
-        listOfHand.Add(newCard);
-        newCard.transform.SetParent(handTransform);
-        newCard.transform.localScale = new Vector3(1, 1, 1);
+        if (newCard != null)
+        {
+            listOfHand.Add(newCard);
+            newCard.transform.SetParent(handTransform);
+            newCard.transform.localScale = new Vector3(1, 1, 1);
+        }
     }
     public void DiscardCard(Card discardMe)
     {

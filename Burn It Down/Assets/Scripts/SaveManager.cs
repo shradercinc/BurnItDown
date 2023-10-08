@@ -22,7 +22,7 @@ public class SaveData
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
-    public SaveData newSaveData = new SaveData();
+    public SaveData currentSaveData = new SaveData();
     public List<Card> allCards = new List<Card>(); //keeps track of all cards in the game
 
     private void Awake()
@@ -42,7 +42,7 @@ public class SaveManager : MonoBehaviour
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
         if (File.Exists(path)) //if there's a save file, get it
-            newSaveData = ES3.Load<SaveData>("saveData");
+            currentSaveData = ES3.Load<SaveData>("saveData");
     }
 
     public void SaveHand(List<Transform> deckToSave)
@@ -51,13 +51,15 @@ public class SaveManager : MonoBehaviour
         List<string> newCards = new List<string>();
         for (int i = 0; i < deckToSave.Count; i++)
             newCards.Add(deckToSave[i].name);
-        newSaveData.chosenDeck = newCards;
-        ES3.Save("saveData", newSaveData);
+        currentSaveData.chosenDeck = newCards;
+        ES3.Save("saveData", currentSaveData);
     }
 
     public void DeleteData()
     {
+        Debug.Log("deleting save file");
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        File.Delete(path);
+        ES3.DeleteFile(path);
+        currentSaveData = new SaveData();
     }
 }

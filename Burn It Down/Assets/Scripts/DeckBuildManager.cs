@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,9 +60,9 @@ public class DeckBuildManager : MonoBehaviour
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
             RemoveFromDeck(SaveManager.instance.allCards[i].transform, false);
 
-        //take all cards already saved in your deck and put them on the bottom
-        for (int i = 0; i < SaveManager.instance.newSaveData.chosenDeck.Count; i++)
-            AddToDeck(yourCollection.transform.Find(SaveManager.instance.newSaveData.chosenDeck[i]), false);
+        if (SaveManager.instance.currentSaveData.chosenDeck != null)
+            for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
+                AddToDeck(yourCollection.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]), false);
 
         StartCoroutine(SwapCards());
     }

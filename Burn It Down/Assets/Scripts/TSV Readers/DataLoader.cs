@@ -46,28 +46,36 @@ public class CardDataLoader
             CardData newCard = new CardData();
             cardData.Add(newCard);
 
-            newCard.name =   line[0];
-            newCard.desc =   line[1];
-            newCard.cat1 =   line[2];
-            newCard.cat2 =   line[3];
-            newCard.maxInv = int.Parse(line[4]);
-            newCard.epCost = int.Parse(line[5]);
+            newCard.name = line[0];
+            newCard.desc = line[1];
+            newCard.cat1 = line[2];
+            newCard.cat2 = line[3];
+            newCard.maxInv = StringToInt(line[4]);
+            newCard.epCost = StringToInt(line[5]);
             newCard.isViolent = line[6] == "v";
-            newCard.chHP = int.Parse(line[7]);
-            newCard.chMP = int.Parse(line[8]);
-            newCard.chEP = int.Parse(line[9]);
-            newCard.draw = int.Parse(line[10]);
-            newCard.stun = int.Parse(line[11]);
-            newCard.range = int.Parse(line[12]);
-            newCard.aoe = int.Parse(line[13]);
-            newCard.delay = int.Parse(line[14]);
-            newCard.wHP = int.Parse(line[15]);
-            newCard.burn = int.Parse(line[16]);
-            newCard.intn = int.Parse(line[17]);
+            newCard.chHP = StringToInt(line[7]);
+            newCard.chMP = StringToInt(line[8]);
+            newCard.chEP = StringToInt(line[9]);
+            newCard.draw = StringToInt(line[10]);
+            newCard.stun = StringToInt(line[11]);
+            newCard.range = StringToInt(line[12]);
+            newCard.aoe = StringToInt(line[13]);
+            newCard.delay = StringToInt(line[14]);
+            newCard.wHP = StringToInt(line[15]);
+            newCard.burn = StringToInt(line[16]);
+            newCard.intn = StringToInt(line[17]);
             newCard.select = line[18];
             newCard.action = line[19];
             newCard.nextAct = line[20];
         }
         return cardData;
+    }
+
+    static int StringToInt(string line)
+    {
+        if (line == "")
+            return 0;
+        else
+            return int.Parse(line);
     }
 }
