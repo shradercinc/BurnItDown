@@ -223,9 +223,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7965dbefbe39e4799b04cb7119e1520a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entityName: Default Guard
   currentTile: {fileID: 0}
   meshRenderer: {fileID: 0}
   lineRenderer: {fileID: 0}
+  MoveCost: 999
   movementLeft: 0
   movesPerTurn: 3
   DetectionRangePatrol: 4

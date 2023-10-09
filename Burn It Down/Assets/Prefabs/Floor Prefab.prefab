@@ -222,3 +222,8 @@ MonoBehaviour:
   defaultTexture: {fileID: 2100000, guid: ae9e0d7672583e547a9912e912f91e98, type: 2}
   surveillanceTexture: {fileID: 2100000, guid: 057681984cc384844b89893c561cd19e, type: 2}
   clickable: 0
+  timeTillToolTip: 0.5
+  mouseOverColor: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 1}
+  SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+  moveable: 0
+  MoveableColor: {r: 0.32766104, g: 0.9811321, b: 0.9619186, a: 1}

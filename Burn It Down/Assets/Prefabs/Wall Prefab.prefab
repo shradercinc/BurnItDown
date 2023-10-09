@@ -118,6 +118,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a1db5eab69f44604aa7a76057c52963, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entityName: Wall
   currentTile: {fileID: 0}
   meshRenderer: {fileID: 0}
   lineRenderer: {fileID: 0}
+  MoveCost: 999
+  health: 3
