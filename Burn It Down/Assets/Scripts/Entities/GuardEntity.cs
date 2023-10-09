@@ -13,6 +13,16 @@ public class GuardEntity : MovingEntity
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
         [Tooltip("Where this moves and looks")] [ReadOnly]public Vector2Int direction;
 
+    public override string HoverBoxName()
+    {
+        return "Guard";
+    }
+
+    public override string HoverBoxText()
+    {
+        return $"Stunned for {stunned} turns";
+    }
+
     public override void CalculateTiles()
     {
         for (int i = 0; i<inDetection.Count; i++)

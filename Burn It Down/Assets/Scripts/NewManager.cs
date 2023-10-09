@@ -9,6 +9,16 @@ using static MyBox.EditorTools.MyGUI;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 
+[System.Serializable]
+public class EntityAndPosition
+{
+    public enum EntityType { Player, Wall, Guard, Exit };
+
+    [Tooltip("Entity that should be spawned")] public EntityType entity;
+    [Tooltip("Their starting position in the grid")] public Vector2 startingPosition;
+    [ConditionalField(nameof(entity), false, EntityType.Guard)] public Vector2Int direction;
+}
+
 public class AStarNode
 {
     public TileData ATileData;
@@ -23,60 +33,61 @@ public class NewManager : MonoBehaviour
     public static NewManager instance;
 
     [Foldout("Storing Things", true)]
-    [Tooltip("Reference to players")][ReadOnly] public List<PlayerEntity> listOfPlayers = new List<PlayerEntity>();
-    [Tooltip("Reference to walls")][ReadOnly] public List<WallEntity> listOfWalls = new List<WallEntity>();
-    [Tooltip("Reference to guards")][ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
-    [Tooltip("Reference to active environmental objects")][ReadOnly] public List<EnvironmentalEntity> listOfEnvironmentals = new List<EnvironmentalEntity>();
-    [Tooltip("Current Selected Tile")]public TileData selectedTile;
-    [Tooltip("Quick reference to current movable tile")] TileData CurrentAvalibleMoveTarget;
+        [Tooltip("Reference to players")][ReadOnly] public List<PlayerEntity> listOfPlayers = new List<PlayerEntity>();
+        [Tooltip("Reference to walls")][ReadOnly] public List<WallEntity> listOfWalls = new List<WallEntity>();
+        [Tooltip("Reference to guards")][ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
+        [Tooltip("Reference to active environmental objects")][ReadOnly] public List<EnvironmentalEntity> listOfEnvironmentals = new List<EnvironmentalEntity>();
+        [Tooltip("Reference to objectives")][ReadOnly] public List<ObjectiveEntity> listOfObjectives = new List<ObjectiveEntity>();
+        [Tooltip("Current Selected Tile")] [ReadOnly] public TileData selectedTile;
+        [Tooltip("Quick reference to current movable tile")] TileData CurrentAvalibleMoveTarget;
 
     [Foldout("Card Zones", true)]
-    [Tooltip("Your hand in the canvas")] RectTransform handTransform;
-    [Tooltip("Reference to card scripts")] List<Card> listOfHand = new List<Card>();
-    [Tooltip("Your deck in the canvas")] Transform deck;
-    [Tooltip("Your discard pile in the canvas")] Transform discardPile;
-    [Tooltip("Your exhausted cards in the canvas")] Transform exhausted;
-
+        [Tooltip("Your hand in the canvas")] RectTransform handTransform;
+        [Tooltip("Reference to card scripts")] [ReadOnly] public List<Card> listOfHand = new List<Card>();
+        [Tooltip("Your deck in the canvas")] Transform deck;
+        [Tooltip("Your discard pile in the canvas")] Transform discardPile;
+        [Tooltip("Your exhausted cards in the canvas")] Transform exhausted;
+        
     [Foldout("UI Elements", true)]
-    [Tooltip("Your health")] int currentHealth;
-    [Tooltip("Health bar")] Slider healthBar;
-    [Tooltip("Health bar's textbox")] TMP_Text healthText;
-    [Tooltip("Your energy")] int currentEnergy;
-    [Tooltip("Energy bar")] Slider energyBar;
-    [Tooltip("Energy bar's textbox")] TMP_Text energyText;
-    [Tooltip("Movement bar")] Slider movementBar;
-    [Tooltip("Movement bar's textbox")] TMP_Text movementText;
-    [Tooltip("Regain energy/health/cards")] Button regainResources;
-    [Tooltip("Button to stop moving")] Button stopMovingButton;
-    [Tooltip("info on entities")] public EntityToolTip toolTip;
-
+        [Tooltip("Your health")] int currentHealth;
+        [Tooltip("Health bar")] Slider healthBar;
+        [Tooltip("Health bar's textbox")] TMP_Text healthText;
+        [Tooltip("Your energy")] int currentEnergy;
+        [Tooltip("Energy bar")] Slider energyBar;
+        [Tooltip("Energy bar's textbox")] TMP_Text energyText;
+        [Tooltip("Movement bar")] Slider movementBar;
+        [Tooltip("Movement bar's textbox")] TMP_Text movementText;
+        [Tooltip("End the turn")] Button endTurnButton;
+        [Tooltip("info on entities")] [ReadOnly] public EntityToolTip toolTip;
+        
     [Foldout("GameOver", true)]
-    [SerializeField] TMP_Text gameOverText;
-    [SerializeField] GameObject gameOverButton;
-    [SerializeField] GameObject gameOverScreen;
+        [SerializeField] TMP_Text gameOverText;
+        [SerializeField] GameObject gameOverButton;
+        [SerializeField] GameObject gameOverScreen;
 
     [Foldout("Grid", true)]
-    [Tooltip("Tiles in the inspector")] Transform gridContainer;
-    [Tooltip("Storage of tiles")][ReadOnly] public TileData[,] listOfTiles;
-    [Tooltip("Spacing between tiles")][SerializeField] float tileSpacing = 2;
-    [Tooltip("Tile height")][SerializeField] float tileHeight = 2;
+        [Tooltip("Tiles in the inspector")] Transform gridContainer;
+        [Tooltip("Storage of tiles")][ReadOnly] public TileData[,] listOfTiles;
+        [Tooltip("Spacing between tiles")][SerializeField] float tileSpacing = 2;
+        [Tooltip("Tile height")][SerializeField] float tileHeight = 2;
 
     [Foldout("Prefabs", true)]
-    [Tooltip("Floor tile prefab")] public TileData floorTile;
-    [Tooltip("Player prefab")] public PlayerEntity player;
-    [Tooltip("Wall prefab")] public WallEntity wall;
-    [Tooltip("Guard prefab")] public GuardEntity guard;
+        [Tooltip("Floor tile prefab")] [SerializeField] TileData floorTilePrefab;
+        [Tooltip("Player prefab")][SerializeField] PlayerEntity playerPrefab;
+        [Tooltip("Wall prefab")][SerializeField] WallEntity wallPrefab;
+        [Tooltip("Guard prefab")][SerializeField] GuardEntity guardPrefab;
+    [Tooltip("Guard prefab")][SerializeField] ExitEntity exitPrefab;
 
     [Foldout("Setup", true)]
-    [Tooltip("Size of the level")] public Vector2Int gridSize;
-    [Tooltip("Starting hand")] Transform startingHand;
-    [Tooltip("Entities and their starting positions")][SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
+        [Tooltip("Size of the level")] public Vector2Int gridSize;
+        [Tooltip("Starting hand")] Transform startingHand;
+        [Tooltip("Entities and their starting positions")][SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
 
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
-    [Foldout("Turn System", true)]
-    [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
-    [Tooltip("Number of actions you can do before enemy's turn")][ReadOnly] public int numActions;
+        [Foldout("Turn System", true)]
+        [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
 
+#region Setup
     void Awake()
     {
         instance = this;
@@ -96,23 +107,23 @@ public class NewManager : MonoBehaviour
         gridContainer = GameObject.Find("Grid Container").transform;
         startingHand = GameObject.Find("Starting Hand").transform;
 
-        regainResources = GameObject.Find("Regain Resources Button").GetComponent<Button>();
-        regainResources.onClick.AddListener(Regain);
-        stopMovingButton = GameObject.Find("Stop Moving Button").GetComponent<Button>();
-        stopMovingButton.onClick.AddListener(StopMoving);
+        endTurnButton = GameObject.Find("End Turn Button").GetComponent<Button>();
+        endTurnButton.onClick.AddListener(Regain);
     }
     void Start()
     {
         gameOverText.transform.parent.gameObject.SetActive(false);
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
-        //since the right click script is under dontdestroyonload, we have to bring it back to the canvas
-        RightClick.instance.transform.SetParent(this.transform.parent);
-
-        //get all the cards in the game
+        //store all the cards here
+        Transform emptyObject = new GameObject("EmptyObject").transform;
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
+            SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
+
+        //get all the cards in the deck
+        for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
         {
-            Card nextCard = SaveManager.instance.allCards[i];
+            Card nextCard = emptyObject.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>();
             nextCard.transform.SetParent(deck);
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
             nextCard.choiceScript.DisableButton();
@@ -136,7 +147,7 @@ public class NewManager : MonoBehaviour
         {
             for (int j = 0; j < gridSize.y; j++)
             {
-                TileData nextTile = Instantiate(floorTile, gridContainer);
+                TileData nextTile = Instantiate(floorTilePrefab, gridContainer);
                 nextTile.transform.localPosition = new Vector3(i * -tileSpacing, tileHeight, j * -tileSpacing);
                 nextTile.name = $"Tile {i},{j}";
                 listOfTiles[i, j] = nextTile;
@@ -157,22 +168,26 @@ public class NewManager : MonoBehaviour
             Entity nextEntity = null;
             switch (entityStarts[i].entity)
             {
-                case EntityAndPosition.EntityType.Player:
-                    nextEntity = Instantiate(player, spawnHere.transform);
+                case EntityAndPosition.EntityType.Player: //create player
+                    nextEntity = Instantiate(playerPrefab, spawnHere.transform);
                     PlayerEntity thePlayer = nextEntity.GetComponent<PlayerEntity>();
                     thePlayer.movementLeft = thePlayer.movesPerTurn;
                     listOfPlayers.Add(thePlayer);
                     break;
-                case EntityAndPosition.EntityType.Guard:
-                    nextEntity = Instantiate(guard, spawnHere.transform);
+                case EntityAndPosition.EntityType.Guard: //create guard
+                    nextEntity = Instantiate(guardPrefab, spawnHere.transform);
                     GuardEntity theGuard = nextEntity.GetComponent<GuardEntity>();
                     theGuard.movementLeft = theGuard.movesPerTurn;
                     theGuard.direction = entityStarts[i].direction;
                     listOfGuards.Add(theGuard);
                     break;
-                case EntityAndPosition.EntityType.Wall:
-                    nextEntity = Instantiate(wall, spawnHere.transform);
+                case EntityAndPosition.EntityType.Wall: //create wall
+                    nextEntity = Instantiate(wallPrefab, spawnHere.transform);
                     listOfWalls.Add(nextEntity.GetComponent<WallEntity>());
+                    break;
+                case EntityAndPosition.EntityType.Exit: //create exit
+                    nextEntity = Instantiate(exitPrefab, spawnHere.transform);
+                    listOfObjectives.Add(nextEntity.GetComponent<ObjectiveEntity>());
                     break;
             }
             nextEntity.MoveTile(spawnHere);
@@ -180,18 +195,13 @@ public class NewManager : MonoBehaviour
 
         SetEnergy(3);
         SetHealth(3);
-        movementBar.value = 3;
-        movementText.text = $"Movement: {3}";
+        SetMovement(3);
 
-        stopMovingButton.gameObject.SetActive(false);
         StartCoroutine(StartPlayerTurn());
     }
-    void Update()
-    {
-        //regainResources.gameObject.SetActive(currentTurn == TurnSystem.You);
-    }
     void FindAdjacent(TileData tile)
-    {   //check each adjacent tile; if it's not null, add it to the list
+    {
+        //check each adjacent tile; if it's not null, add it to the list
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x - 1, tile.gridPosition.y)));
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y + 1)));
@@ -201,18 +211,22 @@ public class NewManager : MonoBehaviour
     }
     public TileData FindTile(Vector2 vector) //find a tile based off Vector2
     {
-        if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
-            return null;
-        else
+        try
+        {
             return listOfTiles[(int)vector.x, (int)vector.y];
+        }
+        catch (System.IndexOutOfRangeException)
+        {
+            return null;
+        }
     }
     public TileData FindTile(Vector2Int vector) //find a tile based off Vector2Int
     {
-        if (vector.x < 0 || vector.x >= gridSize.x || vector.y < 0 || vector.y >= gridSize.y)
-            return null;
-        else
-            return listOfTiles[(int)vector.x, (int)vector.y];
+        return FindTile(new Vector2(vector.x, vector.y));
     }
+    #endregion
+
+#region Changing Stats
     public bool EnoughEnergy(int n)//check if n is larger than current energy
     {
         return (energyBar.value >= n);
@@ -231,36 +245,62 @@ public class NewManager : MonoBehaviour
     {
         ChangeHealth(n - (int)currentHealth);
     }
-    public void ChangeHealth(int n) //if you want to subtract 3 health, type SetHealth(-3);
+    public void ChangeHealth(int n) //if you want to subtract 3 health, type ChangeHealth(-3);
     {
         currentHealth += n;
         healthText.text = $"Health: {currentHealth}";
         healthBar.value = currentHealth;
     }
+    public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
+    {
+        ChangeMovement(n - (int)listOfPlayers[0].movementLeft);
+    }
+    public void ChangeMovement(int n) //if you want to subtract 3 movement, type ChangeMovement(-3);
+    {
+        listOfPlayers[0].movementLeft += n;
+        movementText.text = $"Movement: {listOfPlayers[0].movementLeft}";
+        movementBar.value = listOfPlayers[0].movementLeft;
+    }
+    #endregion
+
+#region Cards
     public void DrawCards(int num)
     {
         for (int i = 0; i < num; i++)
         {
-            //if deck's empty, shuffle discard pile and add those cards to the deck
-            //exhausted cards are not included in the shuffle
-
-            if (deck.childCount > 0)
+            try
             {
-                discardPile.Shuffle();
-                while (discardPile.childCount > 0)
-                    discardPile.GetChild(0).SetParent(deck);
+                AddCardToHand(GetTopCard());
             }
-
-            if (deck.childCount > 0) //get the top card of the deck if there is one
-                AddCardToHand(deck.GetChild(0).GetComponent<Card>());
+            catch (System.NullReferenceException)
+            {
+                break;
+            }
         }
+    }
+    public Card GetTopCard()
+    {
+        if (deck.childCount > 0)
+        {
+            discardPile.Shuffle();
+            while (discardPile.childCount > 0)
+                discardPile.GetChild(0).SetParent(deck);
+        }
+
+        if (deck.childCount > 0) //get the top card of the deck if there is one
+            return deck.GetChild(0).GetComponent<Card>();
+        else
+            return null;
     }
     public void AddCardToHand(Card newCard)
     {
         //add the new card to your hand
-        listOfHand.Add(newCard);
-        newCard.transform.SetParent(handTransform);
-        newCard.transform.localScale = new Vector3(1, 1, 1);
+        if (newCard != null)
+        {
+            listOfHand.Add(newCard);
+            newCard.transform.SetParent(handTransform);
+            newCard.transform.localScale = new Vector3(1, 1, 1);
+        }
     }
     public void DiscardCard(Card discardMe)
     {
@@ -274,6 +314,9 @@ public class NewManager : MonoBehaviour
         listOfHand.Remove(exhaustMe);
         exhaustMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
     }
+#endregion
+
+#region Turn System
     public void GameOver(string cause, string buttonTxt)
     {
         gameOverText.gameObject.SetActive(true);
@@ -286,50 +329,14 @@ public class NewManager : MonoBehaviour
     {
         currentTurn = TurnSystem.You;
         StartCoroutine(CanPlayCard());
-        //StartCoroutine(ChoosePlayerToMove());
         yield return null;
-    }
-    void MadeDecision()
-    {
-        currentTurn = TurnSystem.Resolving;
-        //ChoiceManager.instance.DisableCards();
-        //ChoiceManager.instance.DisableTiles();
-    }
-    IEnumerator ChoosePlayerToMove()
-    {
-        if (listOfPlayers[0].movementLeft > 0)
-        {
-            List<TileData> playerTiles = new List<TileData>();
-
-            for (int i = 0; i < listOfPlayers.Count; i++)
-            {
-                if (listOfPlayers[i].movementLeft > 0)
-                    playerTiles.Add(listOfPlayers[i].currentTile);
-            }
-
-            ChoiceManager.instance.ChooseTile(playerTiles);
-
-            while (ChoiceManager.instance.chosenTile == null)
-            {
-                if (currentTurn != TurnSystem.You)
-                    yield break;
-                else
-                    yield return null;
-            }
-            yield return MovePlayer(listOfPlayers[0].currentTile);
-        }
-        
     }
     public IEnumerator MovePlayer(TileData currentTile)
     {
-        //currentTurn = TurnSystem.Resolving;
         PlayerEntity currentPlayer = currentTile.myEntity.GetComponent<PlayerEntity>();
-        List<TileData> possibleTiles = CalculateReachableGrids(currentTile, currentPlayer.movementLeft);
-
-        
+        List<TileData> possibleTiles = CalculateReachableGrids(currentTile, currentPlayer.movementLeft);       
         ChoiceManager.instance.ChooseTile(possibleTiles);
 
-        ChoiceManager.instance.chosenTile = null;
         while (ChoiceManager.instance.chosenTile == null)
         {
             if (selectedTile != currentTile)
@@ -341,51 +348,21 @@ public class NewManager : MonoBehaviour
             {
                 yield return null;
             }
-            print("chosenTile " + ChoiceManager.instance.chosenTile);
         }
-        print("Distance = " + GetDistance(currentTile, ChoiceManager.instance.chosenTile));
-        currentPlayer.movementLeft -= GetDistance(currentTile, ChoiceManager.instance.chosenTile);
+
+        int distanceTraveled = GetDistance(currentTile, ChoiceManager.instance.chosenTile);
+        currentPlayer.movementLeft -= distanceTraveled;
+        SetMovement(currentPlayer.movementLeft);
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
         ChoiceManager.instance.DisableMovement();
-        movementBar.value = player.movementLeft;
-        movementText.text = $"Movement: {player.movementLeft}";
-        
-
-        /*
-        MadeDecision();
-        //stopMovingButton.gameObject.SetActive(true);
-        List<TileData> possibleTiles = CalculateReachableGrids(listOfPlayers[0].currentTile, listOfPlayers[0].movementLeft);
-        ChoiceManager.instance.ChooseTile(possibleTiles);
-
-        while (ChoiceManager.instance.chosenTile == null)
-        {
-            if (currentTurn != TurnSystem.Resolving)
-                yield break;
-            else
-                yield return null;
-        }
-
-        PlayerEntity player = currentTile.myEntity.GetComponent<PlayerEntity>();
-        player.movementLeft -= GetDistance(player.currentTile, ChoiceManager.instance.chosenTile);
-        player.MoveTile(ChoiceManager.instance.chosenTile);
-        ChoiceManager.instance.DisableTiles();
-
-        movementBar.value = player.movementLeft;
-        movementText.text = $"Movement: {player.movementLeft}";
-        if (player.movementLeft <= 0)
-            StopMoving();
-        */
-    }
-    public void StopMoving()
-    {
-        //StartCoroutine(sta());
     }
     IEnumerator CanPlayCard() //choose a card to play
     {
+        ChoiceManager.instance.DisableCards();
         List<Card> canBePlayed = new List<Card>();
         for (int i = 0; i < listOfHand.Count; i++)
         {
-            if (listOfHand[i].CanPlay())
+            if (listOfHand[i].CanPlay(listOfPlayers[0]))
                 canBePlayed.Add(listOfHand[i]);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
@@ -403,35 +380,33 @@ public class NewManager : MonoBehaviour
     {
         if (playMe != null)
         {
-            MadeDecision();
             DiscardCard(playMe);
-            ChangeEnergy((int)energyBar.value - playMe.energyCost);
-            yield return playMe.PlayEffect();
-            //StartCoroutine(EndTurn());
+            ChangeEnergy(-playMe.energyCost);
+            yield return playMe.OnPlayEffect();
         }
+
+        StartCoroutine(CanPlayCard());
     }
     public void Regain()
     {
-        MadeDecision();
         SetEnergy(3);
         DrawCards(5 - listOfHand.Count);
         for (int i = 0; i < listOfPlayers.Count; i++)
         {
             listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
-            movementBar.value = player.movementLeft;
-            movementText.text = $"Movement: {player.movementLeft}";
+            SetMovement(3);
         }
         StartCoroutine(EnvironmentalPhase());
     }
-
     IEnumerator EnvironmentalPhase()
     {
+        StopCoroutine(CanPlayCard());
         ChoiceManager.instance.DisableCards();
         ChoiceManager.instance.DisableTiles();
-        stopMovingButton.gameObject.SetActive(false);
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
+
         currentTurn = TurnSystem.Environmentals;
         for (int i = 0; i < listOfEnvironmentals.Count; i++)
         {
@@ -441,11 +416,10 @@ public class NewManager : MonoBehaviour
         StartCoroutine(EndTurn());
         yield return null;
     }
-    IEnumerator EndTurn()       //Starts Guard Phase
+    IEnumerator EndTurn() //Starts Guard Phase
     {
         ChoiceManager.instance.DisableCards();
         ChoiceManager.instance.DisableTiles();
-        stopMovingButton.gameObject.SetActive(false);
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
@@ -461,7 +435,9 @@ public class NewManager : MonoBehaviour
 
         StartCoroutine(StartPlayerTurn());
     }
+#endregion
 
+#region Pathfinding
     public void SetTargetLocation(TileData targetLocation)
     {
         CalculatePathfinding(listOfPlayers[0].currentTile, targetLocation, listOfPlayers[0].movementLeft);
@@ -650,81 +626,5 @@ public class NewManager : MonoBehaviour
             //CurrentTile.DisplayPathfinding(pathCost.ToString());
         }
     }
-
-    /* to go when player is selected to show all movable tiles
-    public void StartMovingMode()
-    {
-        inMovingMode = true;
-        List<GridUnit> reachableGrids = CalculateReachableGrids(character.currentLocation, character.actionPoint);
-        foreach (GridUnit gridUnit in reachableGrids)
-        {
-            gridUnit.DisplayReachableGrid();
-        }
-    }
-    */
-
-    /* to go when player is unselected and possible move spaces are no longer selected. 
-    public void StopMovingMode()
-    {
-        inMovingMode = false;
-        foreach (GridUnit grid in gridUnitList)
-        {
-            grid.ResetGrid();
-        }
-    }
-    */
-
-    /* Old code used for typing tiles, incompatable with fluid object/tile system use TileData.myEntity.cost (where a null entity = cost 1 or no movement tax)
-    int GetCost(int tileType)
-    {
-        int cost = 0;
-        switch (tileType)
-        {
-            case 0:
-                cost = 1;
-                break;
-            case 1:
-                cost = 2;
-                break;
-            case 2:
-                cost = 99;
-                break;
-        }
-
-        return cost;
-    }
-    */
-
-    /* from old Astar, replaced by FindAdjacentTiles
-    private List<TileData> FindAdjacentNeighborsList(TileData checkedTile)
-    {
-        List<TileData> neighbors = new List<TileData>();
-        int mapX = gridSize.x;
-        int mapY = gridSize.y;
-
-        for (int x = -1; x <= 1; x++)
-        {
-            for (int y = -1; y <= 1; y++)
-            {
-                //Diagonal grids are not neighbor
-                if (Mathf.Abs(x) == Mathf.Abs(y)) continue;
-
-                int checkX = checkedTile.gridPosition.x + x;
-                int checkY = checkedTile.gridPosition.y + y;
-
-                if (checkX >= 0 && checkX < mapX && checkY >= 0 && checkY < mapY)
-                {
-                    neighbors.Add(listOfTiles[checkX,checkY]);
-                }
-            }
-        }
-        print("Core" + checkedTile.gridPosition);
-        foreach (TileData tile in neighbors)
-        {
-            print(tile.gridPosition);
-        }
-        return neighbors;
-        
-    }
-    */
+#endregion
 }

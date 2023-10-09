@@ -50,7 +50,6 @@ public class TileData : MonoBehaviour
             border.color = new Color(1, 1, 1, 0);
         }
         */
-        print(NewManager.instance.selectedTile);
         if (NewManager.instance.selectedTile == this)
         {
             border.color = new Color(SelectedColor.r, SelectedColor.g, SelectedColor.b, ChoiceManager.instance.opacity);
@@ -81,17 +80,15 @@ public class TileData : MonoBehaviour
 
     private void OnMouseOver()
     {
-
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             if (moveable) ChoiceManager.instance.ReceiveChoice(this);
             NewManager.instance.selectedTile = this;
             if (myEntity != null)
             {
-                if (myEntity.tag == "Player")
+                if (myEntity.CompareTag("Player"))
                 {
                     StartCoroutine(NewManager.instance.MovePlayer(this));
-                    print("After move");    
                 }
             }
         }
@@ -101,8 +98,8 @@ public class TileData : MonoBehaviour
             toolTipHoverTimer += Time.deltaTime;
             if (toolTipHoverTimer >= timeTillToolTip)
             {
-                NewManager.instance.toolTip.EntityName.text = myEntity.entityName;
-                NewManager.instance.toolTip.EntityInfo.text = myEntity.hoverBoxText();
+                NewManager.instance.toolTip.EntityName.text = myEntity.HoverBoxName();
+                NewManager.instance.toolTip.EntityInfo.text = myEntity.HoverBoxText();
                 NewManager.instance.toolTip.gameObject.SetActive(true);
                 NewManager.instance.toolTip.isActive = true;
             }

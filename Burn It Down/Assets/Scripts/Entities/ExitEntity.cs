@@ -9,8 +9,13 @@ public class ExitEntity : ObjectiveEntity
         return NewManager.instance.listOfObjectives.Count == 1;
     }
 
-    public override string hoverBoxText()
+    public override string HoverBoxName()
     {
         return "Exit";
+    }
+
+    public override string HoverBoxText()
+    {
+        return "Exit here when you've completed all other objectives";
     }
 }

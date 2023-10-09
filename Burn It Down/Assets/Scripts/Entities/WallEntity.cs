@@ -8,8 +8,13 @@ public class WallEntity : Entity
     [Foldout("WallEntity",true)]
         [Tooltip("Health a wall has")][SerializeField]public int health = 3;
 
-    public override string hoverBoxText()
+    public override string HoverBoxName()
     {
-        return "current health: " + health;
+        return "Wall";
+    }
+
+    public override string HoverBoxText()
+    {
+        return "Current Health: " + health;
     }
 }

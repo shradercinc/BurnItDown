@@ -37,7 +37,7 @@ public class CustomSceneManager : MonoBehaviour
 
         //bring back all other objects
         RightClick.instance.transform.SetParent(canvas);
-        FPS.instance.transform.localPosition = new Vector3(0, 0);
+        RightClick.instance.transform.localPosition = new Vector3(0, 0);
 
         FPS.instance.transform.SetParent(canvas);
         FPS.instance.transform.localPosition = new Vector3(0, 500);

@@ -10,6 +10,16 @@ public class PlayerEntity : MovingEntity
         [Tooltip("normal player appearance")] [SerializeField] Material DefaultPlayerMaterial;
         [Tooltip("appearance when hidden")] [SerializeField] Material HiddenPlayerMaterial;
 
+    public override string HoverBoxName()
+    {
+        return "You";
+    }
+
+    public override string HoverBoxText()
+    {
+        return $"Moves left: {movementLeft}";
+    }
+
     public override IEnumerator EndOfTurn()
     {
         yield return null;
