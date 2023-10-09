@@ -1,42 +1,86 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using MyBox;
 using UnityEngine.EventSystems;
+
+public class StringAndMethod
+{
+    [ReadOnly] public Dictionary<string, IEnumerator> dictionary = new Dictionary<string, IEnumerator>();
+
+    public StringAndMethod(Card card)
+    {
+        dictionary["DRAWCARDS"] = card.DrawCards();
+        dictionary["CHANGEHP"] = card.ChangeHealth();
+        dictionary["CHANGEEP"] = card.ChangeEnergy();
+        dictionary["CHANGEMP"] = card.ChangeMovement();
+        dictionary["FINDZERO"] = card.FindZero();
+        dictionary["DISCARDHAND"] = card.DiscardHand();
+        dictionary["STUNADJACENTGUARD"] = card.StunAdjacentGuard();
+        dictionary["DESTROYADJACENTWALL"] = card.DestroyAdjacentWall();
+    }
+
+}
 
 public class Card : MonoBehaviour, IPointerClickHandler
 {
-    [HideInInspector] public Image image;
-    [HideInInspector] public SendChoice choiceScript;
+#region Card Stats
 
-    [HideInInspector] public int energyCost;
-    public enum CardType { Violent, NonViolent};
-    [HideInInspector] public CardType thisType;
+    [ReadOnly] public Image image;
+    [ReadOnly] public SendChoice choiceScript;
 
-    [HideInInspector] public TMP_Text textName;
-    [HideInInspector] public TMP_Text textCost;
-    [HideInInspector] public TMP_Text textDescr;
+    [ReadOnly] public int energyCost;
+    public enum CardType { Attack, Draw, Distraction, Energy, Movement, Misc, None };
+    [ReadOnly] public CardType typeOne;
+    [ReadOnly] public CardType typeTwo;
+    [ReadOnly] public bool violent;
+
+    [ReadOnly] int changeInHP;
+    [ReadOnly] int changeInMP;
+    [ReadOnly] int changeInEP;
+    [ReadOnly] int changeInDraw;
+
+    [ReadOnly] int stunDuration;
+    [ReadOnly] int range;
+    [ReadOnly] int areaOfEffect;
+    [ReadOnly] int delay;
+    [ReadOnly] int changeInWall;
+    [ReadOnly] int burnDuration;
+    [ReadOnly] int distractionIntensity;
+
+    public enum CanPlayCondition { None, Guard, Wall, Occupied };
+    [ReadOnly] CanPlayCondition selectCondition;
+    [ReadOnly] List<IEnumerator> effectsInorder = new List<IEnumerator>();
+    [ReadOnly] List<IEnumerator> nextTurnEffectsInOrder = new List<IEnumerator>();
+
+    [ReadOnly] public TMP_Text textName { get; private set; } 
+    [ReadOnly] public TMP_Text textCost { get; private set; }
+    [ReadOnly] public TMP_Text textDescr { get; private set; }
+
+    [ReadOnly] PlayerEntity currentPlayer;
+    [ReadOnly] GuardEntity adjacentGuard;
+    [ReadOnly] WallEntity adjacentWall;
+
+#endregion
+
+#region Setup
+
+    private void Awake()
+    {
+        image = GetComponent<Image>();
+        choiceScript = GetComponent<SendChoice>();
+
+        textName = this.transform.GetChild(1).GetComponent<TMP_Text>();
+        textCost = this.transform.GetChild(2).GetComponent<TMP_Text>();
+        textDescr = this.transform.GetChild(3).GetComponent<TMP_Text>();
+    }
 
     private void Start()
     {
-        //if the save manager doesn't already have this card, put it in there
-        if (!SaveManager.instance.allCards.Contains(this))
-        {
-            SaveManager.instance.allCards.Add(this);
-            image = GetComponent<Image>();
-            choiceScript = GetComponent<SendChoice>();
-
-            textName = this.transform.GetChild(1).GetComponent<TMP_Text>();
-            textCost = this.transform.GetChild(2).GetComponent<TMP_Text>();
-            textDescr = this.transform.GetChild(3).GetComponent<TMP_Text>();
-
-            Setup();
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
+        SaveManager.instance.allCards.Add(this);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -48,17 +92,259 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public virtual void Setup()
+    public void CardSetup(CardData data)
     {
+        name = data.name;
+        textName.text = data.name;
+        textDescr.text = data.desc;
+
+        typeOne = ConvertToType(data.cat1);
+        typeTwo = ConvertToType(data.cat2);
+
+        energyCost = data.epCost;
+        textCost.text = $"{data.epCost} Energy";
+        violent = data.isViolent;
+
+        changeInHP = data.chHP;
+        changeInMP = data.chMP;
+        changeInEP = data.chEP;
+        changeInDraw = data.draw;
+
+        stunDuration = data.stun;
+        range = data.range;
+        areaOfEffect = data.aoe;
+        delay = data.delay;
+        changeInWall = data.wHP;
+
+        burnDuration = data.burn;
+        distractionIntensity = data.intn;
+
+        selectCondition = ConvertToCondition(data.select);
+        AddMethodsToList(data.action, effectsInorder);
+        AddMethodsToList(data.action, nextTurnEffectsInOrder);
     }
 
-    public virtual bool CanPlay()
+    CardType ConvertToType(string type)
     {
-        return false;
+        return type switch
+        {
+            "draw" => CardType.Draw,
+            "atk" => CardType.Attack,
+            "dist" => CardType.Distraction,
+            "eng" => CardType.Energy,
+            "mvmt" => CardType.Movement,
+            "misc" => CardType.Misc,
+            _ => CardType.None,
+        };
     }
 
-    public virtual IEnumerator PlayEffect()
+    CanPlayCondition ConvertToCondition(string condition)
     {
+        return condition switch
+        {
+            "isGuard" => CanPlayCondition.Guard,
+            "isWall" => CanPlayCondition.Wall,
+            "isOccupied" => CanPlayCondition.Occupied,
+            _ => CanPlayCondition.None,
+        };
+    }
+
+    void AddMethodsToList(string divide, List<IEnumerator> list)
+    {
+        StringAndMethod dic = new StringAndMethod(this);
+        divide = divide.Replace(" ", "");
+        divide = divide.ToUpper();
+        string[] methodsInStrings = divide.Split('/');
+
+        for (int k = 0; k < methodsInStrings.Length; k++)
+        {
+            if (methodsInStrings[k] == "" || methodsInStrings[k] == "NONE")
+                continue;
+            else if (dic.dictionary.TryGetValue(methodsInStrings[k], out IEnumerator method))
+                list.Add(method);
+            else
+                Debug.LogError($"\"{methodsInStrings[k]}\" for {this.name} isn't in the dictionary");
+        }
+    }
+
+#endregion
+
+#region Play Condition
+
+    public bool CanPlay(PlayerEntity player)
+    {
+        currentPlayer = player;
+        if (NewManager.instance.EnoughEnergy(energyCost))
+        {
+            return selectCondition switch
+            {
+                CanPlayCondition.Guard => SearchAdjacentGuard(player.currentTile) != null,
+                CanPlayCondition.Wall => SearchAdjacentWall(player.currentTile) != null,
+                CanPlayCondition.Occupied => (OccupiedAdjacent(player.currentTile).Count > 0),
+                _ => true,
+            };
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    List<TileData> OccupiedAdjacent(TileData playerTile)
+    {
+        List<TileData> adjacentOccupied = new List<TileData>();
+        for (int i = 0; i<playerTile.adjacentTiles.Count; i++)
+        {
+            if (playerTile.adjacentTiles[i].myEntity != null)
+                adjacentOccupied.Add(playerTile.adjacentTiles[i]);
+        }
+        return adjacentOccupied;
+    }
+
+    GuardEntity SearchAdjacentGuard(TileData playerTile)
+    {
+        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
+        {
+            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Guard"))
+            {
+                adjacentGuard = playerTile.adjacentTiles[i].myEntity.GetComponent<GuardEntity>();
+                return adjacentGuard;
+            }
+        }
+
+        return null;
+    }
+
+    WallEntity SearchAdjacentWall(TileData playerTile)
+    {
+        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
+        {
+            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Wall"))
+            {
+                adjacentWall = playerTile.adjacentTiles[i].myEntity.GetComponent<WallEntity>();
+                return adjacentWall;
+            }
+        }
+
+        return null;
+    }
+#endregion
+
+#region Play Effect
+
+    public IEnumerator OnPlayEffect()
+    {
+        for (int i = 0; i < effectsInorder.Count; i++)
+            yield return effectsInorder[i];
+    }
+
+    public IEnumerator DrawCards()
+    {
+        NewManager.instance.DrawCards(changeInDraw);
         yield return null;
     }
+
+    public Card FindCardType(CardType type)
+    {
+        List<Card> invalidCards = new List<Card>();
+        Card foundCard = null;
+        while (foundCard == null)
+        {
+            Card nextCard = NewManager.instance.GetTopCard();
+            if (nextCard == null)
+            {
+                break;
+            }
+            else if (nextCard.typeOne == type || nextCard.typeTwo == type)
+            {
+                foundCard = nextCard;
+            }
+            else
+            {
+                invalidCards.Add(nextCard);
+                nextCard.transform.SetParent(null);
+            }
+        }
+        for (int i = 0; i < invalidCards.Count; i++)
+            NewManager.instance.DiscardCard(invalidCards[i]);
+        return foundCard;
+    }
+
+    public Card FindCardCost(int cost)
+    {
+        List<Card> invalidCards = new List<Card>();
+        Card foundCard = null;
+        while (foundCard == null)
+        {
+            Card nextCard = NewManager.instance.GetTopCard();
+            if (nextCard == null)
+            {
+                break;
+            }
+            else if (nextCard.energyCost == cost)
+            {
+                foundCard = nextCard;
+            }
+            else
+            {
+                invalidCards.Add(nextCard);
+                nextCard.transform.SetParent(null);
+            }
+        }
+        for (int i = 0; i < invalidCards.Count; i++)
+            NewManager.instance.DiscardCard(invalidCards[i]);
+
+        return foundCard;
+    }
+
+    public IEnumerator DiscardHand()
+    {
+        while (NewManager.instance.listOfHand.Count>0)
+        {
+            NewManager.instance.DiscardCard(NewManager.instance.listOfHand[0]);
+        }
+        yield return null;
+    }
+
+    public IEnumerator FindZero()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            yield return new WaitForSeconds(0.5f);
+            NewManager.instance.AddCardToHand(FindCardCost(0));
+        }
+    }
+
+    public IEnumerator ChangeHealth()
+    {
+        NewManager.instance.ChangeHealth(changeInHP);
+        yield return null;
+    }
+
+    public IEnumerator ChangeEnergy()
+    {
+        NewManager.instance.ChangeEnergy(changeInEP);
+        yield return null;
+    }
+
+    public IEnumerator ChangeMovement()
+    {
+        NewManager.instance.ChangeMovement(changeInMP);
+        yield return null;
+    }
+
+    public IEnumerator DestroyAdjacentWall()
+    {
+        NewManager.instance.listOfWalls.Remove(adjacentWall);
+        Destroy(adjacentWall.gameObject);
+        yield return null;
+    }
+
+    public IEnumerator StunAdjacentGuard()
+    {
+        adjacentGuard.stunned += stunDuration;
+        yield return null;
+    }
+
+    #endregion
 }

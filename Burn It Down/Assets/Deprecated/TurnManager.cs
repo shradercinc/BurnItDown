@@ -6,6 +6,7 @@ using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
+    /*
     public static TurnManager instance;
     RectTransform handTransform; //there are 2 ways that track your hand, just to make things easier
     public List<Card> listOfHand = new List<Card>();
@@ -54,7 +55,6 @@ public class TurnManager : MonoBehaviour
             nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
         }
 
-        /*
         //get the cards you added to your deck
         for (int i = 0; i < SaveManager.instance.newSaveData.startingHand.Count; i++)
         {
@@ -62,7 +62,6 @@ public class TurnManager : MonoBehaviour
             nextCard.choiceScript.DisableButton();
             AddCardToHand(nextCard);
         }
-        */
 
         deck.Shuffle(); //shuffle that deck
         ChangeHealth(3);
@@ -76,7 +75,7 @@ public class TurnManager : MonoBehaviour
         List<Card> canBePlayed = new List<Card>();
         for (int i = 0; i<listOfHand.Count; i++)
         {
-            if (listOfHand[i].CanPlay())
+            if (listOfHand[i].CanPlay(listofpla))
                 canBePlayed.Add(listOfHand[i]);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
@@ -177,4 +176,5 @@ public class TurnManager : MonoBehaviour
         gameOverText.text = cause;
         gameOverButton.GetComponentInChildren<TMP_Text>().text = buttonTxt;
     }
+    */
 }

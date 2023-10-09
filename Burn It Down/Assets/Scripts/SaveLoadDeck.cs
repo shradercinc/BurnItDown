@@ -31,10 +31,4 @@ public static class SaveLoadDeck
             return null;
         }
     }
-
-    public static void DeleteSaveData()
-    {
-        string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        File.Delete(path);
-    }
 }

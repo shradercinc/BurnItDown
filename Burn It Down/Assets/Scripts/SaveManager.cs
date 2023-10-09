@@ -12,9 +12,7 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
-    public List<Card> chosenDeck; //the cards you've chosen for each level
-    public List<Card> unlockedCards; //cards that you unlock during the game
-    public List<Card> burnedCards; //cards that have been burned away
+    public List<string> chosenDeck; //the cards you've chosen for each level
 
     public SaveData()
     {
@@ -24,7 +22,7 @@ public class SaveData
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
-    public SaveData newSaveData = new SaveData();
+    public SaveData currentSaveData = new SaveData();
     public List<Card> allCards = new List<Card>(); //keeps track of all cards in the game
 
     private void Awake()
@@ -44,20 +42,24 @@ public class SaveManager : MonoBehaviour
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
         if (File.Exists(path)) //if there's a save file, get it
-            newSaveData = ES3.Load<SaveData>("saveData");
-
-        for (int i = 0; i < newSaveData.unlockedCards.Count; i++) //enable all unlocked cards
-            newSaveData.unlockedCards[i].gameObject.SetActive(true);
-
-        for (int i = 0; i < newSaveData.burnedCards.Count; i++) //disable all burnt cards
-            newSaveData.burnedCards[i].gameObject.SetActive(false);
+            currentSaveData = ES3.Load<SaveData>("saveData");
     }
 
-    public void SaveHand(List<Card> deckToSave)
+    public void SaveHand(List<Transform> deckToSave)
     {
         //save the new cards for your deck
-        List<Card> newCards = deckToSave;
-        newSaveData.chosenDeck = newCards;
-        ES3.Save("saveData", newSaveData);
+        List<string> newCards = new List<string>();
+        for (int i = 0; i < deckToSave.Count; i++)
+            newCards.Add(deckToSave[i].name);
+        currentSaveData.chosenDeck = newCards;
+        ES3.Save("saveData", currentSaveData);
+    }
+
+    public void DeleteData()
+    {
+        Debug.Log("deleting save file");
+        string path = $"{Application.persistentDataPath}/SaveFile.es3";
+        ES3.DeleteFile(path);
+        currentSaveData = new SaveData();
     }
 }
