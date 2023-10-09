@@ -54,8 +54,19 @@ public class ChoiceManager : MonoBehaviour
         //turn on all tiles that can be pressed
         for (int i = 0; i < choices.Count; i++)
         {
-            choices[i].clickable = true;
+            choices[i].moveable = true;
         }
+    }
+
+    public void DisableMovement()
+    {
+
+        for (int i = 0; i < NewManager.instance.gridSize.x; i++)
+        {
+            for (int j = 0; j < NewManager.instance.gridSize.y; j++)
+                NewManager.instance.listOfTiles[i, j].moveable = false;
+        }
+
     }
 
     public void DisableTiles()

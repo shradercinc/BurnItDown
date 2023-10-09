@@ -118,9 +118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ccaf13423a4741f2b4f922f3bb09b22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entityName: Defualt Player
   currentTile: {fileID: 0}
   meshRenderer: {fileID: 0}
   lineRenderer: {fileID: 0}
+  MoveCost: 999
   movementLeft: 0
   movesPerTurn: 3
   hidden: 0

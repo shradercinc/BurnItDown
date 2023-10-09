@@ -14,6 +14,7 @@ public class Entity : MonoBehaviour
         [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
         [ReadOnly] public MeshRenderer meshRenderer;
         [ReadOnly] public LineRenderer lineRenderer;
+        [Tooltip("Cost of moving through item, default 999 (intraversable)")][SerializeField] public int MoveCost = 999; 
     
     void Awake()
     {
@@ -28,6 +29,8 @@ public class Entity : MonoBehaviour
 
     public void MoveTile(TileData newTile)
     {
+        newTile = NewManager.instance.listOfTiles[newTile.gridPosition.x, newTile.gridPosition.y];
+        print("In move " + newTile.gridPosition);
         if (currentTile != null)
             currentTile.myEntity = null;
 

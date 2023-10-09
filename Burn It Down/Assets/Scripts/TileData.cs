@@ -14,16 +14,24 @@ public class TileData : MonoBehaviour
     [Tooltip("Default texture")][SerializeField] Material defaultTexture;
     [Tooltip("Texture when under surveillance")][SerializeField] Material surveillanceTexture;
     [Tooltip("Renders the material")] MeshRenderer currentMaterial;
-    [Tooltip("This can be clicked on")] [ReadOnly] public bool clickable = false;
-    [Tooltip("The glowing border when this can be clicked")] SpriteRenderer border;
+    [Tooltip("This can be clicked on")] [ReadOnly] public bool clickable = true;
+    
     [Tooltip("timer that controls how long until a tool tip appears on hover")][SerializeField] float timeTillToolTip = 1.5f;
     [Tooltip("timer that controls how long until a tool tip appears on hover")] float toolTipHoverTimer = 0;
+
+    [Tooltip("The glowing border when this can be clicked")] SpriteRenderer border;
+    [Tooltip("color used for unselected moused over tiles")][SerializeField] Color mouseOverColor = new Color(0.9f,0.9f,0.9f,1);
+    [Tooltip("color used for selected tiles")][SerializeField] Color SelectedColor;
+    [Tooltip("Defines whether you can move onto this tile")][ReadOnly] public bool moveable = false;
+    [Tooltip("color used for unselected moused over tiles")][SerializeField] Color MoveableColor = new Color(0.9f, 0.9f, 0.9f, 1);
+
     private bool moused = false;
 
     private void Awake()
     {
         currentMaterial = GetComponent<MeshRenderer>();
         border = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        border.color = new Color(1f, 1f, 1f, 0);
     }
 
     void FixedUpdate()
@@ -32,6 +40,7 @@ public class TileData : MonoBehaviour
         {
             Debug.Log("border is null");
         }
+        /*
         if (border != null && clickable)
         {
             border.color = new Color(1, 1, 1, ChoiceManager.instance.opacity);
@@ -40,23 +49,58 @@ public class TileData : MonoBehaviour
         {
             border.color = new Color(1, 1, 1, 0);
         }
+        */
+        print(NewManager.instance.selectedTile);
+        if (NewManager.instance.selectedTile == this)
+        {
+            border.color = new Color(SelectedColor.r, SelectedColor.g, SelectedColor.b, ChoiceManager.instance.opacity);
+        }
+        else if (moveable)
+        {
+            border.color = new Color(MoveableColor.r, MoveableColor.g, MoveableColor.b, ChoiceManager.instance.opacity);
+        }
+        else if (moused)
+        {
+            border.color = mouseOverColor;
+        }
+        else
+        {
+            border.color = new Color(1, 1, 1, 0);
+        }
+    }
+
+    private void OnMouseEnter()
+    {
+        moused = true;
+    }
+
+    private void OnMouseExit() 
+    {
+        moused = false;
     }
 
     private void OnMouseOver()
     {
-        moused = true;
-        if (clickable && Input.GetKeyDown(KeyCode.Mouse0))
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            ChoiceManager.instance.ReceiveChoice(this);
+            if (moveable) ChoiceManager.instance.ReceiveChoice(this);
+            NewManager.instance.selectedTile = this;
+            if (myEntity != null)
+            {
+                if (myEntity.tag == "Player")
+                {
+                    StartCoroutine(NewManager.instance.MovePlayer(this));
+                    print("After move");    
+                }
+            }
         }
+
         if (myEntity != null)
         {
-            print("has entity");
             toolTipHoverTimer += Time.deltaTime;
-            print(toolTipHoverTimer);
             if (toolTipHoverTimer >= timeTillToolTip)
             {
-                print("activating");
                 NewManager.instance.toolTip.EntityName.text = myEntity.entityName;
                 NewManager.instance.toolTip.EntityInfo.text = myEntity.hoverBoxText();
                 NewManager.instance.toolTip.gameObject.SetActive(true);
@@ -75,10 +119,7 @@ public class TileData : MonoBehaviour
         if (!moused)
         {
             toolTipHoverTimer = 0;
-        }
-        else
-        {
-            moused = false;
+
         }
     }
 }

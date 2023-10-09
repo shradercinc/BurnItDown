@@ -26,7 +26,6 @@ public class EntityToolTip : MonoBehaviour
         this.gameObject.SetActive(isActive);
         if (isActive)
         {
-            print("Disabling");
             isActive = false;
         }
         transform.position = Input.mousePosition;
