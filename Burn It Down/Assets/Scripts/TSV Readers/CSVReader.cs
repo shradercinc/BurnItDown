@@ -31,4 +31,25 @@ public class TSVReader {
 		}
 		return list;
 	}
+
+	public static string[,] ReadAsGrid(string file)
+    {
+		TextAsset data = Resources.Load(file) as TextAsset;
+		var rows = Regex.Split(data.text, LINE_SPLIT_RE);
+		int gridHeight = rows.Length;
+		if (gridHeight < 1) return new string[0, 0];
+		var gridWidth = Regex.Split(rows[0], SPLIT_RE).Length;
+		var grid = new string[gridWidth,gridHeight];
+
+		for (int y = 0; y < gridHeight; y++)
+		{
+			var cells = Regex.Split(rows[y], SPLIT_RE);
+			for (int x = 0; x < gridWidth; x++)
+            {
+				grid[x, y] = cells[x];
+            }
+		}
+
+		return grid;
+    }
 }

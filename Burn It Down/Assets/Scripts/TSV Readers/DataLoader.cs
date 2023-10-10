@@ -67,3 +67,20 @@ public class CardDataLoader
         return cardData;
     }
 }
+
+public class LevelLoader
+{
+    public static string[,] LoadLevelGrid()
+    {
+        string[,] grid = TSVReader.ReadAsGrid("LevelTest");
+        Debug.Log(grid[0,0]);
+        return grid;
+    }
+    public static string[,] LoadLevelGrid(string file)
+    {
+        string[,] grid = TSVReader.ReadAsGrid(file);
+        Debug.Log(grid[0, 0]);
+        return grid;
+    }
+
+}
