@@ -6,7 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-public class TSVReader {
+public class TSVReader
+{
 	static string SPLIT_RE = @"\t(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
 	static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
 	static char[] TRIM_CHARS = { '\"' };
@@ -17,7 +18,8 @@ public class TSVReader {
 	/// <param name="file">The path of the file to load</param>
 	/// <param name="headerLines">The number of lines at the top to skip over as headers</param>
 	/// <returns></returns>
-	public static string[][] Read(string file, int headerLines) {
+	public static string[][] Read(string file, int headerLines)
+	{
 		TextAsset data = Resources.Load(file) as TextAsset;
 
 		var lines = Regex.Split(data.text, LINE_SPLIT_RE);

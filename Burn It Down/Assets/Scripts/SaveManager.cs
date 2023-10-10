@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,7 @@ using System.IO;
 [System.Serializable]
 public class SaveData
 {
+    public DateTime creationDate = DateTime.UtcNow;
     public List<string> chosenDeck; //the cards you've chosen for each level
 
     public SaveData()
@@ -22,7 +24,7 @@ public class SaveData
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
-    public SaveData currentSaveData = new SaveData();
+    public SaveData currentSaveData;
     public List<Card> allCards = new List<Card>(); //keeps track of all cards in the game
 
     private void Awake()
@@ -41,8 +43,7 @@ public class SaveManager : MonoBehaviour
     private void Start()
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        if (File.Exists(path)) //if there's a save file, get it
-            currentSaveData = ES3.Load<SaveData>("saveData");
+        currentSaveData = File.Exists(path) ? ES3.Load<SaveData>("saveData") : new SaveData();
     }
 
     public void SaveHand(List<Transform> deckToSave)

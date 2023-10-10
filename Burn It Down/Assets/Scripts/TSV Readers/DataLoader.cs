@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 //the data that a single card holds; this has the same fields and descriptions as in the spreadsheet
 public class CardData
 {
