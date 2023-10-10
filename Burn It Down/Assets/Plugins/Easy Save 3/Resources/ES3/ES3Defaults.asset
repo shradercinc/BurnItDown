@@ -32,7 +32,6 @@ MonoBehaviour:
     assemblyNames:
     - Assembly-CSharp
     - Assembly-CSharp-firstpass
-    - AstarPathfindingProject
     - MyBox
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0

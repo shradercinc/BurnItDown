@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using MyBox;
 using UnityEngine.TextCore.Text;
-using static MyBox.EditorTools.MyGUI;
+//using static MyBox.EditorTools.MyGUI;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
 
