@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,16 +9,6 @@ using UnityEngine.TextCore.Text;
 using static MyBox.EditorTools.MyGUI;
 using JetBrains.Annotations;
 using Unity.VisualScripting;
-
-[System.Serializable]
-public class EntityAndPosition
-{
-    public enum EntityType { Player, Wall, Guard, Exit };
-
-    [Tooltip("Entity that should be spawned")] public EntityType entity;
-    [Tooltip("Their starting position in the grid")] public Vector2 startingPosition;
-    [ConditionalField(nameof(entity), false, EntityType.Guard)] public Vector2Int direction;
-}
 
 public class AStarNode
 {
@@ -58,6 +49,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Movement bar")] Slider movementBar;
         [Tooltip("Movement bar's textbox")] TMP_Text movementText;
         [Tooltip("End the turn")] Button endTurnButton;
+        [Tooltip("Use objective")] Button objectiveButton;
         [Tooltip("info on entities")] [ReadOnly] public EntityToolTip toolTip;
         
     [Foldout("GameOver", true)]
@@ -76,12 +68,11 @@ public class NewManager : MonoBehaviour
         [Tooltip("Player prefab")][SerializeField] PlayerEntity playerPrefab;
         [Tooltip("Wall prefab")][SerializeField] WallEntity wallPrefab;
         [Tooltip("Guard prefab")][SerializeField] GuardEntity guardPrefab;
-    [Tooltip("Guard prefab")][SerializeField] ExitEntity exitPrefab;
+        [Tooltip("Objective prefab")][SerializeField] ObjectiveEntity objectivePrefab;
+        [Tooltip("Guard prefab")][SerializeField] ExitEntity exitPrefab;
 
     [Foldout("Setup", true)]
-        [Tooltip("Size of the level")] public Vector2Int gridSize;
         [Tooltip("Starting hand")] Transform startingHand;
-        [Tooltip("Entities and their starting positions")][SerializeField] List<EntityAndPosition> entityStarts = new List<EntityAndPosition>();
 
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
         [Foldout("Turn System", true)]
@@ -109,6 +100,8 @@ public class NewManager : MonoBehaviour
 
         endTurnButton = GameObject.Find("End Turn Button").GetComponent<Button>();
         endTurnButton.onClick.AddListener(Regain);
+        objectiveButton = GameObject.Find("Objective Button").GetComponent<Button>();
+        objectiveButton.onClick.AddListener(ResolveObjective);
     }
     void Start()
     {
@@ -142,55 +135,95 @@ public class NewManager : MonoBehaviour
         deck.Shuffle(); //shuffle your deck
         DrawCards(5);
 
-        listOfTiles = new TileData[gridSize.x, gridSize.y];
-        for (int i = 0; i < gridSize.x; i++) //create the tiles
+        //generate grids and entities from csv
+        string[,] newGrid = LevelLoader.LoadLevelGrid();
+        listOfTiles = new TileData[newGrid.GetLength(0), newGrid.GetLength(1)];
+
+        for (int i = 0; i < listOfTiles.GetLength(0); i++)
         {
-            for (int j = 0; j < gridSize.y; j++)
+            for (int j = 0; j < listOfTiles.GetLength(1); j++)
             {
-                TileData nextTile = Instantiate(floorTilePrefab, gridContainer);
-                nextTile.transform.localPosition = new Vector3(i * -tileSpacing, tileHeight, j * -tileSpacing);
+                TileData nextTile = Instantiate(floorTilePrefab);
+                nextTile.transform.SetParent(gridContainer);
+                nextTile.transform.position = new Vector3(i * -tileSpacing, 0, j * -tileSpacing);
                 nextTile.name = $"Tile {i},{j}";
                 listOfTiles[i, j] = nextTile;
                 nextTile.gridPosition = new Vector2Int(i, j);
-            }
-        }
-        for (int i = 0; i < gridSize.x; i++) //then find adjacent tiles
-        {
-            for (int j = 0; j < gridSize.y; j++)
-            {
-                FindAdjacent(listOfTiles[i, j]);
+
+                string[] numberPlusAddition = newGrid[i, j].Split("/");
+
+                Entity thisTileEntity = null;
+                switch (numberPlusAddition[0])
+                {
+                    case "1": //create player
+                        thisTileEntity = Instantiate(playerPrefab, nextTile.transform);
+                        thisTileEntity.name = "Player";
+                        PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
+                        player.movementLeft = player.movesPerTurn;
+                        listOfPlayers.Add(player);
+                        break;
+                    case "2": //create exit
+                        thisTileEntity = Instantiate(exitPrefab, nextTile.transform);
+                        thisTileEntity.name = "Exit";
+                        ObjectiveEntity exitObjective = thisTileEntity.GetComponent<ExitEntity>();
+                        listOfObjectives.Add(exitObjective);
+                        break;
+                    case "3": //create objective
+                        thisTileEntity = Instantiate(objectivePrefab, nextTile.transform);
+                        thisTileEntity.name = numberPlusAddition[1];
+                        ObjectiveEntity defaultObjective = thisTileEntity.GetComponent<ObjectiveEntity>();
+                        listOfObjectives.Add(defaultObjective);
+                        break;
+                    case "10": //create weak wall
+                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                        thisTileEntity.name = "Wall";
+                        WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
+                        listOfWalls.Add(weakWall);
+                        weakWall.direction = StringToDirection(numberPlusAddition[1]);
+                        weakWall.health = 2;
+                        break;
+                    case "11": //create med wall
+                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                        thisTileEntity.name = "Wall";
+                        WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
+                        listOfWalls.Add(medWall);
+                        medWall.direction = StringToDirection(numberPlusAddition[1]);
+                        medWall.health = 4;
+                        break;
+                    case "12": //create strong wall
+                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                        thisTileEntity.name = "Wall";
+                        WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
+                        listOfWalls.Add(strongWall);
+                        strongWall.direction = StringToDirection(numberPlusAddition[1]);
+                        strongWall.health = 6;
+                        break;
+                    case "20": //create guard
+                        thisTileEntity = Instantiate(guardPrefab, nextTile.transform);
+                        thisTileEntity.name = "Guard";
+                        GuardEntity theGuard = thisTileEntity.GetComponent<GuardEntity>();
+                        theGuard.movementLeft = theGuard.movesPerTurn;
+                        theGuard.direction = StringToDirection(numberPlusAddition[1]);
+                        listOfGuards.Add(theGuard);
+                        break;
+                }
+                try
+                {
+                    thisTileEntity.MoveTile(nextTile);
+                }
+                catch (NullReferenceException)
+                {
+                    continue;
+                }
             }
         }
 
-        for (int i = 0; i < entityStarts.Count; i++) //spawn all entities in their starting positions
+        for (int i = 0; i < listOfTiles.GetLength(0); i++) //then find adjacent tiles
         {
-            TileData spawnHere = listOfTiles[(int)entityStarts[i].startingPosition.x, (int)entityStarts[i].startingPosition.y];
-            Entity nextEntity = null;
-            switch (entityStarts[i].entity)
+            for (int j = 0; j < listOfTiles.GetLength(1); j++)
             {
-                case EntityAndPosition.EntityType.Player: //create player
-                    nextEntity = Instantiate(playerPrefab, spawnHere.transform);
-                    PlayerEntity thePlayer = nextEntity.GetComponent<PlayerEntity>();
-                    thePlayer.movementLeft = thePlayer.movesPerTurn;
-                    listOfPlayers.Add(thePlayer);
-                    break;
-                case EntityAndPosition.EntityType.Guard: //create guard
-                    nextEntity = Instantiate(guardPrefab, spawnHere.transform);
-                    GuardEntity theGuard = nextEntity.GetComponent<GuardEntity>();
-                    theGuard.movementLeft = theGuard.movesPerTurn;
-                    theGuard.direction = entityStarts[i].direction;
-                    listOfGuards.Add(theGuard);
-                    break;
-                case EntityAndPosition.EntityType.Wall: //create wall
-                    nextEntity = Instantiate(wallPrefab, spawnHere.transform);
-                    listOfWalls.Add(nextEntity.GetComponent<WallEntity>());
-                    break;
-                case EntityAndPosition.EntityType.Exit: //create exit
-                    nextEntity = Instantiate(exitPrefab, spawnHere.transform);
-                    listOfObjectives.Add(nextEntity.GetComponent<ObjectiveEntity>());
-                    break;
+                FindAdjacent(listOfTiles[i, j]);
             }
-            nextEntity.MoveTile(spawnHere);
         }
 
         SetEnergy(3);
@@ -199,9 +232,19 @@ public class NewManager : MonoBehaviour
 
         StartCoroutine(StartPlayerTurn());
     }
-    void FindAdjacent(TileData tile)
+    Vector2Int StringToDirection(string direction)
     {
-        //check each adjacent tile; if it's not null, add it to the list
+        return direction[..1] switch
+        {
+            "u" => new Vector2Int(0, 1),
+            "d" => new Vector2Int(0, -1),
+            "l" => new Vector2Int(-1, 0),
+            "r" => new Vector2Int(1, 0),
+            _ => new Vector2Int(0, 0),
+        };
+    }
+    void FindAdjacent(TileData tile) //check each adjacent tile; if it's not null, add it to the list
+    {
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x - 1, tile.gridPosition.y)));
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y + 1)));
@@ -223,6 +266,11 @@ public class NewManager : MonoBehaviour
     public TileData FindTile(Vector2Int vector) //find a tile based off Vector2Int
     {
         return FindTile(new Vector2(vector.x, vector.y));
+    }
+    private void Update()
+    {
+        endTurnButton.gameObject.SetActive(currentTurn == TurnSystem.You);
+        CheckAdjacentObjectives();
     }
     #endregion
 
@@ -317,6 +365,30 @@ public class NewManager : MonoBehaviour
 #endregion
 
 #region Turn System
+
+    void CheckAdjacentObjectives()
+    {
+        if (currentTurn == TurnSystem.You)
+        {
+            for (int i = 0; i < listOfPlayers[0].currentTile.adjacentTiles.Count; i++)
+            {
+                TileData nextTile = listOfPlayers[0].currentTile.adjacentTiles[i];
+                if (nextTile.myEntity != null && nextTile.myEntity.CompareTag("Objective"))
+                {
+                    listOfPlayers[0].adjacentObjective = nextTile.myEntity.GetComponent<ObjectiveEntity>();
+                    objectiveButton.gameObject.SetActive(listOfPlayers[0].adjacentObjective.CanInteract());
+                    return;
+                }
+            }
+        }
+        objectiveButton.gameObject.SetActive(false);
+    }
+
+    public void ResolveObjective()
+    {
+        StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
+    }
+
     public void GameOver(string cause, string buttonTxt)
     {
         gameOverText.gameObject.SetActive(true);
@@ -400,6 +472,7 @@ public class NewManager : MonoBehaviour
     }
     IEnumerator EnvironmentalPhase()
     {
+        currentTurn = TurnSystem.Environmentals;
         StopCoroutine(CanPlayCard());
         ChoiceManager.instance.DisableCards();
         ChoiceManager.instance.DisableTiles();
@@ -592,15 +665,7 @@ public class NewManager : MonoBehaviour
         }
         // Reverse the path so it starts from the starting location
         path.Reverse();
-        // Hide the pathfinding visualization for all grid units
-        for (int i = 0; i < gridSize.x; i++)
-        {
-            for (int j = 0; j < gridSize.y; j++)
-            {
-                //remove indecator of pathfinding line
-                //listOfTiles[i,j].hidepathfinding
-            }
-        }
+
         // Display the path and calculate its cost
         int pathCost = 0;
         foreach (TileData CurrentTile in path)

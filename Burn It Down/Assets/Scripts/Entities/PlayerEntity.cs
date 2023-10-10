@@ -9,11 +9,7 @@ public class PlayerEntity : MovingEntity
         [Tooltip("turns where you can't be caught")] [ReadOnly] public int hidden = 0;
         [Tooltip("normal player appearance")] [SerializeField] Material DefaultPlayerMaterial;
         [Tooltip("appearance when hidden")] [SerializeField] Material HiddenPlayerMaterial;
-
-    public override string HoverBoxName()
-    {
-        return "You";
-    }
+        [Tooltip("adjacent objective")][SerializeField] public ObjectiveEntity adjacentObjective;
 
     public override string HoverBoxText()
     {

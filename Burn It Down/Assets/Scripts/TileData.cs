@@ -98,7 +98,7 @@ public class TileData : MonoBehaviour
             toolTipHoverTimer += Time.deltaTime;
             if (toolTipHoverTimer >= timeTillToolTip)
             {
-                NewManager.instance.toolTip.EntityName.text = myEntity.HoverBoxName();
+                NewManager.instance.toolTip.EntityName.text = myEntity.name;
                 NewManager.instance.toolTip.EntityInfo.text = myEntity.HoverBoxText();
                 NewManager.instance.toolTip.gameObject.SetActive(true);
                 NewManager.instance.toolTip.isActive = true;

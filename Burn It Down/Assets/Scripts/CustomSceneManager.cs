@@ -40,7 +40,7 @@ public class CustomSceneManager : MonoBehaviour
         RightClick.instance.transform.localPosition = new Vector3(0, 0);
 
         FPS.instance.transform.SetParent(canvas);
-        FPS.instance.transform.localPosition = new Vector3(0, 500);
+        FPS.instance.transform.localPosition = new Vector3(-850, -500);
     }
 
     public void UnloadObjects()

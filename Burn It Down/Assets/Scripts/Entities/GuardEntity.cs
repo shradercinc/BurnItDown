@@ -11,16 +11,13 @@ public class GuardEntity : MovingEntity
         [Tooltip("How far this can see")][SerializeField] int DetectionRangePatrol = 3;
         [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
-        [Tooltip("Where this moves and looks")] [ReadOnly]public Vector2Int direction;
-
-    public override string HoverBoxName()
-    {
-        return "Guard";
-    }
 
     public override string HoverBoxText()
     {
-        return $"Stunned for {stunned} turns";
+        string answer = "";
+        if (stunned > 0)
+            answer += $"Stunned for {stunned} turns\n";
+        return answer;
     }
 
     public override void CalculateTiles()
