@@ -9,8 +9,10 @@ public class ObjectiveEntity : Entity
         return true;
     }
 
-    public IEnumerator ObjectiveComplete()
+    public virtual IEnumerator ObjectiveComplete()
     {
+        NewManager.instance.listOfObjectives.Remove(this);
+        Destroy(this.gameObject);
         yield return null;
     }
 }

@@ -60,13 +60,11 @@ public class ChoiceManager : MonoBehaviour
 
     public void DisableMovement()
     {
-
-        for (int i = 0; i < NewManager.instance.gridSize.x; i++)
+        for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
         {
-            for (int j = 0; j < NewManager.instance.gridSize.y; j++)
+            for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
                 NewManager.instance.listOfTiles[i, j].moveable = false;
         }
-
     }
 
     public void DisableTiles()
@@ -74,11 +72,10 @@ public class ChoiceManager : MonoBehaviour
         chosenCard = null;
         chosenTile = null;
 
-        //turn off all tiles
-        for (int i = 0; i<NewManager.instance.gridSize.x; i++)
+        for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
         {
-            for (int j = 0; j< NewManager.instance.gridSize.y; j++)
-                NewManager.instance.listOfTiles[i,j].clickable = false;
+            for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
+                NewManager.instance.listOfTiles[i, j].clickable = false;
         }
     }
 

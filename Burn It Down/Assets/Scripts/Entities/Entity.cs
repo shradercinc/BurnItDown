@@ -12,17 +12,13 @@ public class Entity : MonoBehaviour
         [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
         [ReadOnly] public MeshRenderer meshRenderer;
         [ReadOnly] public LineRenderer lineRenderer;
-        [Tooltip("Cost of moving through item, default 999 (intraversable)")][SerializeField] public int MoveCost = 999; 
-    
+        [Tooltip("Cost of moving through item, default 999 (intraversable)")] [ReadOnly] public int MoveCost = 999;
+        [Tooltip("Where this moves and looks")][ReadOnly] public Vector2Int direction;
+
     void Awake()
     {
         meshRenderer = GetComponent<MeshRenderer>();
         lineRenderer = GetComponent<LineRenderer>();
-    }
-
-    public virtual string HoverBoxName()
-    {
-        return "";
     }
 
     public virtual string HoverBoxText()

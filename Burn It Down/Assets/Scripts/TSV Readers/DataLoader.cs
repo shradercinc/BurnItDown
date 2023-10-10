@@ -39,7 +39,7 @@ public class CardDataLoader
     public static List<CardData> ReadCardData()
     {
         List<CardData> cardData = new List<CardData>();
-        var data = TSVReader.Read("CardData", 2);
+        var data = TSVReader.ReadCards("CardData", 2);
         foreach (string[] line in data)
         {
             CardData newCard = new CardData();
@@ -76,5 +76,14 @@ public class CardDataLoader
             return 0;
         else
             return int.Parse(line);
+    }
+}
+
+public class LevelLoader
+{
+    public static string[,] LoadLevelGrid()
+    {
+        string[,] grid = TSVReader.ReadLevel("LevelData");
+        return grid;
     }
 }
