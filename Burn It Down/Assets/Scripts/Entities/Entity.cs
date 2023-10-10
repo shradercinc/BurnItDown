@@ -1,4 +1,3 @@
-using Pathfinding.Util;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,7 +30,7 @@ public class Entity : MonoBehaviour
         return "";
     }
 
-    public void MoveTile(TileData newTile)
+    public virtual void MoveTile(TileData newTile)
     {
         newTile = NewManager.instance.listOfTiles[newTile.gridPosition.x, newTile.gridPosition.y];
         print("In move " + newTile.gridPosition);

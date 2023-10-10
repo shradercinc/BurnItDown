@@ -20,6 +20,15 @@ public class PlayerEntity : MovingEntity
         return $"Moves left: {movementLeft}";
     }
 
+    public override void MoveTile(TileData newTile)
+    {
+        base.MoveTile(newTile);
+        foreach (GuardEntity guard in NewManager.instance.listOfGuards)
+        {
+             //guard.check
+        }
+    }
+
     public override IEnumerator EndOfTurn()
     {
         yield return null;
