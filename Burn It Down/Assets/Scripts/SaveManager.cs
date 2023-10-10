@@ -10,10 +10,9 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 using System.IO;
 
-[System.Serializable]
+[Serializable]
 public class SaveData
 {
-    public DateTime creationDate = DateTime.UtcNow;
     public List<string> chosenDeck; //the cards you've chosen for each level
 
     public SaveData()
@@ -43,17 +42,32 @@ public class SaveManager : MonoBehaviour
     private void Start()
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        currentSaveData = File.Exists(path) ? ES3.Load<SaveData>("saveData") : new SaveData();
+        if (ES3.FileExists(path) &&
+           !TitleScreen.instance.CompareCreationDates(File.GetCreationTime(path)))
+        {
+            currentSaveData = ES3.Load<SaveData>("saveData", path);
+        }
+        else
+        {
+            NewFile();
+        }
+    }
+
+    void NewFile()
+    {
+        currentSaveData = new SaveData();
+        DeleteData();
     }
 
     public void SaveHand(List<Transform> deckToSave)
     {
         //save the new cards for your deck
+        string path = $"{Application.persistentDataPath}/SaveFile.es3";
         List<string> newCards = new List<string>();
         for (int i = 0; i < deckToSave.Count; i++)
             newCards.Add(deckToSave[i].name);
         currentSaveData.chosenDeck = newCards;
-        ES3.Save("saveData", currentSaveData);
+        ES3.Save("saveData", currentSaveData, path);
     }
 
     public void DeleteData()

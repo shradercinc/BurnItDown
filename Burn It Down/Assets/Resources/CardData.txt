@@ -5,6 +5,6 @@ Dash	"+3 Movement."	mvmt		3	2	nv		3											ChangeMP
 SampleDraw	"+2 Cards."	draw		3	2	nv													DrawCards	
 Foresight	Find 2 cards that cost 0 EP and put them in your hand.	draw		3	1	nv													FindZero	
 Mulligan	Discard your hand. +5 Cards.	draw		3	2	nv				5									DiscardHand/DrawCards	
-Stun	Stun 1 on an adjacent guard.	atk		3	1	v					1							isGuard	StunAdjacentGuard	
+Stun	Stun 1 on an adjacent guard.	atk		3	0	v					1							isGuard	StunAdjacentGuard	
 Demolitions	Destroy an adjacent wall.	atk		3	1	nv												isWall	DestroyAdjacentWall	
 Prepare	+2 Movement and +2 Energy for this character at the beginning of next round.	mvmt	eng	3	2	nv	2	2												ChangeMP/ChangeEP

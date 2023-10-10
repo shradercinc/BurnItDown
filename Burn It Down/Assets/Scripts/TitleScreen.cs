@@ -11,23 +11,26 @@ public class TitleScreen : MonoBehaviour
 {
     Button deleteFile;
     GameObject errorText;
+    public static TitleScreen instance;
 
     private void Awake()
     {
+        instance = this;
         deleteFile = GameObject.Find("Delete Deck").GetComponent<Button>();
         deleteFile.onClick.AddListener(Delete);
         errorText = GameObject.Find("Error Text");
     }
 
-    private void Start()
+    public bool CompareCreationDates(DateTime saveDataCreation)
     {
         DateTime creationDate = File.GetCreationTime(Path.Combine(Application.dataPath, "Resources/CardData.txt"));
-        errorText.SetActive(creationDate.ToFileTimeUtc() > SaveManager.instance.currentSaveData.creationDate.ToFileTimeUtc());
+        bool answer = creationDate > saveDataCreation;
+        errorText.SetActive(answer);
+        return answer;
     }
 
     public void Delete()
     {
         SaveManager.instance.DeleteData();
-        errorText.SetActive(false);
     }
 }
