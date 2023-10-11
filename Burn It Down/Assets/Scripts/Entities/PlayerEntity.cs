@@ -21,7 +21,7 @@ public class PlayerEntity : MovingEntity
         base.MoveTile(newTile);
         foreach (GuardEntity guard in NewManager.instance.listOfGuards)
         {
-             //guard.check
+            guard.CheckForPlayer();
         }
     }
 

@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using MyBox;
+using UnityEngine.UIElements;
+using static UnityEngine.GraphicsBuffer;
+using System.Security.Cryptography.X509Certificates;
 
 public class GuardEntity : MovingEntity
 {
@@ -11,6 +14,9 @@ public class GuardEntity : MovingEntity
         [Tooltip("How far this can see")][SerializeField] int DetectionRangePatrol = 3;
         [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
+        [Tooltip("Current Target to attack & persue")] PlayerEntity CurrentTarget;
+        [Tooltip("State of a guard's alert, 0 = patrol, 1 = attack")] int Alert = 0;
+        [Tooltip("Guard Range")] int AttackRange = 1;
 
     public override string HoverBoxText()
     {
@@ -42,18 +48,41 @@ public class GuardEntity : MovingEntity
             inDetection[i].SurveillanceState(true);
     }
 
-    PlayerEntity CheckForPlayer()
+    /*
+    public PlayerEntity CheckForPlayer()
     {
         for (int i = 0; i<inDetection.Count; i++)
         {
+            print("guard: " + currentTile.gridPosition + " Looking at " + inDetection[i].gridPosition);
             if (inDetection[i].myEntity != null && inDetection[i].myEntity.CompareTag("Player"))
 
                 if (inDetection[i].myEntity.GetComponent<PlayerEntity>().hidden !> 0)
                 {
+                    print("found player");
                     return inDetection[i].myEntity.GetComponent<PlayerEntity>();
                 }
         }
         return null;
+    }
+    */
+
+    public void CheckForPlayer()
+    {
+        for (int i = 0; i < inDetection.Count; i++)
+        {
+            //print("guard: " + currentTile.gridPosition + " Looking at " + inDetection[i].gridPosition);
+            if (inDetection[i].myEntity != null)
+            {
+                if(inDetection[i].myEntity.CompareTag("Player"))
+                {
+                    if (inDetection[i].myEntity.GetComponent<PlayerEntity>().hidden == 0)
+                    {
+                        print("found player");
+                        alerted(inDetection[i].myEntity.GetComponent<PlayerEntity>());
+                    }
+                }
+            }
+        }
     }
 
     public override IEnumerator EndOfTurn()
@@ -65,18 +94,41 @@ public class GuardEntity : MovingEntity
         else
         {
             movementLeft = movesPerTurn;
-            PlayerEntity detectedPlayer = CheckForPlayer();
-            if (detectedPlayer == null)
+            CheckForPlayer();
+            if(Alert == 0)
                 yield return Patrol();
             else
-                yield return Attack(detectedPlayer);
+                yield return Attack(CurrentTarget);
         }
     }
 
+    public void alerted(PlayerEntity target)
+    {
+        Alert = 1;
+        CurrentTarget = target;
+        print("New target, player at " + target.currentTile.gridPosition);
+    }
     IEnumerator Attack(PlayerEntity detectedPlayer)
     {
+        RaycastHit hit;
+        Vector3 shotDirection = detectedPlayer.transform.position - transform.position;
+        if (Physics.Raycast(transform.position, shotDirection, out hit, Mathf.Infinity, 1 << 2))
+        {
+            if (hit.collider.gameObject.tag == "Player")
+            {
+                
+                if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) > AttackRange)
+                {
+                    NewManager.instance.CalculatePathfinding(currentTile, detectedPlayer.currentTile, movementLeft, true);
+                    MoveTile(NewManager.instance.CurrentAvalibleMoveTarget);
+                    movementLeft--;
+                }
+                NewManager.instance.ChangeHealth(-1);
+            }
+        }
+        
         yield return new WaitForSeconds(movePauseTime);
-        NewManager.instance.ChangeHealth(-1);
+
     }
 
     IEnumerator Patrol()

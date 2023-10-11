@@ -29,7 +29,7 @@ public class Entity : MonoBehaviour
     public virtual void MoveTile(TileData newTile)
     {
         newTile = NewManager.instance.listOfTiles[newTile.gridPosition.x, newTile.gridPosition.y];
-        print("In move " + newTile.gridPosition);
+        //print("In move " + newTile.gridPosition);
         if (currentTile != null)
             currentTile.myEntity = null;
 
