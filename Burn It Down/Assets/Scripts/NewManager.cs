@@ -63,8 +63,7 @@ public class NewManager : MonoBehaviour
     [Foldout("Grid", true)]
         [Tooltip("Tiles in the inspector")] Transform gridContainer;
         [Tooltip("Storage of tiles")][ReadOnly] public TileData[,] listOfTiles;
-        [Tooltip("Spacing between tiles")][SerializeField] float tileSpacing = 2;
-        [Tooltip("Tile height")][SerializeField] float tileHeight = 2;
+        [Tooltip("Spacing between tiles")][SerializeField] float tileSpacing;
 
     [Foldout("Prefabs", true)]
         [Tooltip("Floor tile prefab")] [SerializeField] TileData floorTilePrefab;
@@ -228,6 +227,7 @@ public class NewManager : MonoBehaviour
                 FindAdjacent(listOfTiles[i, j]);
             }
         }
+        gridContainer.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         SetEnergy(3);
         SetHealth(3);

@@ -2,7 +2,7 @@
 name	desc	cat1	cat2	maxInv	epCost	vTag	chHP	chMP	chEP	draw	stun	range	aoe	delay	wHP	burn	intn	selectable	act	nextAct
 Desperation	"+2 Energy, -2 HP."	eng		3	0	nv	-2		2										ChangeEP/ChangeHP	
 Dash	"+3 Movement."	mvmt		3	2	nv		3											ChangeMP	
-SampleDraw	"+2 Cards."	draw		3	2	nv													DrawCards	
+SampleDraw	"+2 Cards."	draw		3	2	nv				2									DrawCards	
 Foresight	Find 2 cards that cost 0 EP and put them in your hand.	draw		3	1	nv													FindZero	
 Mulligan	Discard your hand. +5 Cards.	draw		3	2	nv				5									DiscardHand/DrawCards	
 Stun	Stun 1 on an adjacent guard.	atk		3	0	v					1							isGuard	StunAdjacentGuard	

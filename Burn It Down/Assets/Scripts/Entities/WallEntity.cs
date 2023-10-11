@@ -6,7 +6,7 @@ using UnityEngine;
 public class WallEntity : Entity
 {
     [Foldout("Wall Entity",true)]
-        [Tooltip("Health a wall has")][SerializeField] public int health;
+        [Tooltip("Health a wall has")][ReadOnly] public int health;
 
     public override string HoverBoxText()
     {
