@@ -5,19 +5,21 @@ using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
 using MyBox;
+using System;
 
 public class Entity : MonoBehaviour
 {
     [Foldout("Base Entity", true)]
         [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
-        [ReadOnly] public MeshRenderer meshRenderer;
+        [ReadOnly] public SpriteRenderer spriteRenderer;
         [ReadOnly] public LineRenderer lineRenderer;
         [Tooltip("Cost of moving through item, default 999 (intraversable)")] [ReadOnly] public int MoveCost = 999;
-        [Tooltip("Where this moves and looks")][ReadOnly] public Vector2Int direction;
+        [Tooltip("Where this moves and looks")] [ReadOnly] public Vector2Int direction;
 
     void Awake()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sortingOrder = 1;
         lineRenderer = GetComponent<LineRenderer>();
     }
 
@@ -37,7 +39,7 @@ public class Entity : MonoBehaviour
         this.currentTile = newTile;
         this.transform.SetParent(newTile.transform);
         this.transform.localScale = new Vector3(1, 1, 1);
-        this.transform.localPosition = new Vector3(0, 1, 0);
+        this.transform.localPosition = new Vector3(0, 0, 0);
         CalculateTiles();
     }
 

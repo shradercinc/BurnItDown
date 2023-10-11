@@ -8,28 +8,29 @@ using MyBox;
 
 public class TileData : MonoBehaviour
 {
-    [Tooltip("All adjacent tiles")] [ReadOnly] public List<TileData> adjacentTiles;
-    [Tooltip("Position in the grid")] [ReadOnly] public Vector2Int gridPosition;
-    [Tooltip("The entity on this tile")] [ReadOnly] public Entity myEntity;
-    [Tooltip("Default texture")][SerializeField] Material defaultTexture;
-    [Tooltip("Texture when under surveillance")][SerializeField] Material surveillanceTexture;
-    [Tooltip("Renders the material")] MeshRenderer currentMaterial;
-    [Tooltip("This can be clicked on")] [ReadOnly] public bool clickable = true;
-    
-    [Tooltip("timer that controls how long until a tool tip appears on hover")][SerializeField] float timeTillToolTip = 1.5f;
-    [Tooltip("timer that controls how long until a tool tip appears on hover")] float toolTipHoverTimer = 0;
+    [Foldout("Tile information", true)]
+        [Tooltip("All adjacent tiles")] [ReadOnly] public List<TileData> adjacentTiles;
+        [Tooltip("Position in the grid")] [ReadOnly] public Vector2Int gridPosition;
+        [Tooltip("The entity on this tile")] [ReadOnly] public Entity myEntity;
 
-    [Tooltip("The glowing border when this can be clicked")] SpriteRenderer border;
-    [Tooltip("color used for unselected moused over tiles")][SerializeField] Color mouseOverColor = new Color(0.9f,0.9f,0.9f,1);
-    [Tooltip("color used for selected tiles")][SerializeField] Color SelectedColor;
-    [Tooltip("Defines whether you can move onto this tile")][ReadOnly] public bool moveable = false;
-    [Tooltip("color used for unselected moused over tiles")][SerializeField] Color MoveableColor = new Color(0.9f, 0.9f, 0.9f, 1);
+    [Foldout("Mouse", true)]
+        [Tooltip("This can be clicked on")] [ReadOnly] public bool clickable = true;
+        [Tooltip("timer that controls how long until a tool tip appears on hover")] float timeTillToolTip = 0.5f;
+        [Tooltip("timer that controls how long until a tool tip appears on hover")] float toolTipHoverTimer = 0;
+        [Tooltip("Defines whether you can move onto this tile")][ReadOnly] public bool moveable = false;
+        [Tooltip("If your mouse is over this")] private bool moused = false;
 
-    private bool moused = false;
+    [Foldout("Colors", true)]
+        [Tooltip("Tile's sprite renderer")] SpriteRenderer myRenderer;
+        [Tooltip("Glowing border's sprite renderer")] SpriteRenderer border;
+        [Tooltip("color used for unselected moused over tiles")][SerializeField] Color mouseOverColor = new Color(0.9f,0.9f,0.9f,1);
+        [Tooltip("color used for selected tiles")][SerializeField] Color SelectedColor;
+        [Tooltip("color used for unselected moused over tiles")][SerializeField] Color MoveableColor = new Color(0.9f, 0.9f, 0.9f, 1);
 
     private void Awake()
     {
-        currentMaterial = GetComponent<MeshRenderer>();
+        myRenderer = GetComponent<SpriteRenderer>();
+        myRenderer.sortingOrder = 0;
         border = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
         border.color = new Color(1f, 1f, 1f, 0);
     }
@@ -40,16 +41,6 @@ public class TileData : MonoBehaviour
         {
             Debug.Log("border is null");
         }
-        /*
-        if (border != null && clickable)
-        {
-            border.color = new Color(1, 1, 1, ChoiceManager.instance.opacity);
-        }
-        else if (border != null && !clickable)
-        {
-            border.color = new Color(1, 1, 1, 0);
-        }
-        */
         if (NewManager.instance.selectedTile == this)
         {
             border.color = new Color(SelectedColor.r, SelectedColor.g, SelectedColor.b, ChoiceManager.instance.opacity);
@@ -108,7 +99,7 @@ public class TileData : MonoBehaviour
 
     public void SurveillanceState(bool underSurveillance)
     {
-        currentMaterial.material = (underSurveillance) ? surveillanceTexture : defaultTexture;
+        myRenderer.color = (underSurveillance) ? Color.red : Color.gray;
     }
 
     private void Update()
@@ -116,7 +107,6 @@ public class TileData : MonoBehaviour
         if (!moused)
         {
             toolTipHoverTimer = 0;
-
         }
     }
 }
