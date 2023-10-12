@@ -134,7 +134,7 @@ public class GuardEntity : MovingEntity
             }
             else
             {
-                Alert = 0;
+                alertStatus = Alert.Patrol;
                 CurrentTarget = null;
             }
         }
@@ -144,11 +144,11 @@ public class GuardEntity : MovingEntity
             timer += Time.deltaTime;
             yield return null;
         }
-        if (Alert == 1)
+        if (alertStatus == Alert.Attack)
         {
 
         }
-        else if (Alert == 0)
+        else if (alertStatus == Alert.Patrol)
         {
             
         }
