@@ -14,9 +14,11 @@ public class GuardEntity : MovingEntity
         [Tooltip("How far this can see")][SerializeField] int DetectionRangePatrol = 3;
         [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
+        [Tooltip("Current number of attacks")][ReadOnly] int attacksLeft = 0;
         [Tooltip("Current Target to attack & persue")] PlayerEntity CurrentTarget;
         [Tooltip("State of a guard's alert, 0 = patrol, 1 = attack")] int Alert = 0;
         [Tooltip("Guard Range")] int AttackRange = 1;
+        [Tooltip("list of patrol positions")] List<Vector2Int> PatrolPoints = new List<Vector2Int>();
 
     public override string HoverBoxText()
     {
@@ -94,6 +96,7 @@ public class GuardEntity : MovingEntity
         else
         {
             movementLeft = movesPerTurn;
+            attacksLeft = attacksPerTurn;
             CheckForPlayer();
             if(Alert == 0)
                 yield return Patrol();
@@ -108,6 +111,7 @@ public class GuardEntity : MovingEntity
         CurrentTarget = target;
         print("New target, player at " + target.currentTile.gridPosition);
     }
+
     IEnumerator Attack(PlayerEntity detectedPlayer)
     {
         RaycastHit hit;
@@ -116,43 +120,64 @@ public class GuardEntity : MovingEntity
         {
             if (hit.collider.gameObject.tag == "Player")
             {
-                
-                if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) > AttackRange)
+                if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) > AttackRange && movementLeft > 0)
                 {
                     NewManager.instance.CalculatePathfinding(currentTile, detectedPlayer.currentTile, movementLeft, true);
                     MoveTile(NewManager.instance.CurrentAvalibleMoveTarget);
                     movementLeft--;
                 }
-                NewManager.instance.ChangeHealth(-1);
+                if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) <= AttackRange && attacksLeft > 0)
+                {
+                    NewManager.instance.ChangeHealth(-1);
+                    attacksLeft--;
+                }
+            }
+            else
+            {
+                Alert = 0;
+                CurrentTarget = null;
             }
         }
-        
-        yield return new WaitForSeconds(movePauseTime);
+        float timer = 0;
+        while (timer < movePauseTime)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        if (Alert == 1)
+        {
+
+        }
+        else if (Alert == 0)
+        {
+            
+        }
 
     }
 
     IEnumerator Patrol()
     {
-        int timesMoved = 0;
-        while (timesMoved < movementLeft)
+        TileData nextTile;
+        nextTile = NewManager.instance.FindTile(currentTile.gridPosition + direction); //find tile in the current direction
+        while (nextTile == null || nextTile.myEntity != null) //if it can't
         {
-            TileData nextTile;
-            nextTile = NewManager.instance.FindTile(currentTile.gridPosition + direction); //find tile in the current direction
-            while (nextTile == null || nextTile.myEntity != null) //if it can't
+            List<TileData> possibleTiles = new List<TileData>();
+            for (int i = 0; i<currentTile.adjacentTiles.Count; i++)
             {
-                List<TileData> possibleTiles = new List<TileData>();
-                for (int i = 0; i<currentTile.adjacentTiles.Count; i++)
-                {
-                    if (currentTile.adjacentTiles[i].myEntity == null) //find all adjacent tiles that this can move to
-                        possibleTiles.Add(currentTile.adjacentTiles[i]);
-                }
-                nextTile = possibleTiles[Random.Range(0, possibleTiles.Count)]; //pick a random tile that's available
-                direction = nextTile.gridPosition - currentTile.gridPosition; //change direction
+                if (currentTile.adjacentTiles[i].myEntity == null) //find all adjacent tiles that this can move to
+                    possibleTiles.Add(currentTile.adjacentTiles[i]);
             }
-
-            this.MoveTile(nextTile); //move to the tile
-            timesMoved++;
-            yield return new WaitForSeconds(movePauseTime);
+            nextTile = possibleTiles[Random.Range(0, possibleTiles.Count)]; //pick a random tile that's available
+            direction = nextTile.gridPosition - currentTile.gridPosition; //change direction
         }
+        float timer = 0;
+        while (timer < movePauseTime)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        this.MoveTile(nextTile); //move to the tile
+        //timesMoved++;
+        yield return new WaitForSeconds(movePauseTime);
     }
 }
