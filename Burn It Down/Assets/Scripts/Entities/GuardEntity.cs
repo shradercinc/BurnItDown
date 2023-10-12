@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyBox;
 using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
-using System.Security.Cryptography.X509Certificates;
 
 public class GuardEntity : MovingEntity
 {
+    enum Alert { Patrol, Attack};
+
     [Foldout("Guard Entity", true)]
         [Tooltip("Tiles this is searching")] List<TileData> inDetection = new List<TileData>();
         [Tooltip("Pauses between movement")] float movePauseTime = 0.25f;
@@ -15,7 +15,7 @@ public class GuardEntity : MovingEntity
         [Tooltip("Turns which this does nothing")] [ReadOnly] public int stunned = 0;
         [Tooltip("Times this attacks")] [ReadOnly] public int attacksPerTurn = 1;
         [Tooltip("Current Target to attack & persue")] PlayerEntity CurrentTarget;
-        [Tooltip("State of a guard's alert, 0 = patrol, 1 = attack")] int Alert = 0;
+        [Tooltip("State of a guard's alert")] Alert alertStatus = 0;
         [Tooltip("Guard Range")] int AttackRange = 1;
 
     public override string HoverBoxText()
@@ -78,7 +78,7 @@ public class GuardEntity : MovingEntity
                     if (inDetection[i].myEntity.GetComponent<PlayerEntity>().hidden == 0)
                     {
                         print("found player");
-                        alerted(inDetection[i].myEntity.GetComponent<PlayerEntity>());
+                        Alerted(inDetection[i].myEntity.GetComponent<PlayerEntity>());
                     }
                 }
             }
@@ -95,16 +95,16 @@ public class GuardEntity : MovingEntity
         {
             movementLeft = movesPerTurn;
             CheckForPlayer();
-            if(Alert == 0)
+            if(alertStatus == Alert.Patrol)
                 yield return Patrol();
             else
                 yield return Attack(CurrentTarget);
         }
     }
 
-    public void alerted(PlayerEntity target)
+    public void Alerted(PlayerEntity target)
     {
-        Alert = 1;
+        alertStatus = Alert.Attack;
         CurrentTarget = target;
         print("New target, player at " + target.currentTile.gridPosition);
     }
