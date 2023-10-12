@@ -23,6 +23,22 @@ public class PlayerEntity : MovingEntity
         {
             guard.CheckForPlayer();
         }
+        NewManager.instance.objectiveButton.gameObject.SetActive(CheckForObjectives());
+    }
+
+    bool CheckForObjectives()
+    {
+        for (int i = 0; i < this.currentTile.adjacentTiles.Count; i++)
+        {
+            TileData nextTile = this.currentTile.adjacentTiles[i];
+            if (nextTile.myEntity != null && nextTile.myEntity.CompareTag("Objective"))
+            {
+                this.adjacentObjective = nextTile.myEntity.GetComponent<ObjectiveEntity>();
+                return adjacentObjective.CanInteract();
+            }
+        }
+
+        return false;
     }
 
     public override IEnumerator EndOfTurn()

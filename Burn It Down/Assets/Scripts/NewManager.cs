@@ -5,10 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using MyBox;
-using UnityEngine.TextCore.Text;
-//using static MyBox.EditorTools.MyGUI;
-using JetBrains.Annotations;
-using Unity.VisualScripting;
 
 public class AStarNode
 {
@@ -24,6 +20,9 @@ public class AStarNode
 
 public class NewManager : MonoBehaviour
 {
+
+#region Variables
+
     public static NewManager instance;
 
     [Foldout("Storing Things", true)]
@@ -32,9 +31,11 @@ public class NewManager : MonoBehaviour
         [Tooltip("Reference to guards")][ReadOnly] public List<GuardEntity> listOfGuards = new List<GuardEntity>();
         [Tooltip("Reference to active environmental objects")][ReadOnly] public List<EnvironmentalEntity> listOfEnvironmentals = new List<EnvironmentalEntity>();
         [Tooltip("Reference to objectives")][ReadOnly] public List<ObjectiveEntity> listOfObjectives = new List<ObjectiveEntity>();
-        [Tooltip("Current Selected Tile")] [ReadOnly] public TileData selectedTile;
-        [Tooltip("Quick reference to current movable tile")] public TileData CurrentAvalibleMoveTarget;
-        [Tooltip("How many guards are active before the player can act")] public int GuardsActive = 0;
+
+    [Foldout("Movement", true)]
+        [Tooltip("Current Selected Tile")][ReadOnly] public TileData selectedTile;
+        [Tooltip("Quick reference to current movable tile")][ReadOnly] public TileData CurrentAvailableMoveTarget;
+        [Tooltip("How many guards are active before the player can act")][ReadOnly] public int GuardsActive = 0;
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")] RectTransform handTransform;
@@ -53,7 +54,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Movement bar")] Slider movementBar;
         [Tooltip("Movement bar's textbox")] TMP_Text movementText;
         [Tooltip("End the turn")] Button endTurnButton;
-        [Tooltip("Use objective")] Button objectiveButton;
+        [Tooltip("Use objective")] [ReadOnly] public Button objectiveButton;
         [Tooltip("info on entities")] [ReadOnly] public EntityToolTip toolTip;
         
     [Foldout("GameOver", true)]
@@ -81,7 +82,10 @@ public class NewManager : MonoBehaviour
         [Foldout("Turn System", true)]
         [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
 
+#endregion
+
 #region Setup
+
     void Awake()
     {
         instance = this;
@@ -106,6 +110,7 @@ public class NewManager : MonoBehaviour
         objectiveButton = GameObject.Find("Objective Button").GetComponent<Button>();
         objectiveButton.onClick.AddListener(ResolveObjective);
     }
+
     void Start()
     {
         gameOverText.transform.parent.gameObject.SetActive(false);
@@ -236,6 +241,7 @@ public class NewManager : MonoBehaviour
 
         StartCoroutine(StartPlayerTurn());
     }
+
     Vector2Int StringToDirection(string direction)
     {
         return direction[..1] switch
@@ -247,6 +253,7 @@ public class NewManager : MonoBehaviour
             _ => new Vector2Int(0, 0),
         };
     }
+
     void FindAdjacent(TileData tile) //check each adjacent tile; if it's not null, add it to the list
     {
         tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
@@ -256,6 +263,7 @@ public class NewManager : MonoBehaviour
 
         tile.adjacentTiles.RemoveAll(item => item == null); //delete all tiles that are null
     }
+
     public TileData FindTile(Vector2 vector) //find a tile based off Vector2
     {
         try
@@ -267,18 +275,31 @@ public class NewManager : MonoBehaviour
             return null;
         }
     }
+
     public TileData FindTile(Vector2Int vector) //find a tile based off Vector2Int
     {
         return FindTile(new Vector2(vector.x, vector.y));
     }
+
+    public static IEnumerator Wait(float timer)
+    {
+        float wait = timer;
+        while (wait > 0)
+        {
+            wait -= Time.deltaTime;
+            yield return null;
+        }
+    }
+
     private void Update()
     {
         endTurnButton.gameObject.SetActive(currentTurn == TurnSystem.You);
-        CheckAdjacentObjectives();
     }
-    #endregion
+
+#endregion
 
 #region Changing Stats
+
     public bool EnoughEnergy(int n)//check if n is larger than current energy
     {
         return (energyBar.value >= n);
@@ -369,25 +390,7 @@ public class NewManager : MonoBehaviour
 #endregion
 
 #region Turn System
-
-    void CheckAdjacentObjectives()
-    {
-        if (currentTurn == TurnSystem.You)
-        {
-            for (int i = 0; i < listOfPlayers[0].currentTile.adjacentTiles.Count; i++)
-            {
-                TileData nextTile = listOfPlayers[0].currentTile.adjacentTiles[i];
-                if (nextTile.myEntity != null && nextTile.myEntity.CompareTag("Objective"))
-                {
-                    listOfPlayers[0].adjacentObjective = nextTile.myEntity.GetComponent<ObjectiveEntity>();
-                    objectiveButton.gameObject.SetActive(listOfPlayers[0].adjacentObjective.CanInteract());
-                    return;
-                }
-            }
-        }
-        objectiveButton.gameObject.SetActive(false);
-    }
-
+    
     public void ResolveObjective()
     {
         StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
@@ -401,6 +404,7 @@ public class NewManager : MonoBehaviour
         gameOverText.text = cause;
         gameOverButton.GetComponentInChildren<TMP_Text>().text = buttonTxt;
     }
+
     IEnumerator StartPlayerTurn()
     {
         while (GuardsActive > 0)
@@ -411,6 +415,7 @@ public class NewManager : MonoBehaviour
         StartCoroutine(CanPlayCard());
         yield return null;
     }
+
     public IEnumerator MovePlayer(TileData currentTile)
     {
         PlayerEntity currentPlayer = currentTile.myEntity.GetComponent<PlayerEntity>();
@@ -436,6 +441,7 @@ public class NewManager : MonoBehaviour
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
         ChoiceManager.instance.DisableMovement();
     }
+
     IEnumerator CanPlayCard() //choose a card to play
     {
         ChoiceManager.instance.DisableCards();
@@ -456,6 +462,7 @@ public class NewManager : MonoBehaviour
         }
         yield return PlayCard(ChoiceManager.instance.chosenCard);
     }
+
     IEnumerator PlayCard(Card playMe) //resolve that card
     {
         if (playMe != null)
@@ -467,6 +474,7 @@ public class NewManager : MonoBehaviour
 
         StartCoroutine(CanPlayCard());
     }
+
     public void Regain()
     {
         SetEnergy(3);
@@ -478,6 +486,7 @@ public class NewManager : MonoBehaviour
         }
         StartCoroutine(EnvironmentalPhase());
     }
+
     IEnumerator EnvironmentalPhase()
     {
         currentTurn = TurnSystem.Environmentals;
@@ -497,6 +506,7 @@ public class NewManager : MonoBehaviour
         StartCoroutine(EndTurn());
         yield return null;
     }
+
     IEnumerator EndTurn() //Starts Guard Phase
     {
         selectedTile = null;
@@ -521,12 +531,6 @@ public class NewManager : MonoBehaviour
 #endregion
 
 #region Pathfinding
-    /* old code, we have our own movement scripts
-    public void SetTargetLocation(TileData targetLocation)
-    {
-        CalculatePathfinding(listOfPlayers[0].currentTile, targetLocation, listOfPlayers[0].movementLeft);
-    }
-    */
 
     //gets the distance (in gridspaces) between two gridspaces
     public int GetDistance(TileData a, TileData b)
@@ -767,7 +771,7 @@ public class NewManager : MonoBehaviour
                     break;
                 }
                 // Update the current available move target and display the pathfinding visualization with the path cost
-                CurrentAvalibleMoveTarget = CurrentTile;
+                CurrentAvailableMoveTarget = CurrentTile;
 
                 //Displays the pathfinding value to get to this point (but we don't have this yet)
                 //CurrentTile.DisplayPathfinding(pathCost.ToString());
@@ -775,7 +779,7 @@ public class NewManager : MonoBehaviour
         }
         else
         {
-            CurrentAvalibleMoveTarget = path[0];
+            CurrentAvailableMoveTarget = path[0];
         }
     }
 #endregion

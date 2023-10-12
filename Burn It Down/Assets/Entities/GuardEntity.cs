@@ -4,7 +4,6 @@ using UnityEngine;
 using MyBox;
 using UnityEngine.UIElements;
 using Unity.VisualScripting;
-using static UnityEngine.GraphicsBuffer;
 
 public class GuardEntity : MovingEntity
 {
@@ -71,24 +70,6 @@ public class GuardEntity : MovingEntity
             inDetection[i].SurveillanceState(true);
     }
 
-    /*
-    public PlayerEntity CheckForPlayer()
-    {
-        for (int i = 0; i<inDetection.Count; i++)
-        {
-            print("guard: " + currentTile.gridPosition + " Looking at " + inDetection[i].gridPosition);
-            if (inDetection[i].myEntity != null && inDetection[i].myEntity.CompareTag("Player"))
-
-                if (inDetection[i].myEntity.GetComponent<PlayerEntity>().hidden !> 0)
-                {
-                    print("found player");
-                    return inDetection[i].myEntity.GetComponent<PlayerEntity>();
-                }
-        }
-        return null;
-    }
-    */
-
     public void CheckForPlayer()
     {
         for (int i = 0; i < inDetection.Count; i++)
@@ -144,7 +125,7 @@ public class GuardEntity : MovingEntity
                 if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) > AttackRange && movementLeft > 0)
                 {
                     NewManager.instance.CalculatePathfinding(currentTile, detectedPlayer.currentTile, movementLeft, true);
-                    MoveTile(NewManager.instance.CurrentAvalibleMoveTarget);
+                    MoveTile(NewManager.instance.CurrentAvailableMoveTarget);
                     movementLeft--;
                 }
                 if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) <= AttackRange && attacksLeft > 0)
@@ -211,12 +192,8 @@ public class GuardEntity : MovingEntity
             direction = nextTile.gridPosition - currentTile.gridPosition; //change direction
         }
         this.MoveTile(nextTile);//move to the tile
-        float timer = 0;
-        while (timer < movePauseTime)
-        {
-            timer += Time.deltaTime;
-            yield return null;
-        }
+        yield return NewManager.Wait(movePauseTime);
+
         CheckForPlayer();
         if (alertStatus == Alert.Attack)
         {

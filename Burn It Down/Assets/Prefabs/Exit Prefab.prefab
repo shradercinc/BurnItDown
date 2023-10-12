@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4143152554932740568}
   - component: {fileID: -7563352408502380383}
   - component: {fileID: 1531062187631064881}
-  - component: {fileID: 525994349542648332}
+  - component: {fileID: 5518907647546662769}
   m_Layer: 2
   m_Name: Exit Prefab
   m_TagString: Objective
@@ -28,7 +28,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5435767722022169398}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.99875855, z: 0.049813703, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -125,7 +125,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &525994349542648332
+--- !u!114 &5518907647546662769
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

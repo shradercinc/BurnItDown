@@ -1926,12 +1926,15 @@ MonoBehaviour:
   listOfEnvironmentals: []
   listOfObjectives: []
   selectedTile: {fileID: 0}
+  CurrentAvailableMoveTarget: {fileID: 0}
+  GuardsActive: 0
   listOfHand: []
+  objectiveButton: {fileID: 0}
   toolTip: {fileID: 1051534387}
   gameOverText: {fileID: 2073059604}
   gameOverButton: {fileID: 1527282418}
   gameOverScreen: {fileID: 1946367677}
-  tileSpacing: 3
+  tileSpacing: 3.25
   floorTilePrefab: {fileID: 2642816440497754149, guid: 416081d422f0447bf81278803b96f973, type: 3}
   playerPrefab: {fileID: 6421295861255831564, guid: e68cbc9ff88a24d4d9abfef76230b41f, type: 3}
   wallPrefab: {fileID: 3780071206512033230, guid: dc8aa844dc4e549bbb30d8da98a75ea1, type: 3}
@@ -3010,6 +3013,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6b9c5cd816384bbcb909bc902f40365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scene: 
 --- !u!114 &1527282421
 MonoBehaviour:
   m_ObjectHideFlags: 0
