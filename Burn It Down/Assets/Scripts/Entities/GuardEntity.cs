@@ -45,7 +45,7 @@ public class GuardEntity : MovingEntity
         }
         else
         {
-            lineRenderer.enabled = false;
+            AttackLine.enabled = false;
         }
     }
 
