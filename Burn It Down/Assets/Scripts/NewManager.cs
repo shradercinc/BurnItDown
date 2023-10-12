@@ -34,6 +34,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Reference to objectives")][ReadOnly] public List<ObjectiveEntity> listOfObjectives = new List<ObjectiveEntity>();
         [Tooltip("Current Selected Tile")] [ReadOnly] public TileData selectedTile;
         [Tooltip("Quick reference to current movable tile")] public TileData CurrentAvalibleMoveTarget;
+        [Tooltip("How many guards are active before the player can act")] public int GuardsActive = 0;
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")] RectTransform handTransform;
@@ -402,6 +403,10 @@ public class NewManager : MonoBehaviour
     }
     IEnumerator StartPlayerTurn()
     {
+        while (GuardsActive > 0)
+        {
+            yield return null;
+        }
         currentTurn = TurnSystem.You;
         StartCoroutine(CanPlayCard());
         yield return null;
@@ -494,6 +499,7 @@ public class NewManager : MonoBehaviour
     }
     IEnumerator EndTurn() //Starts Guard Phase
     {
+        selectedTile = null;
         ChoiceManager.instance.DisableCards();
         ChoiceManager.instance.DisableTiles();
 
@@ -506,6 +512,7 @@ public class NewManager : MonoBehaviour
         for (int i = 0; i < listOfGuards.Count; i++)
         {
             yield return null;
+            GuardsActive++;
             yield return listOfGuards[i].EndOfTurn();
         }
 

@@ -71,7 +71,7 @@ public class TileData : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0) && NewManager.instance.GuardsActive == 0)
         {
             if (moveable) ChoiceManager.instance.ReceiveChoice(this);
             NewManager.instance.selectedTile = this;

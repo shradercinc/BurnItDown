@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using MyBox;
 using UnityEngine.UIElements;
+using Unity.VisualScripting;
+using static UnityEngine.GraphicsBuffer;
 
 public class GuardEntity : MovingEntity
 {
@@ -19,6 +21,12 @@ public class GuardEntity : MovingEntity
         [Tooltip("State of a guard's alert")] Alert alertStatus = 0;
         [Tooltip("Guard Range")] int AttackRange = 1;
         [Tooltip("list of patrol positions")] List<Vector2Int> PatrolPoints = new List<Vector2Int>();
+        [Tooltip("Line renderer for showing the guard is attacking")] LineRenderer AttackLine = new LineRenderer();
+
+    private void Awake()
+    {
+        AttackLine = GetComponent<LineRenderer>();
+    }
 
     public override string HoverBoxText()
     {
@@ -26,6 +34,19 @@ public class GuardEntity : MovingEntity
         if (stunned > 0)
             answer += $"Stunned for {stunned} turns\n";
         return answer;
+    }
+
+    private void FixedUpdate()
+    {
+        if (alertStatus == Alert.Attack && stunned == 0)
+        {
+            AttackLine.enabled = true;
+            AttackLine.SetPositions(new Vector3[] { transform.position, CurrentTarget.transform.position });
+        }
+        else
+        {
+            lineRenderer.enabled = false;
+        }
     }
 
     public override void CalculateTiles()
@@ -134,24 +155,43 @@ public class GuardEntity : MovingEntity
             }
             else
             {
-                Alert = 0;
-                CurrentTarget = null;
+                alertStatus = Alert.Patrol;
             }
         }
+        else
+        {
+            alertStatus = Alert.Patrol;
+        }
+
+        //checking whether to end round or 
         float timer = 0;
         while (timer < movePauseTime)
         {
             timer += Time.deltaTime;
             yield return null;
         }
-        if (Alert == 1)
+        if (alertStatus == Alert.Attack)
         {
-
+            if (NewManager.instance.GetDistance(currentTile, CurrentTarget.currentTile) > AttackRange && movementLeft > 0)
+            {
+                Attack(CurrentTarget);
+                yield break;
+            }
+            else if (NewManager.instance.GetDistance(currentTile, CurrentTarget.currentTile) <= AttackRange && attacksLeft > 0)
+            {
+                Attack(CurrentTarget);
+                yield break;
+            }
         }
-        else if (Alert == 0)
+        else if (alertStatus == Alert.Patrol)
         {
-            
+            if (movementLeft > 0)
+            {
+                Patrol();
+                yield break;
+            }
         }
+        NewManager.instance.GuardsActive--;
 
     }
 
@@ -170,14 +210,35 @@ public class GuardEntity : MovingEntity
             nextTile = possibleTiles[Random.Range(0, possibleTiles.Count)]; //pick a random tile that's available
             direction = nextTile.gridPosition - currentTile.gridPosition; //change direction
         }
+        this.MoveTile(nextTile);//move to the tile
         float timer = 0;
         while (timer < movePauseTime)
         {
             timer += Time.deltaTime;
             yield return null;
         }
-        this.MoveTile(nextTile); //move to the tile
-        //timesMoved++;
-        yield return new WaitForSeconds(movePauseTime);
+        CheckForPlayer();
+        if (alertStatus == Alert.Attack)
+        {
+            if (NewManager.instance.GetDistance(currentTile, CurrentTarget.currentTile) > AttackRange && movementLeft > 0)
+            {
+                Attack(CurrentTarget);
+                yield break;
+            }
+            else if (NewManager.instance.GetDistance(currentTile, CurrentTarget.currentTile) <= AttackRange && attacksLeft > 0)
+            {
+                Attack(CurrentTarget);
+                yield break;
+            }
+        }
+        else if (alertStatus == Alert.Patrol)
+        {
+            if (movementLeft > 0)
+            {
+                Patrol();
+                yield break;
+            }
+        }
+        NewManager.instance.GuardsActive--;
     }
 }
