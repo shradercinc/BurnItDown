@@ -205,7 +205,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     {
         for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
         {
-            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Guard"))
+            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Enemy"))
             {
                 adjacentGuard = playerTile.adjacentTiles[i].myEntity.GetComponent<GuardEntity>();
                 return adjacentGuard;
