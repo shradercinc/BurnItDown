@@ -60,13 +60,14 @@ public class SaveManager : MonoBehaviour
         DeleteData();
     }
 
-    public void SaveHand(List<Transform> deckToSave)
+    public void SaveHand(List<Card> deckToSave)
     {
         //save the new cards for your deck
-        string path = $"{Application.persistentDataPath}/SaveFile.es3";
         List<string> newCards = new List<string>();
         for (int i = 0; i < deckToSave.Count; i++)
             newCards.Add(deckToSave[i].name);
+
+        string path = $"{Application.persistentDataPath}/SaveFile.es3";
         currentSaveData.chosenDeck = newCards;
         ES3.Save("saveData", currentSaveData, path);
     }

@@ -22,7 +22,6 @@ public class StringAndMethod
         dictionary["STUNADJACENTGUARD"] = card.StunAdjacentGuard();
         dictionary["AFFECTADJACENTWALL"] = card.AffectAdjacentWall();
     }
-
 }
 
 public class Card : MonoBehaviour, IPointerClickHandler
@@ -355,6 +354,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
         else
         {
+            NewManager.instance.UpdateInstructions("Choose a wall in range.");
             ChoiceManager.instance.ChooseTile(adjacentTilesWithWalls);
             while (ChoiceManager.instance.chosenTile == null)
                 yield return null;
@@ -375,6 +375,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
         else
         {
+            NewManager.instance.UpdateInstructions("Choose a guard in range.");
             ChoiceManager.instance.ChooseTile(adjacentTilesWithWalls);
             while (ChoiceManager.instance.chosenTile == null)
                 yield return null;
@@ -384,5 +385,5 @@ public class Card : MonoBehaviour, IPointerClickHandler
         targetGuard.stunned += stunDuration;
     }
 
-    #endregion
+#endregion
 }

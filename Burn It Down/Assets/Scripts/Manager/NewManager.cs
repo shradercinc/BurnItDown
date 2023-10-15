@@ -42,24 +42,15 @@ public class NewManager : MonoBehaviour
         [Tooltip("Your deck in the canvas")] Transform deck;
         [Tooltip("Your discard pile in the canvas")] Transform discardPile;
         [Tooltip("Your exhausted cards in the canvas")] Transform exhausted;
-        
+
     [Foldout("UI Elements", true)]
-        [Tooltip("Your health")] int currentHealth;
-        [Tooltip("Health bar")] Slider healthBar;
-        [Tooltip("Health bar's textbox")] TMP_Text healthText;
-        [Tooltip("Your energy")] int currentEnergy;
-        [Tooltip("Energy bar")] Slider energyBar;
-        [Tooltip("Energy bar's textbox")] TMP_Text energyText;
-        [Tooltip("Movement bar")] Slider movementBar;
-        [Tooltip("Movement bar's textbox")] TMP_Text movementText;
+        [Tooltip("The bar in the bottom center of the screen")] Transform informationImage;
+        [Tooltip("All the player's stats in text form")] TMP_Text stats;
+        [Tooltip("Instructions for what the player is allowed to do right now")] TMP_Text instructions;
         [Tooltip("End the turn")] Button endTurnButton;
-        [Tooltip("Use objective")] [ReadOnly] public Button objectiveButton;
+        [Tooltip("Complete an objective you're next to")] [ReadOnly] public Button objectiveButton;
         [Tooltip("info on entities")] [ReadOnly] public EntityToolTip toolTip;
-        
-    [Foldout("GameOver", true)]
-        [SerializeField] TMP_Text gameOverText;
-        [SerializeField] GameObject gameOverButton;
-        [SerializeField] GameObject gameOverScreen;
+        [Tooltip("the text that gets displayed when you game over")] TMP_Text gameOverText;
 
     [Foldout("Grid", true)]
         [Tooltip("Tiles in the inspector")] Transform gridContainer;
@@ -79,9 +70,10 @@ public class NewManager : MonoBehaviour
         [Tooltip("Starting hand")] Transform startingHand;
 
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
-        [Foldout("Turn System", true)]
+    [Foldout("Turn System", true)]
+        [Tooltip("Current energy this turn")][ReadOnly] public int energy;
         [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
-    [Tooltip("effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
+        [Tooltip("effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
 
 #endregion
 
@@ -95,25 +87,23 @@ public class NewManager : MonoBehaviour
         discardPile = GameObject.Find("Discard Pile").transform;
         exhausted = GameObject.Find("Exhausted").transform;
 
-        healthBar = GameObject.Find("Health Slider").GetComponent<Slider>();
-        healthText = healthBar.transform.GetChild(2).GetComponent<TMP_Text>();
-        energyBar = GameObject.Find("Energy Slider").GetComponent<Slider>();
-        energyText = energyBar.transform.GetChild(2).GetComponent<TMP_Text>();
-        movementBar = GameObject.Find("Movement Slider").GetComponent<Slider>();
-        movementText = movementBar.transform.GetChild(2).GetComponent<TMP_Text>();
-
-        handTransform = GameObject.Find("Player Hand").transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
-        gridContainer = GameObject.Find("Grid Container").transform;
-        startingHand = GameObject.Find("Starting Hand").transform;
+        informationImage = GameObject.Find("Information Image").transform;
+        stats = informationImage.GetChild(0).GetComponent<TMP_Text>();
+        instructions = informationImage.GetChild(1).GetComponent<TMP_Text>();
 
         endTurnButton = GameObject.Find("End Turn Button").GetComponent<Button>();
         endTurnButton.onClick.AddListener(Regain);
         objectiveButton = GameObject.Find("Objective Button").GetComponent<Button>();
         objectiveButton.onClick.AddListener(ResolveObjective);
+
+        handTransform = GameObject.Find("Player Hand").transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
+        gridContainer = GameObject.Find("Grid Container").transform;
+        startingHand = GameObject.Find("Starting Hand").transform;
     }
 
     void Start()
     {
+        gameOverText = GameObject.Find("Game Over").transform.GetChild(0).GetComponent<TMP_Text>();
         gameOverText.transform.parent.gameObject.SetActive(false);
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
@@ -303,27 +293,27 @@ public class NewManager : MonoBehaviour
 
     public bool EnoughEnergy(int n)//check if n is larger than current energy
     {
-        return (energyBar.value >= n);
+        return (energy >= n);
     }
     public void SetEnergy(int n) //if you want to set energy to 2, type SetEnergy(2);
     {
-        ChangeEnergy(n - (int)currentEnergy);
+        ChangeEnergy(n - (int)energy);
     }
     public void ChangeEnergy(int n) //if you want to subtract 3 energy, type ChangeEnergy(-3);
     {
-        currentEnergy += n;
-        energyText.text = $"Energy: {currentEnergy}";
-        energyBar.value = currentEnergy;
+        energy += n;
+        UpdateStats();
     }
     public void SetHealth(int n) //if you want to set health to 2, type SetHealth(2);
     {
-        ChangeHealth(n - (int)currentHealth);
+        ChangeHealth(n - (int)listOfPlayers[0].health);
     }
     public void ChangeHealth(int n) //if you want to subtract 3 health, type ChangeHealth(-3);
     {
-        currentHealth += n;
-        healthText.text = $"Health: {currentHealth}";
-        healthBar.value = currentHealth;
+        listOfPlayers[0].health += n;
+        UpdateStats();
+        if (listOfPlayers[0].health <= 0)
+            GameOver("You got caught too many times.");
     }
     public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
     {
@@ -332,10 +322,20 @@ public class NewManager : MonoBehaviour
     public void ChangeMovement(int n) //if you want to subtract 3 movement, type ChangeMovement(-3);
     {
         listOfPlayers[0].movementLeft += n;
-        movementText.text = $"Movement: {listOfPlayers[0].movementLeft}";
-        movementBar.value = listOfPlayers[0].movementLeft;
+        UpdateStats();
     }
-    #endregion
+
+    void UpdateStats()
+    {
+        stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy";
+    }
+
+    public void UpdateInstructions(string instructions)
+    {
+        this.instructions.text = instructions;
+    }
+
+#endregion
 
 #region Cards
     public void DrawCards(int num)
@@ -397,13 +397,10 @@ public class NewManager : MonoBehaviour
         StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
     }
 
-    public void GameOver(string cause, string buttonTxt)
+    public void GameOver(string cause)
     {
-        gameOverText.gameObject.SetActive(true);
-        gameOverScreen.SetActive(true);
-        gameOverButton.SetActive(true);
         gameOverText.text = cause;
-        gameOverButton.GetComponentInChildren<TMP_Text>().text = buttonTxt;
+        gameOverText.transform.gameObject.SetActive(true);
     }
 
     IEnumerator StartPlayerTurn()
@@ -469,6 +466,7 @@ public class NewManager : MonoBehaviour
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
 
+        UpdateInstructions("Either spend energy to play a card, or click to move around.");
         while (ChoiceManager.instance.chosenCard == null)
         {
             if (currentTurn != TurnSystem.You)
