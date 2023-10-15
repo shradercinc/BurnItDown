@@ -172,7 +172,6 @@ public class GuardEntity : MovingEntity
                 yield break;
             }
         }
-        NewManager.instance.GuardsActive--;
 
     }
 
@@ -216,6 +215,5 @@ public class GuardEntity : MovingEntity
                 yield break;
             }
         }
-        NewManager.instance.GuardsActive--;
     }
 }

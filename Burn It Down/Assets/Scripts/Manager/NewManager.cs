@@ -35,7 +35,6 @@ public class NewManager : MonoBehaviour
     [Foldout("Movement", true)]
         [Tooltip("Current Selected Tile")][ReadOnly] public TileData selectedTile;
         [Tooltip("Quick reference to current movable tile")][ReadOnly] public TileData CurrentAvailableMoveTarget;
-        [Tooltip("How many guards are active before the player can act")][ReadOnly] public int GuardsActive = 0;
 
     [Foldout("Card Zones", true)]
         [Tooltip("Your hand in the canvas")] RectTransform handTransform;
@@ -76,6 +75,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Guard prefab")][SerializeField] ExitEntity exitPrefab;
 
     [Foldout("Setup", true)]
+        [Tooltip("Name of the level tsv")] [SerializeField] string levelToLoad;
         [Tooltip("Starting hand")] Transform startingHand;
 
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
@@ -144,7 +144,7 @@ public class NewManager : MonoBehaviour
         DrawCards(5);
 
         //generate grids and entities from csv
-        string[,] newGrid = LevelLoader.LoadLevelGrid();
+        string[,] newGrid = LevelLoader.LoadLevelGrid(levelToLoad);
         listOfTiles = new TileData[newGrid.GetLength(0), newGrid.GetLength(1)];
 
         for (int i = 0; i < listOfTiles.GetLength(0); i++)
@@ -407,10 +407,9 @@ public class NewManager : MonoBehaviour
 
     IEnumerator StartPlayerTurn()
     {
-        while (GuardsActive > 0)
-        {
-            yield return null;
-        }
+        for (int i = 0; i < listOfPlayers.Count; i++)
+            listOfPlayers[i].currentTile.moveable = true;
+
         currentTurn = TurnSystem.You;
         StartCoroutine(CanPlayCard());
         yield return null;
@@ -426,7 +425,7 @@ public class NewManager : MonoBehaviour
         {
             if (selectedTile != currentTile)
             {
-                ChoiceManager.instance.DisableMovement();
+                ChoiceManager.instance.ToggleMovement(false);
                 yield break;
             }
             else
@@ -439,7 +438,7 @@ public class NewManager : MonoBehaviour
         currentPlayer.movementLeft -= distanceTraveled;
         SetMovement(currentPlayer.movementLeft);
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
-        ChoiceManager.instance.DisableMovement();
+        ChoiceManager.instance.ToggleMovement(false);
     }
 
     IEnumerator CanPlayCard() //choose a card to play
@@ -492,7 +491,6 @@ public class NewManager : MonoBehaviour
         currentTurn = TurnSystem.Environmentals;
         StopCoroutine(CanPlayCard());
         ChoiceManager.instance.DisableCards();
-        ChoiceManager.instance.DisableTiles();
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
@@ -511,7 +509,7 @@ public class NewManager : MonoBehaviour
     {
         selectedTile = null;
         ChoiceManager.instance.DisableCards();
-        ChoiceManager.instance.DisableTiles();
+        ChoiceManager.instance.ToggleMovement(false);
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
@@ -519,15 +517,15 @@ public class NewManager : MonoBehaviour
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         currentTurn = TurnSystem.Enemy;
 
+        var group = new CoroutineGroup(this);
         for (int i = 0; i < listOfGuards.Count; i++)
-        {
+            group.StartCoroutine(listOfGuards[i].EndOfTurn());
+        while (group.AnyProcessing)
             yield return null;
-            GuardsActive++;
-            yield return listOfGuards[i].EndOfTurn();
-        }
 
         StartCoroutine(StartPlayerTurn());
     }
+
 #endregion
 
 #region Pathfinding

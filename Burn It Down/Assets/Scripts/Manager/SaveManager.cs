@@ -43,7 +43,7 @@ public class SaveManager : MonoBehaviour
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
         if (ES3.FileExists(path) &&
-           !TitleScreen.instance.CompareCreationDates(File.GetCreationTime(path)))
+        !TitleScreen.instance.CompareCreationDates(File.GetCreationTime(path)))
         {
             currentSaveData = ES3.Load<SaveData>("saveData", path);
         }

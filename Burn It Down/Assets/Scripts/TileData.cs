@@ -14,7 +14,6 @@ public class TileData : MonoBehaviour
         [Tooltip("The entity on this tile")] [ReadOnly] public Entity myEntity;
 
     [Foldout("Mouse", true)]
-        [Tooltip("This can be clicked on")] [ReadOnly] public bool clickable = true;
         [Tooltip("timer that controls how long until a tool tip appears on hover")] float timeTillToolTip = 0.5f;
         [Tooltip("timer that controls how long until a tool tip appears on hover")] float toolTipHoverTimer = 0;
         [Tooltip("Defines whether you can move onto this tile")][ReadOnly] public bool moveable = false;
@@ -71,9 +70,11 @@ public class TileData : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0) && NewManager.instance.GuardsActive == 0)
+        if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            if (moveable) ChoiceManager.instance.ReceiveChoice(this);
+            if (moveable)
+                ChoiceManager.instance.ReceiveChoice(this);
+
             NewManager.instance.selectedTile = this;
             if (myEntity != null)
             {

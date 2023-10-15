@@ -58,24 +58,12 @@ public class ChoiceManager : MonoBehaviour
         }
     }
 
-    public void DisableMovement()
+    public void ToggleMovement(bool canMove)
     {
         for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
         {
             for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
-                NewManager.instance.listOfTiles[i, j].moveable = false;
-        }
-    }
-
-    public void DisableTiles()
-    {
-        chosenCard = null;
-        chosenTile = null;
-
-        for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
-        {
-            for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
-                NewManager.instance.listOfTiles[i, j].clickable = false;
+                NewManager.instance.listOfTiles[i, j].moveable = canMove;
         }
     }
 

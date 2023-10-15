@@ -36,10 +36,10 @@ public class CardData
 public class CardDataLoader
 {
     //Call this function at the beginning of your script to generate the cards and deck
-    public static List<CardData> ReadCardData()
+    public static List<CardData> ReadCardData(string fileToLoad)
     {
         List<CardData> cardData = new List<CardData>();
-        var data = TSVReader.ReadCards("CardData", 2);
+        var data = TSVReader.ReadCards(fileToLoad, 2);
         foreach (string[] line in data)
         {
             CardData newCard = new CardData();
@@ -51,7 +51,7 @@ public class CardDataLoader
             newCard.cat2 = line[3];
             newCard.maxInv = StringToInt(line[4]);
             newCard.epCost = StringToInt(line[5]);
-            newCard.isViolent = line[6] == "v";
+            newCard.isViolent = (line[6] == "v");
             newCard.chHP = StringToInt(line[7]);
             newCard.chMP = StringToInt(line[8]);
             newCard.chEP = StringToInt(line[9]);
@@ -72,18 +72,15 @@ public class CardDataLoader
 
     static int StringToInt(string line)
     {
-        if (line == "")
-            return 0;
-        else
-            return int.Parse(line);
+        return (line == "") ? 0 : int.Parse(line);
     }
 }
 
 public class LevelLoader
 {
-    public static string[,] LoadLevelGrid()
+    public static string[,] LoadLevelGrid(string levelToLoad)
     {
-        string[,] grid = TSVReader.ReadLevel("LevelData");
+        string[,] grid = TSVReader.ReadLevel(levelToLoad);
         return grid;
     }
 }
