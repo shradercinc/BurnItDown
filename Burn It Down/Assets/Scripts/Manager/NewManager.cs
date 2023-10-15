@@ -81,6 +81,7 @@ public class NewManager : MonoBehaviour
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
         [Foldout("Turn System", true)]
         [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
+    [Tooltip("effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
 
 #endregion
 
@@ -117,7 +118,7 @@ public class NewManager : MonoBehaviour
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
         //store all the cards here
-        Transform emptyObject = new GameObject("EmptyObject").transform;
+        Transform emptyObject = new GameObject("Card Container").transform;
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
             SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
 
@@ -270,7 +271,7 @@ public class NewManager : MonoBehaviour
         {
             return listOfTiles[(int)vector.x, (int)vector.y];
         }
-        catch (System.IndexOutOfRangeException)
+        catch (IndexOutOfRangeException)
         {
             return null;
         }
@@ -407,25 +408,28 @@ public class NewManager : MonoBehaviour
 
     IEnumerator StartPlayerTurn()
     {
-        for (int i = 0; i < listOfPlayers.Count; i++)
-            listOfPlayers[i].currentTile.moveable = true;
+        for (int i = 0; i < futureEffects.Count; i++)
+        {
+            Debug.Log($"resolve {futureEffects[i].name}'s next round effect");
+            yield return futureEffects[i].NextRoundEffect();
+        }
+        futureEffects.Clear();
 
-        currentTurn = TurnSystem.You;
         StartCoroutine(CanPlayCard());
         yield return null;
     }
 
-    public IEnumerator MovePlayer(TileData currentTile)
+    public IEnumerator ChooseMovePlayer(TileData currentTile)
     {
         PlayerEntity currentPlayer = currentTile.myEntity.GetComponent<PlayerEntity>();
-        List<TileData> possibleTiles = CalculateReachableGrids(currentTile, currentPlayer.movementLeft);       
+        List<TileData> possibleTiles = CalculateReachableGrids(currentTile, currentPlayer.movementLeft, true);
         ChoiceManager.instance.ChooseTile(possibleTiles);
 
         while (ChoiceManager.instance.chosenTile == null)
         {
             if (selectedTile != currentTile)
             {
-                ChoiceManager.instance.ToggleMovement(false);
+                ChoiceManager.instance.DisableAllTiles();
                 yield break;
             }
             else
@@ -434,21 +438,34 @@ public class NewManager : MonoBehaviour
             }
         }
 
-        int distanceTraveled = GetDistance(currentTile, ChoiceManager.instance.chosenTile);
+        MovePlayer(currentPlayer);
+    }
+
+    void MovePlayer(PlayerEntity currentPlayer)
+    { 
+        currentTurn = TurnSystem.Resolving;
+        int distanceTraveled = GetDistance(currentPlayer.currentTile, ChoiceManager.instance.chosenTile);
         currentPlayer.movementLeft -= distanceTraveled;
         SetMovement(currentPlayer.movementLeft);
+
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
-        ChoiceManager.instance.ToggleMovement(false);
+        StopCoroutine(CanPlayCard());
+        StartCoroutine(CanPlayCard());
     }
 
     IEnumerator CanPlayCard() //choose a card to play
     {
-        ChoiceManager.instance.DisableCards();
+        currentTurn = TurnSystem.You;
+        ChoiceManager.instance.DisableAllTiles();
+        ChoiceManager.instance.DisableAllCards();
+        for (int i = 0; i < listOfPlayers.Count; i++)
+            listOfPlayers[i].currentTile.moveable = true;
+
         List<Card> canBePlayed = new List<Card>();
-        for (int i = 0; i < listOfHand.Count; i++)
+        foreach (Card card in listOfHand)
         {
-            if (listOfHand[i].CanPlay(listOfPlayers[0]))
-                canBePlayed.Add(listOfHand[i]);
+            if (card.CanPlay(listOfPlayers[0]))
+                canBePlayed.Add(card);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
 
@@ -464,12 +481,13 @@ public class NewManager : MonoBehaviour
 
     IEnumerator PlayCard(Card playMe) //resolve that card
     {
-        if (playMe != null)
-        {
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
+
             DiscardCard(playMe);
             ChangeEnergy(-playMe.energyCost);
             yield return playMe.OnPlayEffect();
-        }
+            futureEffects.Add(playMe);
 
         StartCoroutine(CanPlayCard());
     }
@@ -490,7 +508,8 @@ public class NewManager : MonoBehaviour
     {
         currentTurn = TurnSystem.Environmentals;
         StopCoroutine(CanPlayCard());
-        ChoiceManager.instance.DisableCards();
+        ChoiceManager.instance.DisableAllTiles();
+        ChoiceManager.instance.DisableAllCards();
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
@@ -498,7 +517,6 @@ public class NewManager : MonoBehaviour
         currentTurn = TurnSystem.Environmentals;
         for (int i = 0; i < listOfEnvironmentals.Count; i++)
         {
-            yield return null;
             yield return listOfEnvironmentals[i].EndOfTurn();
         }
         StartCoroutine(EndTurn());
@@ -508,8 +526,8 @@ public class NewManager : MonoBehaviour
     IEnumerator EndTurn() //Starts Guard Phase
     {
         selectedTile = null;
-        ChoiceManager.instance.DisableCards();
-        ChoiceManager.instance.ToggleMovement(false);
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
 
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
@@ -517,7 +535,7 @@ public class NewManager : MonoBehaviour
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         currentTurn = TurnSystem.Enemy;
 
-        var group = new CoroutineGroup(this);
+        CoroutineGroup group = new CoroutineGroup(this);
         for (int i = 0; i < listOfGuards.Count; i++)
             group.StartCoroutine(listOfGuards[i].EndOfTurn());
         while (group.AnyProcessing)
@@ -535,17 +553,17 @@ public class NewManager : MonoBehaviour
     {
         int distX = Mathf.Abs(a.gridPosition.x - b.gridPosition.x);
         int distY = Mathf.Abs(a.gridPosition.y - b.gridPosition.y);
-        //print("x distance = " + distX);
-        //print("y distance = " + distY);
-
         return distY + distX;
     }
 
-    public List<TileData> CalculateReachableGrids(TileData startLocation, int movementSpeed)
+    //find all grids that can be moved to
+    public List<TileData> CalculateReachableGrids(TileData startLocation, int movementSpeed, bool considerEntities)
     {
         List<TileData> reachableGrids = new List<TileData>();
+
         //First in first out
         Queue<(TileData, int)> queue = new Queue<(TileData, int)>();
+
         //HashSet is a simple collection without orders
         HashSet<TileData> visited = new HashSet<TileData>();
 
@@ -565,7 +583,7 @@ public class NewManager : MonoBehaviour
                 foreach (TileData neighbor in SelectTile.adjacentTiles)
                 {
                     int newCost;
-                    if (neighbor.myEntity != null)
+                    if (neighbor.myEntity != null && considerEntities)
                     {
                         newCost = cost + neighbor.myEntity.MoveCost;
                     }
@@ -576,7 +594,7 @@ public class NewManager : MonoBehaviour
 
                     if (!visited.Contains(neighbor) && newCost <= movementSpeed )
                     {
-                        if (neighbor.myEntity == null)
+                        if (neighbor.myEntity == null || considerEntities)
                         {
                             queue.Enqueue((neighbor, newCost));
                             visited.Add(neighbor);
@@ -594,6 +612,7 @@ public class NewManager : MonoBehaviour
         return reachableGrids;
     }
 
+    //find fastest way to get from one point to another
     public void CalculatePathfinding(TileData startLocation, TileData targetLocation, int actionPoint, bool singleMovement)
     {
         print("Starting from" + startLocation.gridPosition);
@@ -611,7 +630,6 @@ public class NewManager : MonoBehaviour
         while (openList.Count > 0 && iteration < 100)
         {
             iteration++;
-            //print(iteration);
             // Find the node with the lowest F cost
             AStarNode currentNode = openList[0];
 
@@ -622,15 +640,11 @@ public class NewManager : MonoBehaviour
                     currentNode = openList[i];
                 }
             }
-            // Remov e the current node from the open list and add it to the closed set
+            // Remove the current node from the open list and add it to the closed set
             openList.Remove(currentNode);
             //print("before Count " + closedSet.Count);
             closedSet.Add(currentNode.ATileData);
-            //print("after Count " + closedSet.Count);
-            // Check if the current node is the target location, if so, retrace the path
-            //print("Target: " + targetLocation.gridPosition);
-            //print("Target: " + currentNode.ATileData.gridPosition);
-            //print("");
+
             if (currentNode.ATileData.gridPosition == targetLocation.gridPosition)
             {
                 RetracePath(startNode, currentNode, actionPoint, singleMovement);
@@ -700,30 +714,12 @@ public class NewManager : MonoBehaviour
                 }
 
             }
-            /*
-            print("");
-            print("");
-            print("openList length: " + openList.Count);
-            for (int i = 0; i < openList.Count; i++)
-            {
-                print("");
-                print("Open list contains: " + openList[i].ATileData.gridPosition);
-                print("Distance to start, Gcost: " + openList[i].GCost);
-                print("Distance to end, Hcost: " + openList[i].HCost);
-                print("Node value: " + openList[i].FCost);
-            }
-            print("closedList Length: " + closedSet.Count);
-            foreach(TileData Hash in closedSet)
-            {
-                print("ClosedSet Contains: " + Hash.gridPosition);
-            }
-            */
         }
     }
 
-    private void RetracePath(AStarNode startNode, AStarNode endNode, int actionPoint, bool singleMovement)
+    //confirm that the current path is valid
+    void RetracePath(AStarNode startNode, AStarNode endNode, int actionPoint, bool singleMovement)
     {
-
         // Create an empty list to store the path
         List<TileData> path = new List<TileData>();
         AStarNode currentNode = endNode;
@@ -770,9 +766,6 @@ public class NewManager : MonoBehaviour
                 }
                 // Update the current available move target and display the pathfinding visualization with the path cost
                 CurrentAvailableMoveTarget = CurrentTile;
-
-                //Displays the pathfinding value to get to this point (but we don't have this yet)
-                //CurrentTile.DisplayPathfinding(pathCost.ToString());
             }
         }
         else
@@ -780,5 +773,6 @@ public class NewManager : MonoBehaviour
             CurrentAvailableMoveTarget = path[0];
         }
     }
+
 #endregion
 }

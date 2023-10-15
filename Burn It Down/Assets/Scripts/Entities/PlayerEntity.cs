@@ -9,7 +9,7 @@ public class PlayerEntity : MovingEntity
         [Tooltip("turns where you can't be caught")] [ReadOnly] public int hidden = 0;
         //[Tooltip("normal player appearance")] [SerializeField] Material DefaultPlayerMaterial;
         //[Tooltip("appearance when hidden")] [SerializeField] Material HiddenPlayerMaterial;
-        [Tooltip("adjacent objective")][SerializeField] public ObjectiveEntity adjacentObjective;
+        [Tooltip("adjacent objective")][ReadOnly] public ObjectiveEntity adjacentObjective;
 
     public override string HoverBoxText()
     {
@@ -26,7 +26,7 @@ public class PlayerEntity : MovingEntity
         NewManager.instance.objectiveButton.gameObject.SetActive(CheckForObjectives());
     }
 
-    bool CheckForObjectives()
+    public bool CheckForObjectives()
     {
         for (int i = 0; i < this.currentTile.adjacentTiles.Count; i++)
         {

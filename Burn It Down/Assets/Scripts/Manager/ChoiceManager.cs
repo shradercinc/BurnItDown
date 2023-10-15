@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using MyBox;
 
 public class ChoiceManager : MonoBehaviour
 {
     public static ChoiceManager instance;
-    [HideInInspector] public Card chosenCard;
-    [HideInInspector] public TileData chosenTile;
-    [HideInInspector] public float opacity = 1;
-    [HideInInspector] public bool decrease = true;
+    [ReadOnly] public Card chosenCard;
+    [ReadOnly] public TileData chosenTile;
+    [ReadOnly] public float opacity = 1;
+    [ReadOnly] public bool decrease = true;
 
     private void Awake()
     {
@@ -58,12 +59,12 @@ public class ChoiceManager : MonoBehaviour
         }
     }
 
-    public void ToggleMovement(bool canMove)
+    public void DisableAllTiles()
     {
         for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
         {
             for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
-                NewManager.instance.listOfTiles[i, j].moveable = canMove;
+                NewManager.instance.listOfTiles[i, j].moveable = false;
         }
     }
 
@@ -71,17 +72,16 @@ public class ChoiceManager : MonoBehaviour
     {
         chosenCard = null;
         chosenTile = null;
-        //turn on all buttons that can be pressed
+        //turn on all cards that can be pressed
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.EnableButton(true);
     }
 
-    public void DisableCards()
+    public void DisableAllCards()
     {
         chosenCard = null;
         chosenTile = null;
 
-        //turn off all cards
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
             SaveManager.instance.allCards[i].choiceScript.DisableButton();
     }

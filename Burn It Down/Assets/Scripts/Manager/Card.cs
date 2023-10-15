@@ -54,15 +54,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public enum CanPlayCondition { None, Guard, Wall, Occupied };
     [ReadOnly] CanPlayCondition selectCondition;
     [ReadOnly] List<IEnumerator> effectsInorder = new List<IEnumerator>();
-    [ReadOnly] List<IEnumerator> nextTurnEffectsInOrder = new List<IEnumerator>();
+    [ReadOnly] List<IEnumerator> nextRoundEffectsInOrder = new List<IEnumerator>();
 
     [ReadOnly] public TMP_Text textName { get; private set; } 
     [ReadOnly] public TMP_Text textCost { get; private set; }
     [ReadOnly] public TMP_Text textDescr { get; private set; }
 
     [ReadOnly] PlayerEntity currentPlayer;
-    [ReadOnly] GuardEntity adjacentGuard;
-    [ReadOnly] WallEntity adjacentWall;
+    [ReadOnly] List<TileData> adjacentTilesWithGuards = new List<TileData>();
+    [ReadOnly] List<TileData> adjacentTilesWithWalls = new List<TileData>();
 
 #endregion
 
@@ -121,7 +121,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
         selectCondition = ConvertToCondition(data.select);
         AddMethodsToList(data.action, effectsInorder);
-        AddMethodsToList(data.action, nextTurnEffectsInOrder);
+        AddMethodsToList(data.nextAct, nextRoundEffectsInOrder);
     }
 
     CardType ConvertToType(string type)
@@ -178,8 +178,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
         {
             return selectCondition switch
             {
-                CanPlayCondition.Guard => SearchAdjacentGuard(player.currentTile) != null,
-                CanPlayCondition.Wall => SearchAdjacentWall(player.currentTile) != null,
+                CanPlayCondition.Guard => SearchAdjacentGuard(player.currentTile).Count > 0,
+                CanPlayCondition.Wall => SearchAdjacentWall(player.currentTile).Count > 0,
                 CanPlayCondition.Occupied => (OccupiedAdjacent(player.currentTile).Count > 0),
                 _ => true,
             };
@@ -192,42 +192,47 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     List<TileData> OccupiedAdjacent(TileData playerTile)
     {
-        List<TileData> adjacentOccupied = new List<TileData>();
-        for (int i = 0; i<playerTile.adjacentTiles.Count; i++)
+        List<TileData> occupiedTiles = new List<TileData>();
+        List<TileData> tilesInRange = NewManager.instance.CalculateReachableGrids(playerTile, range, false);
+
+        foreach (TileData tile in tilesInRange)
         {
-            if (playerTile.adjacentTiles[i].myEntity != null)
-                adjacentOccupied.Add(playerTile.adjacentTiles[i]);
+            if (tile.myEntity != null)
+                occupiedTiles.Add(tile);
         }
-        return adjacentOccupied;
+        return occupiedTiles;
     }
 
-    GuardEntity SearchAdjacentGuard(TileData playerTile)
+    List<TileData> SearchAdjacentGuard(TileData playerTile)
     {
-        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
+        List<TileData> tilesInRange = NewManager.instance.CalculateReachableGrids(playerTile, range, false);
+        List<TileData> guardsInRange = new List<TileData>();
+
+        foreach(TileData tile in tilesInRange)
         {
-            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Enemy"))
-            {
-                adjacentGuard = playerTile.adjacentTiles[i].myEntity.GetComponent<GuardEntity>();
-                return adjacentGuard;
-            }
+            if (tile.myEntity != null && tile.myEntity.CompareTag("Enemy"))
+                guardsInRange.Add(tile);
         }
 
-        return null;
+        adjacentTilesWithGuards = guardsInRange;
+        return guardsInRange;
     }
 
-    WallEntity SearchAdjacentWall(TileData playerTile)
+    List<TileData> SearchAdjacentWall(TileData playerTile)
     {
-        for (int i = 0; i < playerTile.adjacentTiles.Count; i++)
+        List<TileData> tilesInRange = NewManager.instance.CalculateReachableGrids(playerTile, range, false);
+        List<TileData> wallsInRange = new List<TileData>();
+
+        foreach (TileData tile in tilesInRange)
         {
-            if (playerTile.adjacentTiles[i].myEntity != null && playerTile.adjacentTiles[i].myEntity.CompareTag("Wall"))
-            {
-                adjacentWall = playerTile.adjacentTiles[i].myEntity.GetComponent<WallEntity>();
-                return adjacentWall;
-            }
+            if (tile.myEntity != null && tile.myEntity.CompareTag("Wall"))
+                wallsInRange.Add(tile);
         }
 
-        return null;
+        adjacentTilesWithWalls = wallsInRange;
+        return wallsInRange;
     }
+
 #endregion
 
 #region Play Effect
@@ -236,6 +241,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
     {
         for (int i = 0; i < effectsInorder.Count; i++)
             yield return effectsInorder[i];
+    }
+
+    public IEnumerator NextRoundEffect()
+    {
+        for (int i = 0; i < nextRoundEffectsInOrder.Count; i++)
+            yield return nextRoundEffectsInOrder[i];
     }
 
     public IEnumerator DrawCards()
@@ -301,16 +312,16 @@ public class Card : MonoBehaviour, IPointerClickHandler
     {
         while (NewManager.instance.listOfHand.Count>0)
         {
+            yield return NewManager.Wait(0.25f);
             NewManager.instance.DiscardCard(NewManager.instance.listOfHand[0]);
         }
-        yield return null;
     }
 
     public IEnumerator FindZero()
     {
         for (int i = 0; i < 2; i++)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return NewManager.Wait(0.25f);
             NewManager.instance.AddCardToHand(FindCardCost(0));
         }
     }
@@ -335,14 +346,42 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator AffectAdjacentWall()
     {
-        adjacentWall.AffectWall(changeInWall);
-        yield return null;
+        Debug.Log($"there are {adjacentTilesWithWalls.Count} walls");
+        WallEntity targetWall = null;
+
+        if (adjacentTilesWithWalls.Count == 1)
+        {
+            targetWall = adjacentTilesWithWalls[0].myEntity.GetComponent<WallEntity>();
+        }
+        else
+        {
+            ChoiceManager.instance.ChooseTile(adjacentTilesWithWalls);
+            while (ChoiceManager.instance.chosenTile == null)
+                yield return null;
+            targetWall = ChoiceManager.instance.chosenTile.myEntity.GetComponent<WallEntity>();
+        }
+
+        targetWall.AffectWall(changeInWall);
     }
 
     public IEnumerator StunAdjacentGuard()
     {
-        adjacentGuard.stunned += stunDuration;
-        yield return null;
+        Debug.Log($"there are {adjacentTilesWithGuards.Count} guards");
+        GuardEntity targetGuard = null;
+
+        if (adjacentTilesWithWalls.Count == 1)
+        {
+            targetGuard = adjacentTilesWithGuards[0].myEntity.GetComponent<GuardEntity>();
+        }
+        else
+        {
+            ChoiceManager.instance.ChooseTile(adjacentTilesWithWalls);
+            while (ChoiceManager.instance.chosenTile == null)
+                yield return null;
+            targetGuard = ChoiceManager.instance.chosenTile.myEntity.GetComponent<GuardEntity>();
+        }
+
+        targetGuard.stunned += stunDuration;
     }
 
     #endregion

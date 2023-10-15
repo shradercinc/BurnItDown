@@ -12,6 +12,7 @@ public class ObjectiveEntity : Entity
     public virtual IEnumerator ObjectiveComplete()
     {
         NewManager.instance.listOfObjectives.Remove(this);
+        NewManager.instance.objectiveButton.gameObject.SetActive(false);
         Destroy(this.gameObject);
         yield return null;
     }

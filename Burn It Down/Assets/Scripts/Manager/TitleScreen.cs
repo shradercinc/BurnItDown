@@ -27,9 +27,8 @@ public class TitleScreen : MonoBehaviour
         errorText = GameObject.Find("Error Text");
     }
 
-    void Start()
+    public void GenerateCards()
     {
-        //generate all the cards
         List<CardData> data = CardDataLoader.ReadCardData(fileToLoad);
 
         for (int i = 0; i < data.Count; i++)
@@ -45,7 +44,7 @@ public class TitleScreen : MonoBehaviour
 
     public bool CompareCreationDates(DateTime saveDataCreation)
     {
-        DateTime creationDate = File.GetCreationTime(Path.Combine(Application.dataPath, "Resources/CardData.txt"));
+        DateTime creationDate = File.GetCreationTime(Path.Combine(Application.dataPath, $"Resources/{fileToLoad}.txt"));
         bool answer = creationDate > saveDataCreation;
         errorText.SetActive(answer);
         return answer;

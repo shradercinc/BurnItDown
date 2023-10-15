@@ -51,6 +51,7 @@ public class SaveManager : MonoBehaviour
         {
             NewFile();
         }
+        TitleScreen.instance.GenerateCards();
     }
 
     void NewFile()
