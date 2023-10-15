@@ -12,4 +12,14 @@ public class WallEntity : Entity
     {
         return "Current Health: " + health;
     }
+
+    public void AffectWall(int effect)
+    {
+        health += effect;
+        if (health <= 0)
+        {
+            NewManager.instance.listOfWalls.Remove(this);
+            Destroy(this.gameObject);
+        }
+    }
 }

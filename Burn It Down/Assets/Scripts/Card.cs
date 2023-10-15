@@ -20,7 +20,7 @@ public class StringAndMethod
         dictionary["FINDZERO"] = card.FindZero();
         dictionary["DISCARDHAND"] = card.DiscardHand();
         dictionary["STUNADJACENTGUARD"] = card.StunAdjacentGuard();
-        dictionary["DESTROYADJACENTWALL"] = card.DestroyAdjacentWall();
+        dictionary["AFFECTADJACENTWALL"] = card.AffectAdjacentWall();
     }
 
 }
@@ -333,10 +333,9 @@ public class Card : MonoBehaviour, IPointerClickHandler
         yield return null;
     }
 
-    public IEnumerator DestroyAdjacentWall()
+    public IEnumerator AffectAdjacentWall()
     {
-        NewManager.instance.listOfWalls.Remove(adjacentWall);
-        Destroy(adjacentWall.gameObject);
+        adjacentWall.AffectWall(changeInWall);
         yield return null;
     }
 

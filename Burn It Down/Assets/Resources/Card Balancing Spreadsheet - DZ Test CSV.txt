@@ -1,7 +1,7 @@
- 	card explanation displayed on the card itself	atk, draw, dist, eng, mvmt, misc		max possible in the game	EP cost....	v/nv tagging	HP change	MP change	EP change	Draw #	Stun #	Range	Area of Effect	Delay #	-HP walls	Burn #	intensity	any extra condition needed to select a tile	the function to call when card is played	the function to call at start of next round
+ 	card explanation displayed on the card itself	atk, draw, dist, eng, mvmt, misc		max possible in the game	EP cost....	v/nv tagging	HP change	MP change	EP change	Draw #	Stun #	Range	Area of Effect	Delay #	HP Walls	Burn #	intensity	any extra condition needed to select a tile	the function to call when card is played	the function to call at start of next round
 name	desc	cat1	cat2	maxInv	epCost	vTag	chHP	chMP	chEP	draw	stun	range	aoe	delay	wHP	burn	intn	selectable	act	nextAct
 Stun	Stun 1 on an adjacent guard.	atk		2	0	v					1	1						isGuard	StunAdjacentGuard	
-Demolitions	Destroy an adjacent wall.	atk		2	1	nv						1			10			isWall	DestroyAdjacentWall	
+Demolitions	Destroy an adjacent wall.	atk		2	1	nv						1			-10			isWall	AffectAdjacentWall	
 Plan	"+2 Cards."	draw		2	2	nv				2									DrawCards	
 Foresight	Find 2 cards that cost 0 EP and put them in your hand.	draw		2	1	nv													FindZero	
 Mulligan	Discard your hand. +5 Cards.	draw		2	2	nv				5									DiscardHand/DrawCards	
