@@ -51,6 +51,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Complete an objective you're next to")] [ReadOnly] public Button objectiveButton;
         [Tooltip("info on entities")] [ReadOnly] public EntityToolTip toolTip;
         [Tooltip("the text that gets displayed when you game over")] TMP_Text gameOverText;
+        [Tooltip("tracks number of cards in deck and discard pile")] TMP_Text deckTracker;
 
     [Foldout("Grid", true)]
         [Tooltip("Tiles in the inspector")] Transform gridContainer;
@@ -90,6 +91,7 @@ public class NewManager : MonoBehaviour
         informationImage = GameObject.Find("Information Image").transform;
         stats = informationImage.GetChild(0).GetComponent<TMP_Text>();
         instructions = informationImage.GetChild(1).GetComponent<TMP_Text>();
+        deckTracker = GameObject.Find("Deck Tracker").GetComponent<TMP_Text>();
 
         endTurnButton = GameObject.Find("End Turn Button").GetComponent<Button>();
         endTurnButton.onClick.AddListener(Regain);
@@ -324,8 +326,6 @@ public class NewManager : MonoBehaviour
     {
         listOfPlayers[0].health += n;
         UpdateStats();
-        if (listOfPlayers[0].health <= 0)
-            GameOver("You got caught too many times.");
     }
     public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
     {
@@ -346,6 +346,11 @@ public class NewManager : MonoBehaviour
     void UpdateStats()
     {
         stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy; {listOfObjectives.Count} Objectives";
+        deckTracker.text = $"Draw Pile / Discard Pile \n\n{deck.childCount} / {discardPile.childCount}";
+
+        Debug.Log(listOfPlayers[0].health);
+        if (listOfPlayers[0].health <= 0)
+            GameOver("You got caught too many times.");
     }
 
     public void UpdateInstructions(string instructions)
@@ -356,6 +361,7 @@ public class NewManager : MonoBehaviour
 #endregion
 
 #region Cards
+
     public void DrawCards(int num)
     {
         for (int i = 0; i < num; i++)
@@ -364,20 +370,23 @@ public class NewManager : MonoBehaviour
             {
                 AddCardToHand(GetTopCard());
             }
-            catch (System.NullReferenceException)
+            catch (NullReferenceException)
             {
                 break;
             }
         }
+        UpdateStats();
     }
     public Card GetTopCard()
     {
-        if (deck.childCount > 0)
+        if (deck.childCount == 0)
         {
             discardPile.Shuffle();
             while (discardPile.childCount > 0)
                 discardPile.GetChild(0).SetParent(deck);
         }
+
+        UpdateStats();
 
         if (deck.childCount > 0) //get the top card of the deck if there is one
             return deck.GetChild(0).GetComponent<Card>();
@@ -399,21 +408,23 @@ public class NewManager : MonoBehaviour
         discardMe.transform.SetParent(discardPile);
         listOfHand.Remove(discardMe);
         discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
+        UpdateStats();
     }
     public void ExhaustCard(Card exhaustMe)
     {
         exhaustMe.transform.SetParent(exhausted);
         listOfHand.Remove(exhaustMe);
         exhaustMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
+        UpdateStats();
     }
 #endregion
 
 #region Turn System
-    
+
     public void GameOver(string cause)
     {
         gameOverText.text = cause;
-        gameOverText.transform.gameObject.SetActive(true);
+        gameOverText.transform.parent.gameObject.SetActive(true);
     }
 
     IEnumerator StartPlayerTurn()
@@ -495,10 +506,10 @@ public class NewManager : MonoBehaviour
         ChoiceManager.instance.DisableAllCards();
         ChoiceManager.instance.DisableAllTiles();
 
-            DiscardCard(playMe);
-            ChangeEnergy(-playMe.energyCost);
-            yield return playMe.OnPlayEffect();
-            futureEffects.Add(playMe);
+        DiscardCard(playMe);
+        ChangeEnergy(-playMe.energyCost);
+        yield return playMe.OnPlayEffect();
+        futureEffects.Add(playMe);
 
         StartCoroutine(CanPlayCard());
     }
@@ -547,8 +558,8 @@ public class NewManager : MonoBehaviour
         currentTurn = TurnSystem.Enemy;
 
         CoroutineGroup group = new CoroutineGroup(this);
-        for (int i = 0; i < listOfGuards.Count; i++)
-            group.StartCoroutine(listOfGuards[i].EndOfTurn());
+        foreach (GuardEntity guard in listOfGuards)
+            group.StartCoroutine(guard.EndOfTurn());
         while (group.AnyProcessing)
             yield return null;
 

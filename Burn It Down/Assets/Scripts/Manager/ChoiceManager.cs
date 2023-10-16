@@ -39,13 +39,13 @@ public class ChoiceManager : MonoBehaviour
 
     public void ReceiveChoice(Card chosenCard)
     {
-        Debug.Log($"chosen {chosenCard.name}");
+        //Debug.Log($"chosen {chosenCard.name}");
         this.chosenCard = chosenCard;
     }
 
     public void ReceiveChoice(TileData chosenTile)
     {
-        Debug.Log($"chosen {chosenTile.name}");
+        //Debug.Log($"chosen {chosenTile.name}");
         this.chosenTile = chosenTile;
     }
 
