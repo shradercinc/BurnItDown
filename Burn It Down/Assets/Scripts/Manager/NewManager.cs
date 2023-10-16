@@ -107,6 +107,108 @@ public class NewManager : MonoBehaviour
         gameOverText.transform.parent.gameObject.SetActive(false);
         gridContainer.transform.localPosition = new Vector3(18, -1, 0);
 
+        //generate grids and entities from csv
+        string[,] newGrid = LevelLoader.LoadLevelGrid(levelToLoad);
+        listOfTiles = new TileData[newGrid.GetLength(0), newGrid.GetLength(1)];
+
+        for (int i = 0; i < listOfTiles.GetLength(0); i++)
+        {
+            for (int j = 0; j < listOfTiles.GetLength(1); j++)
+            {
+                string[] numberPlusAddition = newGrid[i, j].Split("/");
+                if (numberPlusAddition[0] != "")
+                {
+                    TileData nextTile = Instantiate(floorTilePrefab);
+                    nextTile.transform.SetParent(gridContainer);
+                    nextTile.transform.position = new Vector3(i * -tileSpacing, 0, j * -tileSpacing);
+                    nextTile.name = $"Tile {i},{j}";
+                    listOfTiles[i, j] = nextTile;
+                    nextTile.gridPosition = new Vector2Int(i, j);
+
+                    Entity thisTileEntity = null;
+                    switch (numberPlusAddition[0])
+                    {
+                        case "1": //create player
+                            thisTileEntity = Instantiate(playerPrefab, nextTile.transform);
+                            thisTileEntity.name = "Player";
+                            PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
+                            player.movementLeft = player.movesPerTurn;
+                            listOfPlayers.Add(player);
+                            break;
+                        case "2": //create exit
+                            thisTileEntity = Instantiate(exitPrefab, nextTile.transform);
+                            thisTileEntity.name = "Exit";
+                            ObjectiveEntity exitObjective = thisTileEntity.GetComponent<ExitEntity>();
+                            listOfObjectives.Add(exitObjective);
+                            break;
+                        case "3": //create objective
+                            thisTileEntity = Instantiate(objectivePrefab, nextTile.transform);
+                            thisTileEntity.name = numberPlusAddition[1];
+                            ObjectiveEntity defaultObjective = thisTileEntity.GetComponent<ObjectiveEntity>();
+                            listOfObjectives.Add(defaultObjective);
+                            break;
+                        case "10": //create weak wall
+                            thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                            thisTileEntity.name = "Wall";
+                            WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
+                            listOfWalls.Add(weakWall);
+                            weakWall.health = 2;
+                            break;
+                        case "11": //create med wall
+                            thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                            thisTileEntity.name = "Wall";
+                            WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
+                            listOfWalls.Add(medWall);
+                            medWall.health = 4;
+                            break;
+                        case "12": //create strong wall
+                            thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
+                            thisTileEntity.name = "Wall";
+                            WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
+                            listOfWalls.Add(strongWall);
+                            strongWall.health = 6;
+                            break;
+                        case "20": //create guard
+                            thisTileEntity = Instantiate(guardPrefab, nextTile.transform);
+                            thisTileEntity.name = "Guard";
+                            GuardEntity theGuard = thisTileEntity.GetComponent<GuardEntity>();
+                            theGuard.movementLeft = theGuard.movesPerTurn;
+                            theGuard.direction = StringToDirection(numberPlusAddition[1]);
+                            listOfGuards.Add(theGuard);
+                            break;
+                    }
+                    try
+                    {
+                        thisTileEntity.MoveTile(nextTile);
+                    }
+                    catch (NullReferenceException)
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < listOfTiles.GetLength(0); i++) //then find adjacent tiles
+        {
+            for (int j = 0; j < listOfTiles.GetLength(1); j++)
+            {
+                try
+                {
+                    FindAdjacent(listOfTiles[i, j]);
+                }
+                catch (NullReferenceException)
+                {
+                    continue;
+                }
+            }
+        }
+        gridContainer.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+
+        SetEnergy(3);
+        SetHealth(3);
+        SetMovement(3);
+
         //store all the cards here
         Transform emptyObject = new GameObject("Card Container").transform;
         for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
@@ -134,102 +236,6 @@ public class NewManager : MonoBehaviour
         deck.Shuffle(); //shuffle your deck
         DrawCards(5);
 
-        //generate grids and entities from csv
-        string[,] newGrid = LevelLoader.LoadLevelGrid(levelToLoad);
-        listOfTiles = new TileData[newGrid.GetLength(0), newGrid.GetLength(1)];
-
-        for (int i = 0; i < listOfTiles.GetLength(0); i++)
-        {
-            for (int j = 0; j < listOfTiles.GetLength(1); j++)
-            {
-                TileData nextTile = Instantiate(floorTilePrefab);
-                nextTile.transform.SetParent(gridContainer);
-                nextTile.transform.position = new Vector3(i * -tileSpacing, 0, j * -tileSpacing);
-                nextTile.name = $"Tile {i},{j}";
-                listOfTiles[i, j] = nextTile;
-                nextTile.gridPosition = new Vector2Int(i, j);
-
-                string[] numberPlusAddition = newGrid[i, j].Split("/");
-
-                Entity thisTileEntity = null;
-                switch (numberPlusAddition[0])
-                {
-                    case "1": //create player
-                        thisTileEntity = Instantiate(playerPrefab, nextTile.transform);
-                        thisTileEntity.name = "Player";
-                        PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
-                        player.movementLeft = player.movesPerTurn;
-                        listOfPlayers.Add(player);
-                        break;
-                    case "2": //create exit
-                        thisTileEntity = Instantiate(exitPrefab, nextTile.transform);
-                        thisTileEntity.name = "Exit";
-                        ObjectiveEntity exitObjective = thisTileEntity.GetComponent<ExitEntity>();
-                        listOfObjectives.Add(exitObjective);
-                        break;
-                    case "3": //create objective
-                        thisTileEntity = Instantiate(objectivePrefab, nextTile.transform);
-                        thisTileEntity.name = numberPlusAddition[1];
-                        ObjectiveEntity defaultObjective = thisTileEntity.GetComponent<ObjectiveEntity>();
-                        listOfObjectives.Add(defaultObjective);
-                        break;
-                    case "10": //create weak wall
-                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
-                        thisTileEntity.name = "Wall";
-                        WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
-                        listOfWalls.Add(weakWall);
-                        weakWall.direction = StringToDirection(numberPlusAddition[1]);
-                        weakWall.health = 2;
-                        break;
-                    case "11": //create med wall
-                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
-                        thisTileEntity.name = "Wall";
-                        WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
-                        listOfWalls.Add(medWall);
-                        medWall.direction = StringToDirection(numberPlusAddition[1]);
-                        medWall.health = 4;
-                        break;
-                    case "12": //create strong wall
-                        thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
-                        thisTileEntity.name = "Wall";
-                        WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
-                        listOfWalls.Add(strongWall);
-                        strongWall.direction = StringToDirection(numberPlusAddition[1]);
-                        strongWall.health = 6;
-                        break;
-                    case "20": //create guard
-                        thisTileEntity = Instantiate(guardPrefab, nextTile.transform);
-                        thisTileEntity.name = "Guard";
-                        GuardEntity theGuard = thisTileEntity.GetComponent<GuardEntity>();
-                        theGuard.movementLeft = theGuard.movesPerTurn;
-                        theGuard.direction = StringToDirection(numberPlusAddition[1]);
-                        listOfGuards.Add(theGuard);
-                        break;
-                }
-                try
-                {
-                    thisTileEntity.MoveTile(nextTile);
-                }
-                catch (NullReferenceException)
-                {
-                    continue;
-                }
-            }
-        }
-
-        for (int i = 0; i < listOfTiles.GetLength(0); i++) //then find adjacent tiles
-        {
-            for (int j = 0; j < listOfTiles.GetLength(1); j++)
-            {
-                FindAdjacent(listOfTiles[i, j]);
-            }
-        }
-        gridContainer.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-
-        SetEnergy(3);
-        SetHealth(3);
-        SetMovement(3);
-
         StartCoroutine(StartPlayerTurn());
     }
 
@@ -247,12 +253,18 @@ public class NewManager : MonoBehaviour
 
     void FindAdjacent(TileData tile) //check each adjacent tile; if it's not null, add it to the list
     {
-        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
-        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x - 1, tile.gridPosition.y)));
-        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y + 1)));
-        tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y - 1)));
-
-        tile.adjacentTiles.RemoveAll(item => item == null); //delete all tiles that are null
+        try
+        {
+            tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
+            tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x - 1, tile.gridPosition.y)));
+            tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y + 1)));
+            tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y - 1)));
+            tile.adjacentTiles.RemoveAll(item => item == null); //delete all tiles that are null
+        }
+        catch (NullReferenceException)
+        {
+            //do nothing
+        }
     }
 
     public TileData FindTile(Vector2 vector) //find a tile based off Vector2
@@ -325,9 +337,15 @@ public class NewManager : MonoBehaviour
         UpdateStats();
     }
 
+    public void ResolveObjective()
+    {
+        StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
+        UpdateStats();
+    }
+
     void UpdateStats()
     {
-        stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy";
+        stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy; {listOfObjectives.Count} Objectives";
     }
 
     public void UpdateInstructions(string instructions)
@@ -392,11 +410,6 @@ public class NewManager : MonoBehaviour
 
 #region Turn System
     
-    public void ResolveObjective()
-    {
-        StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
-    }
-
     public void GameOver(string cause)
     {
         gameOverText.text = cause;

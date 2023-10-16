@@ -1097,7 +1097,7 @@ MonoBehaviour:
   guardPrefab: {fileID: 127779131077801882, guid: 13d7840c131d341de8dbd9115b5fec71, type: 3}
   objectivePrefab: {fileID: 3366395209525496084, guid: 93e86e5b63f364f8dbfd4ab842b55d2b, type: 3}
   exitPrefab: {fileID: -7563352408502380383, guid: 118fc5b90705644c59316bccbf8dfa3b, type: 3}
-  levelToLoad: Level Grids - LevelTest
+  levelToLoad: Level Grids - Icarus Industries - Mission 1
   energy: 0
   currentTurn: 0
   futureEffects: []
@@ -3015,6 +3015,7 @@ GameObject:
   - component: {fileID: 2084504072}
   - component: {fileID: 2084504071}
   - component: {fileID: 2084504070}
+  - component: {fileID: 2084504073}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3096,6 +3097,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: 135, z: 0}
+--- !u!114 &2084504073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084504069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9001204e548a44c92ace82db5eae670e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 50
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

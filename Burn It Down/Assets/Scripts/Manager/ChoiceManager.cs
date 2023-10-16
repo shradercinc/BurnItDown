@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using MyBox;
+using System;
 
 public class ChoiceManager : MonoBehaviour
 {
@@ -64,7 +65,16 @@ public class ChoiceManager : MonoBehaviour
         for (int i = 0; i < NewManager.instance.listOfTiles.GetLength(0); i++)
         {
             for (int j = 0; j < NewManager.instance.listOfTiles.GetLength(1); j++)
-                NewManager.instance.listOfTiles[i, j].moveable = false;
+            {
+                try
+                {
+                    NewManager.instance.listOfTiles[i, j].moveable = false;
+                }
+                catch (NullReferenceException)
+                {
+                    continue;
+                }
+            }
         }
     }
 

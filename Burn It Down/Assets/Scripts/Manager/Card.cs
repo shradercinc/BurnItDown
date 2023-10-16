@@ -101,7 +101,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         typeTwo = ConvertToType(data.cat2);
 
         energyCost = data.epCost;
-        textCost.text = $"{data.epCost} Energy";
+        textCost.text = $"{data.epCost}";
         violent = data.isViolent;
 
         changeInHP = data.chHP;
