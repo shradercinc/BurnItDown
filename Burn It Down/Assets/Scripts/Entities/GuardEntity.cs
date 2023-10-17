@@ -21,6 +21,10 @@ public class GuardEntity : MovingEntity
         [Tooltip("Guard Range")] int AttackRange = 1;
         [Tooltip("list of patrol positions")] List<Vector2Int> PatrolPoints = new List<Vector2Int>();
         [Tooltip("Line renderer for showing the guard is attacking")] LineRenderer AttackLine = new LineRenderer();
+        [SerializeField] AudioClip footsteps;
+        [SerializeField] AudioClip alertedSound;
+        [SerializeField] AudioClip gunshot;
+        public AudioClip stunSound;
 
     private void Awake()
     {
@@ -111,6 +115,7 @@ public class GuardEntity : MovingEntity
     {
         alertStatus = Alert.Attack;
         CurrentTarget = target;
+        SoundManager.instance.PlaySound(alertedSound);
         print("New target, player at " + target.currentTile.gridPosition);
     }
 
@@ -131,6 +136,7 @@ public class GuardEntity : MovingEntity
                 if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) <= AttackRange && attacksLeft > 0)
                 {
                     NewManager.instance.ChangeHealth(-1);
+                    SoundManager.instance.PlaySound(gunshot);
                     attacksLeft--;
                 }
             }
@@ -191,6 +197,7 @@ public class GuardEntity : MovingEntity
             direction = nextTile.gridPosition - currentTile.gridPosition; //change direction
         }
         this.MoveTile(nextTile);//move to the tile
+        SoundManager.instance.PlaySound(footsteps);
         yield return NewManager.Wait(movePauseTime);
 
         CheckForPlayer();

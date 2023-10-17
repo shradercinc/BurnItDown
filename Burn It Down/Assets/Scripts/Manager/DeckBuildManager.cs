@@ -18,6 +18,7 @@ public class DeckBuildManager : MonoBehaviour
     [SerializeField] int deckSize;
     [SerializeField] TMP_Text deckSizeText;
     [SerializeField] Button playGameButton;
+    [SerializeField] AudioClip cardMove;
 
     private void Awake()
     {
@@ -96,6 +97,8 @@ public class DeckBuildManager : MonoBehaviour
             newCard.transform.SetParent(yourDeck);
             ApplySorting(newCard);
 
+            SoundManager.instance.PlaySound(cardMove);
+
             if (save)
                 SaveManager.instance.SaveHand(cardsInDeck);
         }
@@ -107,6 +110,8 @@ public class DeckBuildManager : MonoBehaviour
         cardsInDeck.Remove(newCard);
         cardsInCollection.Add(newCard);
         newCard.transform.SetParent(yourCollection);
+
+        SoundManager.instance.PlaySound(cardMove);
 
         if (save)
             SaveManager.instance.SaveHand(cardsInDeck);

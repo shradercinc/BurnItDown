@@ -76,9 +76,14 @@ public class NewManager : MonoBehaviour
         [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
         [Tooltip("effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
 
-#endregion
+    [Foldout("Sound Effects", true)]
+        [SerializeField] AudioClip button;
+        [SerializeField] AudioClip endTurnSound;
+        [SerializeField] AudioClip footsteps;
 
-#region Setup
+    #endregion
+
+    #region Setup
 
     void Awake()
     {
@@ -409,6 +414,7 @@ public class NewManager : MonoBehaviour
             listOfHand.Add(newCard);
             newCard.transform.SetParent(handTransform);
             newCard.transform.localScale = new Vector3(1, 1, 1);
+            SoundManager.instance.PlaySound(newCard.cardMove);
         }
     }
     public void DiscardCard(Card discardMe)
@@ -417,6 +423,7 @@ public class NewManager : MonoBehaviour
         listOfHand.Remove(discardMe);
         discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
         UpdateStats();
+        SoundManager.instance.PlaySound(discardMe.cardMove);
     }
     public void ExhaustCard(Card exhaustMe)
     {
@@ -424,6 +431,7 @@ public class NewManager : MonoBehaviour
         listOfHand.Remove(exhaustMe);
         exhaustMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
         UpdateStats();
+        SoundManager.instance.PlaySound(exhaustMe.cardMove);
     }
 #endregion
 
@@ -476,6 +484,7 @@ public class NewManager : MonoBehaviour
         int distanceTraveled = GetDistance(currentPlayer.currentTile, ChoiceManager.instance.chosenTile);
         currentPlayer.movementLeft -= distanceTraveled;
         SetMovement(currentPlayer.movementLeft);
+        SoundManager.instance.PlaySound(footsteps);
 
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
         StopCoroutine(CanPlayCard());
@@ -514,6 +523,7 @@ public class NewManager : MonoBehaviour
         ChoiceManager.instance.DisableAllCards();
         ChoiceManager.instance.DisableAllTiles();
 
+        SoundManager.instance.PlaySound(playMe.cardPlay);
         DiscardCard(playMe);
         ChangeEnergy(-playMe.energyCost);
         yield return playMe.OnPlayEffect();
@@ -556,6 +566,7 @@ public class NewManager : MonoBehaviour
     IEnumerator EndTurn() //Starts Guard Phase
     {
         selectedTile = null;
+        SoundManager.instance.PlaySound(endTurnSound);
         ChoiceManager.instance.DisableAllCards();
         ChoiceManager.instance.DisableAllTiles();
 

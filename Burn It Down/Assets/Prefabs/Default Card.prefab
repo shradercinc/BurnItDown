@@ -368,6 +368,8 @@ MonoBehaviour:
   typeOne: 0
   typeTwo: 0
   violent: 0
+  cardMove: {fileID: 8300000, guid: e4a45bf2f84cdb649b748b5e60fa464c, type: 3}
+  cardPlay: {fileID: 8300000, guid: 01f2a427124f5ba45a0e48c5f1433eea, type: 3}
 --- !u!114 &1241176585895277611
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,6 +12,8 @@ public class ChoiceManager : MonoBehaviour
     [ReadOnly] public TileData chosenTile;
     [ReadOnly] public float opacity = 1;
     [ReadOnly] public bool decrease = true;
+    [SerializeField] AudioClip button;
+    [SerializeField] AudioClip tileSelect;
 
     private void Awake()
     {
@@ -46,6 +48,8 @@ public class ChoiceManager : MonoBehaviour
     public void ReceiveChoice(TileData chosenTile)
     {
         //Debug.Log($"chosen {chosenTile.name}");
+        SoundManager.instance.PlaySound(button);
+        SoundManager.instance.PlaySound(tileSelect);
         this.chosenTile = chosenTile;
     }
 
