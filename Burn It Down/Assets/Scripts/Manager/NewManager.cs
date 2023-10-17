@@ -136,6 +136,7 @@ public class NewManager : MonoBehaviour
                             PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
                             player.movementLeft = player.movesPerTurn;
                             listOfPlayers.Add(player);
+                            FocusOnPlayer();
                             break;
                         case "2": //create exit
                             thisTileEntity = Instantiate(exitPrefab, nextTile.transform);
@@ -153,6 +154,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
+                            weakWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(weakWall);
                             weakWall.health = 2;
                             break;
@@ -160,6 +162,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
+                            medWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(medWall);
                             medWall.health = 4;
                             break;
@@ -167,6 +170,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
+                            strongWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(strongWall);
                             strongWall.health = 6;
                             break;
@@ -205,7 +209,6 @@ public class NewManager : MonoBehaviour
                 }
             }
         }
-        gridContainer.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         SetEnergy(3);
         SetHealth(3);
@@ -299,6 +302,11 @@ public class NewManager : MonoBehaviour
     private void Update()
     {
         endTurnButton.gameObject.SetActive(currentTurn == TurnSystem.You);
+    }
+
+    public void FocusOnPlayer()
+    {
+        Camera.main.transform.position = new Vector3(listOfPlayers[0].transform.position.x-13, Camera.main.transform.position.y, listOfPlayers[0].transform.position.z+12);
     }
 
 #endregion
