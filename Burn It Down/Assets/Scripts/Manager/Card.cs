@@ -65,6 +65,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public AudioClip cardMove;
     public AudioClip cardPlay;
+    
 
 #endregion
 
@@ -380,13 +381,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
         else
         {
             NewManager.instance.UpdateInstructions("Choose a guard in range.");
-            ChoiceManager.instance.ChooseTile(adjacentTilesWithWalls);
+            ChoiceManager.instance.ChooseTile(adjacentTilesWithGuards);
             while (ChoiceManager.instance.chosenTile == null)
                 yield return null;
             targetGuard = ChoiceManager.instance.chosenTile.myEntity.GetComponent<GuardEntity>();
         }
 
+        SoundManager.instance.PlaySound(targetGuard.stunSound);
         targetGuard.stunned += stunDuration;
+        Debug.Log("Stunned for " + targetGuard.stunned);
     }
 
 #endregion

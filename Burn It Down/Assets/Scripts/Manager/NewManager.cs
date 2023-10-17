@@ -78,10 +78,11 @@ public class NewManager : MonoBehaviour
     [Foldout("Sound Effects", true)]
         [SerializeField] AudioClip button;
         [SerializeField] AudioClip endTurnSound;
+        [SerializeField] AudioClip footsteps;
 
-#endregion
+    #endregion
 
-#region Setup
+    #region Setup
 
     void Awake()
     {
@@ -451,7 +452,7 @@ public class NewManager : MonoBehaviour
         int distanceTraveled = GetDistance(currentPlayer.currentTile, ChoiceManager.instance.chosenTile);
         currentPlayer.movementLeft -= distanceTraveled;
         SetMovement(currentPlayer.movementLeft);
-        //SoundManager.instance.PlaySound(footsteps)
+        SoundManager.instance.PlaySound(footsteps);
 
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
         StopCoroutine(CanPlayCard());
