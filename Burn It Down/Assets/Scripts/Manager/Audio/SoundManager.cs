@@ -7,29 +7,40 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager instance;
     AudioSource source;
+
+    public AudioClip playing { get; private set; }
     void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            source = GetComponent<AudioSource>();
             DontDestroyOnLoad(this.gameObject);
         }
         else
         {
             Destroy(this.gameObject);
         }
+    }
 
-        source = GetComponent<AudioSource>();
+    private void Update()
+    {
+        playing = null;
     }
 
     public void PlaySound(AudioClip sound)
     {
-        source.PlayOneShot(sound);
+        if (!playing || playing != sound)
+        {
+            source.PlayOneShot(sound);
+            playing = sound;
+        }
     }
 
     public void PlaySound(AudioClip sound, Vector3 position)
     {
         transform.position = position;
+        print("playing" + sound.name);
         source.PlayOneShot(sound);
     }
 

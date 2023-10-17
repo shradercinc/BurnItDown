@@ -63,6 +63,9 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [ReadOnly] List<TileData> adjacentTilesWithGuards = new List<TileData>();
     [ReadOnly] List<TileData> adjacentTilesWithWalls = new List<TileData>();
 
+    public AudioClip cardMove;
+    public AudioClip cardPlay;
+
 #endregion
 
 #region Setup
@@ -88,6 +91,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         {
             Debug.Log("right clicked");
             RightClick.instance.ChangeCard(this);
+            SoundManager.instance.PlaySound(cardMove);
         }
     }
 
