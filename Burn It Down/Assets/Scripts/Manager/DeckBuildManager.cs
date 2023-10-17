@@ -1,5 +1,6 @@
 using System.Collections;
 using System;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +29,10 @@ public class DeckBuildManager : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(Setup());
+        if (SaveManager.instance != null)
+            StartCoroutine(Setup());
+        else
+            SceneManager.LoadScene(0);
     }
 
     public void NewSort()
@@ -119,11 +123,13 @@ public class DeckBuildManager : MonoBehaviour
 
     IEnumerator Setup()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.1f);
 
-        //take all cards and put them on the top
-        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            RemoveFromDeck(SaveManager.instance.allCards[i], false);
+        foreach (Card card in SaveManager.instance.allCards)
+        {
+            card.transform.localScale = new Vector3(1, 1, 1);
+            RemoveFromDeck(card, false);
+        }
 
         if (SaveManager.instance.currentSaveData.chosenDeck != null)
         {
@@ -131,6 +137,7 @@ public class DeckBuildManager : MonoBehaviour
                 AddToDeck(yourCollection.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>(), false);
         }
         StartCoroutine(SwapCards());
+
     }
 
     IEnumerator SwapCards()

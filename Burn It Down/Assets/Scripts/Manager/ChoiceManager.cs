@@ -96,7 +96,7 @@ public class ChoiceManager : MonoBehaviour
         chosenCard = null;
         chosenTile = null;
 
-        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            SaveManager.instance.allCards[i].choiceScript.DisableButton();
+        foreach(Card card in SaveManager.instance.allCards)
+            card.choiceScript.DisableButton();
     }
 }

@@ -55,9 +55,9 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [ReadOnly] List<IEnumerator> effectsInorder = new List<IEnumerator>();
     [ReadOnly] List<IEnumerator> nextRoundEffectsInOrder = new List<IEnumerator>();
 
-    [ReadOnly] public TMP_Text textName { get; private set; } 
-    [ReadOnly] public TMP_Text textCost { get; private set; }
-    [ReadOnly] public TMP_Text textDescr { get; private set; }
+    [ReadOnly] public TMP_Text TextName { get; private set; } 
+    [ReadOnly] public TMP_Text TextCost { get; private set; }
+    [ReadOnly] public TMP_Text TextDescr { get; private set; }
 
     [ReadOnly] PlayerEntity currentPlayer;
     [ReadOnly] List<TileData> adjacentTilesWithGuards = new List<TileData>();
@@ -66,7 +66,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public AudioClip cardMove;
     public AudioClip cardPlay;
     
-
 #endregion
 
 #region Setup
@@ -76,21 +75,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
         image = GetComponent<Image>();
         choiceScript = GetComponent<SendChoice>();
 
-        textName = this.transform.GetChild(1).GetComponent<TMP_Text>();
-        textCost = this.transform.GetChild(2).GetComponent<TMP_Text>();
-        textDescr = this.transform.GetChild(3).GetComponent<TMP_Text>();
-    }
-
-    private void Start()
-    {
-        SaveManager.instance.allCards.Add(this);
+        TextName = this.transform.GetChild(1).GetComponent<TMP_Text>();
+        TextCost = this.transform.GetChild(2).GetComponent<TMP_Text>();
+        TextDescr = this.transform.GetChild(3).GetComponent<TMP_Text>();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Right)
         {
-            Debug.Log("right clicked");
             RightClick.instance.ChangeCard(this);
             SoundManager.instance.PlaySound(cardMove);
         }
@@ -99,14 +92,14 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public void CardSetup(CardData data)
     {
         name = data.name;
-        textName.text = data.name;
-        textDescr.text = data.desc;
+        TextName.text = data.name;
+        TextDescr.text = data.desc;
 
         typeOne = ConvertToType(data.cat1);
         typeTwo = ConvertToType(data.cat2);
 
         energyCost = data.epCost;
-        textCost.text = $"{data.epCost}";
+        TextCost.text = $"{data.epCost}";
         violent = data.isViolent;
 
         changeInHP = data.chHP;
@@ -243,8 +236,11 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator OnPlayEffect()
     {
+        Debug.Log($"playing {this.name}");
         for (int i = 0; i < effectsInorder.Count; i++)
+        {
             yield return effectsInorder[i];
+        }
     }
 
     public IEnumerator NextRoundEffect()
@@ -316,7 +312,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     {
         while (NewManager.instance.listOfHand.Count>0)
         {
-            yield return NewManager.Wait(0.25f);
+            yield return NewManager.Wait(0.1f);
             NewManager.instance.DiscardCard(NewManager.instance.listOfHand[0]);
         }
     }
@@ -325,7 +321,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     {
         for (int i = 0; i < 2; i++)
         {
-            yield return NewManager.Wait(0.25f);
+            yield return NewManager.Wait(0.1f);
             NewManager.instance.AddCardToHand(FindCardCost(0));
         }
     }
@@ -350,7 +346,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator AffectAdjacentWall()
     {
-        Debug.Log($"there are {adjacentTilesWithWalls.Count} walls");
         WallEntity targetWall = null;
 
         if (adjacentTilesWithWalls.Count == 1)
@@ -371,7 +366,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator StunAdjacentGuard()
     {
-        Debug.Log($"there are {adjacentTilesWithGuards.Count} guards");
         GuardEntity targetGuard = null;
 
         if (adjacentTilesWithWalls.Count == 1)

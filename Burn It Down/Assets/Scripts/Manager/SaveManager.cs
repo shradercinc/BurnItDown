@@ -24,6 +24,8 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
     public SaveData currentSaveData;
+    [Tooltip("card prefab")][SerializeField] Card cardPrefab;
+    [Tooltip("the name of the txt file for the card TSV")] public string fileToLoad;
     public List<Card> allCards = new List<Card>(); //keeps track of all cards in the game
 
     private void Awake()
@@ -51,7 +53,6 @@ public class SaveManager : MonoBehaviour
         {
             NewFile();
         }
-        TitleScreen.instance.GenerateCards();
     }
 
     void NewFile()
@@ -78,5 +79,52 @@ public class SaveManager : MonoBehaviour
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
         ES3.DeleteFile(path);
         currentSaveData = new SaveData();
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Transform canvas = GameObject.Find("Canvas").transform;
+
+        //bring back all other objects
+        RightClick.instance.transform.SetParent(canvas);
+        RightClick.instance.transform.localPosition = new Vector3(0, 0);
+
+        FPS.instance.transform.SetParent(canvas);
+        FPS.instance.transform.localPosition = new Vector3(-850, -500);
+
+        List<CardData> data = CardDataLoader.ReadCardData(fileToLoad);
+        for (int i = 0; i < data.Count; i++)
+        {
+            for (int j = 0; j < data[i].maxInv; j++)
+            {
+                Card nextCopy = Instantiate(cardPrefab, canvas);
+                nextCopy.transform.localPosition = new Vector3(10000, 10000);
+                nextCopy.CardSetup(data[i]);
+                allCards.Add(nextCopy);
+            }
+        }
+    }
+
+    public void UnloadObjects()
+    {
+        Preserve(RightClick.instance.gameObject);
+        Preserve(FPS.instance.gameObject);
+        allCards.Clear();
+    }
+
+    void Preserve(GameObject next)
+    {
+        next.transform.SetParent(null);
+        DontDestroyOnLoad(next);
     }
 }

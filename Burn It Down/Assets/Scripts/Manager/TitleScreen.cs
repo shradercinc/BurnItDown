@@ -10,9 +10,6 @@ using MyBox;
 
 public class TitleScreen : MonoBehaviour
 {
-    [Tooltip("card prefab")][SerializeField] Card cardPrefab;
-    [Tooltip("the name of the txt file for the card TSV")][SerializeField] string fileToLoad;
-
     Button deleteFile;
     GameObject errorText;
     Transform canvas;
@@ -27,24 +24,11 @@ public class TitleScreen : MonoBehaviour
         errorText = GameObject.Find("Error Text");
     }
 
-    public void GenerateCards()
-    {
-        List<CardData> data = CardDataLoader.ReadCardData(fileToLoad);
-
-        for (int i = 0; i < data.Count; i++)
-        {
-            for (int j = 0; j < data[i].maxInv; j++)
-            {
-                Card nextCopy = Instantiate(cardPrefab, canvas);
-                nextCopy.transform.localPosition = new Vector3(10000, 10000);
-                nextCopy.CardSetup(data[i]);
-            }
-        }
-    }
-
     public bool CompareCreationDates(DateTime saveDataCreation)
     {
-        DateTime creationDate = File.GetCreationTime(Path.Combine(Application.dataPath, $"Resources/{fileToLoad}.txt"));
+        DateTime creationDate = File.GetCreationTime(Path.Combine
+        (Application.dataPath, $"Resources/{SaveManager.instance.fileToLoad}.txt"));
+
         bool answer = creationDate > saveDataCreation;
         errorText.SetActive(answer);
         return answer;

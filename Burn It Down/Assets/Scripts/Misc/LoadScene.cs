@@ -20,7 +20,7 @@ public class LoadScene : MonoBehaviour
 
     public void NextScene()
     {
-        CustomSceneManager.instance.UnloadObjects();
+        SaveManager.instance.UnloadObjects();
         SceneManager.LoadScene(scene);
     }
 }

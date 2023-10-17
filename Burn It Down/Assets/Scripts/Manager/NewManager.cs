@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using MyBox;
+using UnityEngine.SceneManagement;
 
 public class AStarNode
 {
@@ -83,7 +84,7 @@ public class NewManager : MonoBehaviour
 
     #endregion
 
-    #region Setup
+#region Setup
 
     void Awake()
     {
@@ -108,12 +109,36 @@ public class NewManager : MonoBehaviour
         startingHand = GameObject.Find("Starting Hand").transform;
     }
 
-    void Start()
+    void GetCards()
     {
-        gameOverText = GameObject.Find("Game Over").transform.GetChild(0).GetComponent<TMP_Text>();
-        gameOverText.transform.parent.gameObject.SetActive(false);
-        gridContainer.transform.localPosition = new Vector3(18, -1, 0);
+        Transform emptyObject = new GameObject("Card Container").transform;
+        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
+            SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
 
+        //get all the cards in the deck
+        for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
+        {
+            Card nextCard = emptyObject.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>();
+            nextCard.transform.SetParent(deck);
+            nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
+            nextCard.choiceScript.DisableButton();
+        }
+
+        /*
+        //get the cards in your starting hand
+        for (int i = 0; i < startingHand.childCount; i++)
+        {
+            Card nextCard = startingHand.GetChild(i).GetComponent<Card>();
+            nextCard.choiceScript.DisableButton();
+            AddCardToHand(nextCard);
+        }
+        */
+        deck.Shuffle(); //shuffle your deck
+        DrawCards(5);
+    }
+
+    void GetTiles()
+    {
         //generate grids and entities from csv
         string[,] newGrid = LevelLoader.LoadLevelGrid(levelToLoad);
         listOfTiles = new TileData[newGrid.GetLength(0), newGrid.GetLength(1)];
@@ -218,33 +243,18 @@ public class NewManager : MonoBehaviour
         SetEnergy(3);
         SetHealth(3);
         SetMovement(3);
+    }
 
-        //store all the cards here
-        Transform emptyObject = new GameObject("Card Container").transform;
-        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
+    void Start()
+    {
+        if (SaveManager.instance == null)
+            SceneManager.LoadScene(0);
 
-        //get all the cards in the deck
-        for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
-        {
-            Card nextCard = emptyObject.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>();
-            nextCard.transform.SetParent(deck);
-            nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
-            nextCard.choiceScript.DisableButton();
-        }
+        gameOverText = GameObject.Find("Game Over").transform.GetChild(0).GetComponent<TMP_Text>();
+        gameOverText.transform.parent.gameObject.SetActive(false);
 
-        /*
-        //get the cards in your starting hand
-        for (int i = 0; i < startingHand.childCount; i++)
-        {
-            Card nextCard = startingHand.GetChild(i).GetComponent<Card>();
-            nextCard.choiceScript.DisableButton();
-            AddCardToHand(nextCard);
-        }
-        */
-
-        deck.Shuffle(); //shuffle your deck
-        DrawCards(5);
+        GetTiles();
+        GetCards();
 
         StartCoroutine(StartPlayerTurn());
     }
@@ -339,7 +349,7 @@ public class NewManager : MonoBehaviour
     {
         listOfPlayers[0].health += n;
         UpdateStats();
-    }
+   }
     public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
     {
         ChangeMovement(n - (int)listOfPlayers[0].movementLeft);
@@ -361,7 +371,6 @@ public class NewManager : MonoBehaviour
         stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy; {listOfObjectives.Count} Objectives";
         deckTracker.text = $"Draw Pile / Discard Pile \n\n{deck.childCount} / {discardPile.childCount}";
 
-        Debug.Log(listOfPlayers[0].health);
         if (listOfPlayers[0].health <= 0)
             GameOver("You got caught too many times.");
     }
@@ -446,10 +455,7 @@ public class NewManager : MonoBehaviour
     IEnumerator StartPlayerTurn()
     {
         for (int i = 0; i < futureEffects.Count; i++)
-        {
-            Debug.Log($"resolve {futureEffects[i].name}'s next round effect");
             yield return futureEffects[i].NextRoundEffect();
-        }
         futureEffects.Clear();
 
         StartCoroutine(CanPlayCard());
@@ -527,8 +533,8 @@ public class NewManager : MonoBehaviour
         DiscardCard(playMe);
         ChangeEnergy(-playMe.energyCost);
         yield return playMe.OnPlayEffect();
-        futureEffects.Add(playMe);
 
+        futureEffects.Add(playMe);
         StartCoroutine(CanPlayCard());
     }
 
