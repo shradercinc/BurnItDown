@@ -104,7 +104,7 @@ public class NewManager : MonoBehaviour
         objectiveButton = GameObject.Find("Objective Button").GetComponent<Button>();
         objectiveButton.onClick.AddListener(ResolveObjective);
 
-        handTransform = GameObject.Find("Player Hand").transform.GetChild(0).transform.GetChild(0).GetComponent<RectTransform>();
+        handTransform = GameObject.Find("Player Hand").transform.GetChild(1).transform.GetChild(0).GetComponent<RectTransform>();
         gridContainer = GameObject.Find("Grid Container").transform;
         startingHand = GameObject.Find("Starting Hand").transform;
     }
@@ -517,7 +517,9 @@ public class NewManager : MonoBehaviour
         while (ChoiceManager.instance.chosenCard == null)
         {
             if (currentTurn != TurnSystem.You)
+            {
                 yield break;
+            }
             else
                 yield return null;
         }
@@ -526,6 +528,7 @@ public class NewManager : MonoBehaviour
 
     IEnumerator PlayCard(Card playMe) //resolve that card
     {
+        currentTurn = TurnSystem.Resolving;
         ChoiceManager.instance.DisableAllCards();
         ChoiceManager.instance.DisableAllTiles();
 
@@ -552,6 +555,7 @@ public class NewManager : MonoBehaviour
 
     IEnumerator EnvironmentalPhase()
     {
+        selectedTile = null;
         currentTurn = TurnSystem.Environmentals;
         StopCoroutine(CanPlayCard());
         ChoiceManager.instance.DisableAllTiles();
@@ -571,11 +575,7 @@ public class NewManager : MonoBehaviour
 
     IEnumerator EndTurn() //Starts Guard Phase
     {
-        selectedTile = null;
         SoundManager.instance.PlaySound(endTurnSound);
-        ChoiceManager.instance.DisableAllCards();
-        ChoiceManager.instance.DisableAllTiles();
-
         for (int i = 0; i < listOfPlayers.Count; i++)
             yield return listOfPlayers[i].EndOfTurn();
 

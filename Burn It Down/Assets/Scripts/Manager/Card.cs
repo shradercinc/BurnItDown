@@ -17,7 +17,7 @@ public class StringAndMethod
         dictionary["CHANGEHP"] = card.ChangeHealth();
         dictionary["CHANGEEP"] = card.ChangeEnergy();
         dictionary["CHANGEMP"] = card.ChangeMovement();
-        dictionary["FINDZERO"] = card.FindZero();
+        dictionary["FINDONE"] = card.FindOne();
         dictionary["DISCARDHAND"] = card.DiscardHand();
         dictionary["STUNADJACENTGUARD"] = card.StunAdjacentGuard();
         dictionary["AFFECTADJACENTWALL"] = card.AffectAdjacentWall();
@@ -52,8 +52,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public enum CanPlayCondition { None, Guard, Wall, Occupied };
     [ReadOnly] CanPlayCondition selectCondition;
-    [ReadOnly] List<IEnumerator> effectsInorder = new List<IEnumerator>();
-    [ReadOnly] List<IEnumerator> nextRoundEffectsInOrder = new List<IEnumerator>();
+    [ReadOnly] string effectsInOrder;
+    [ReadOnly] string nextRoundEffectsInOrder;
 
     [ReadOnly] public TMP_Text TextName { get; private set; } 
     [ReadOnly] public TMP_Text TextCost { get; private set; }
@@ -65,6 +65,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public AudioClip cardMove;
     public AudioClip cardPlay;
+
+    int debugger = 0;
     
 #endregion
 
@@ -117,8 +119,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
         distractionIntensity = data.intn;
 
         selectCondition = ConvertToCondition(data.select);
-        AddMethodsToList(data.action, effectsInorder);
-        AddMethodsToList(data.nextAct, nextRoundEffectsInOrder);
+        effectsInOrder = data.action;
+        nextRoundEffectsInOrder = data.nextAct;
     }
 
     CardType ConvertToType(string type)
@@ -146,24 +148,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         };
     }
 
-    void AddMethodsToList(string divide, List<IEnumerator> list)
-    {
-        StringAndMethod dic = new StringAndMethod(this);
-        divide = divide.Replace(" ", "");
-        divide = divide.ToUpper();
-        string[] methodsInStrings = divide.Split('/');
-
-        for (int k = 0; k < methodsInStrings.Length; k++)
-        {
-            if (methodsInStrings[k] == "" || methodsInStrings[k] == "NONE")
-                continue;
-            else if (dic.dictionary.TryGetValue(methodsInStrings[k], out IEnumerator method))
-                list.Add(method);
-            else
-                Debug.LogError($"\"{methodsInStrings[k]}\" for {this.name} isn't in the dictionary");
-        }
-    }
-
 #endregion
 
 #region Play Condition
@@ -171,6 +155,21 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public bool CanPlay(PlayerEntity player)
     {
         currentPlayer = player;
+        image.color = Color.white;
+        if (Check(player))
+        {
+            image.color = Color.white;
+            return true;
+        }
+        else
+        {
+            image.color = Color.gray;
+            return false;
+        }
+    }
+
+    bool Check(PlayerEntity player)
+    {
         if (NewManager.instance.EnoughEnergy(energyCost))
         {
             return selectCondition switch
@@ -181,7 +180,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
                 _ => true,
             };
         }
-        else
+         
         {
             return false;
         }
@@ -234,24 +233,47 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
 #region Play Effect
 
+    IEnumerator ResolveList(string divide)
+    {
+        StringAndMethod dic = new StringAndMethod(this);
+        divide = divide.Replace(" ", "");
+        divide = divide.ToUpper();
+        string[] methodsInStrings = divide.Split('/');
+
+        foreach(string nextMethod in methodsInStrings)
+        {
+            debugger = 0;
+            if (nextMethod == "" || nextMethod == "NONE")
+            {
+                continue;
+            }
+            else if (dic.dictionary.TryGetValue(nextMethod, out IEnumerator method))
+            {
+                yield return method;
+                if (debugger == 0)
+                    Debug.Log($"{this.name} failed to run");
+            }
+            else
+            {
+                Debug.LogError($"\"{nextMethod}\" for {this.name} isn't in the dictionary");
+            }
+        }
+    }
+
     public IEnumerator OnPlayEffect()
     {
-        Debug.Log($"playing {this.name}");
-        for (int i = 0; i < effectsInorder.Count; i++)
-        {
-            yield return effectsInorder[i];
-        }
+        yield return ResolveList(effectsInOrder);
     }
 
     public IEnumerator NextRoundEffect()
     {
-        for (int i = 0; i < nextRoundEffectsInOrder.Count; i++)
-            yield return nextRoundEffectsInOrder[i];
+        yield return ResolveList(nextRoundEffectsInOrder);
     }
 
     public IEnumerator DrawCards()
     {
         NewManager.instance.DrawCards(changeInDraw);
+        debugger++;
         yield return null;
     }
 
@@ -310,6 +332,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator DiscardHand()
     {
+        debugger++;
         while (NewManager.instance.listOfHand.Count>0)
         {
             yield return NewManager.Wait(0.1f);
@@ -317,29 +340,33 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public IEnumerator FindZero()
+    public IEnumerator FindOne()
     {
+        debugger++;
         for (int i = 0; i < 2; i++)
         {
             yield return NewManager.Wait(0.1f);
-            NewManager.instance.AddCardToHand(FindCardCost(0));
+            NewManager.instance.AddCardToHand(FindCardCost(1));
         }
     }
 
     public IEnumerator ChangeHealth()
     {
+        debugger++;
         NewManager.instance.ChangeHealth(changeInHP);
         yield return null;
     }
 
     public IEnumerator ChangeEnergy()
     {
+        debugger++;
         NewManager.instance.ChangeEnergy(changeInEP);
         yield return null;
     }
 
     public IEnumerator ChangeMovement()
     {
+        debugger++;
         NewManager.instance.ChangeMovement(changeInMP);
         yield return null;
     }
@@ -362,6 +389,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
 
         targetWall.AffectWall(changeInWall);
+        debugger++;
     }
 
     public IEnumerator StunAdjacentGuard()
@@ -383,7 +411,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
         SoundManager.instance.PlaySound(targetGuard.stunSound);
         targetGuard.stunned += stunDuration;
-        Debug.Log("Stunned for " + targetGuard.stunned);
+        debugger++;
     }
 
 #endregion
