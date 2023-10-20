@@ -368,11 +368,11 @@ public class NewManager : MonoBehaviour
 
     void UpdateStats()
     {
-        stats.text = $"{listOfPlayers[0].health} Health; {listOfPlayers[0].movementLeft} Movement; {energy} Energy; {listOfObjectives.Count} Objectives";
-        deckTracker.text = $"Draw Pile / Discard Pile \n\n{deck.childCount} / {discardPile.childCount}";
+        stats.text = $"<color=#ffc73b>{listOfPlayers[0].health} Health <color=#ffffff>| <color=#ecff59>{listOfPlayers[0].movementLeft} Movement <color=#ffffff>| <color=#59fff4>{energy} Energy <color=#ffffff>| <color=#75ff59>{listOfObjectives.Count} Objectives Left";
+        deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile \n\n<color=#70f5ff>{deck.childCount} <color=#ffffff>/ <color=#ff9670>{discardPile.childCount}";
 
         if (listOfPlayers[0].health <= 0)
-            GameOver("You got caught too many times.");
+            GameOver("You hit 0 HP.");
     }
 
     public void UpdateInstructions(string instructions)
