@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/0. Title Screen.unity
     guid: eb0f30cf619984a91a4dda01f01bf458
   - enabled: 1
+    path: Assets/Scenes/0.5. Brief.unity
+    guid: 6f1cf2560aa31ff49ab0246640b7a517
+  - enabled: 1
     path: Assets/Scenes/1. Build Deck.unity
     guid: 00616dac27d734841b73107db8041dd2
   - enabled: 1
