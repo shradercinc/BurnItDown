@@ -68,6 +68,7 @@ public class NewManager : MonoBehaviour
         [Tooltip("Guard prefab")][SerializeField] ExitEntity exitPrefab;
 
     [Foldout("Setup", true)]
+        [Tooltip("Amount of turns before a game over")] public int turnCount;
         [Tooltip("Name of the level tsv")] [SerializeField] string levelToLoad;
         [Tooltip("Starting hand")] Transform startingHand;
 
@@ -247,8 +248,8 @@ public class NewManager : MonoBehaviour
 
     void Start()
     {
-        if (SaveManager.instance == null)
-            SceneManager.LoadScene(0);
+        if (turnCount <= 0)
+            throw new Exception("Didn't set turn count in NewManager (has to be > 0");
 
         gameOverText = GameObject.Find("Game Over").transform.GetChild(0).GetComponent<TMP_Text>();
         gameOverText.transform.parent.gameObject.SetActive(false);
@@ -273,17 +274,13 @@ public class NewManager : MonoBehaviour
 
     void FindAdjacent(TileData tile) //check each adjacent tile; if it's not null, add it to the list
     {
-        try
+        if (tile != null)
         {
             tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x + 1, tile.gridPosition.y)));
             tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x - 1, tile.gridPosition.y)));
             tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y + 1)));
             tile.adjacentTiles.Add(FindTile(new Vector2(tile.gridPosition.x, tile.gridPosition.y - 1)));
             tile.adjacentTiles.RemoveAll(item => item == null); //delete all tiles that are null
-        }
-        catch (NullReferenceException)
-        {
-            //do nothing
         }
     }
 
@@ -368,7 +365,7 @@ public class NewManager : MonoBehaviour
 
     void UpdateStats()
     {
-        stats.text = $"<color=#ffc73b>{listOfPlayers[0].health} Health <color=#ffffff>| <color=#ecff59>{listOfPlayers[0].movementLeft} Movement <color=#ffffff>| <color=#59fff4>{energy} Energy <color=#ffffff>| <color=#75ff59>{listOfObjectives.Count} Objectives Left";
+        stats.text = $"<color=#ffc73b>{listOfPlayers[0].health} Health <color=#ffffff>| <color=#ecff59>{listOfPlayers[0].movementLeft} Movement <color=#ffffff>| <color=#59fff4>{energy} Energy <color=#ffffff>| <color=#75ff59>{listOfObjectives.Count} Objectives Left | {turnCount} Turns Left";
         deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile \n\n<color=#70f5ff>{deck.childCount} <color=#ffffff>/ <color=#ff9670>{discardPile.childCount}";
 
         if (listOfPlayers[0].health <= 0)
@@ -588,7 +585,15 @@ public class NewManager : MonoBehaviour
         while (group.AnyProcessing)
             yield return null;
 
-        StartCoroutine(StartPlayerTurn());
+        turnCount--;
+        if (turnCount == 0)
+        {
+            GameOver("You ran out of time.");
+        }
+        else
+        {
+            StartCoroutine(StartPlayerTurn());
+        }
     }
 
 #endregion
@@ -626,7 +631,7 @@ public class NewManager : MonoBehaviour
             if (cost <= movementSpeed)
             {
                 reachableGrids.Add(SelectTile);;
-                FindAdjacent(SelectTile);
+                //FindAdjacent(SelectTile);
                 foreach (TileData neighbor in SelectTile.adjacentTiles)
                 {
                     int newCost;

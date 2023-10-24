@@ -11,6 +11,7 @@ public class Entity : MonoBehaviour
 {
     [Foldout("Base Entity", true)]
         [Tooltip("Store this entity's position")] [ReadOnly] public TileData currentTile;
+        [Tooltip("The visual offset for this entity relative to its tile")] public Vector3 tileOffset;
         [ReadOnly] public SpriteRenderer spriteRenderer;
         [ReadOnly] public LineRenderer lineRenderer;
         [Tooltip("Cost of moving through item, default 999 (intraversable)")] [ReadOnly] public int MoveCost = 999;
@@ -39,7 +40,7 @@ public class Entity : MonoBehaviour
         this.currentTile = newTile;
         this.transform.SetParent(newTile.transform);
         this.transform.localScale = new Vector3(1, 1, 1);
-        this.transform.localPosition = new Vector3(0, 0, 0);
+        this.transform.localPosition = tileOffset;
         CalculateTiles();
     }
 
