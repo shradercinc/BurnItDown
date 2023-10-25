@@ -212,6 +212,22 @@ public class NewManager : MonoBehaviour
                             theGuard.movementLeft = theGuard.movesPerTurn;
                             theGuard.direction = StringToDirection(numberPlusAddition[1]);
                             listOfGuards.Add(theGuard);
+                            theGuard.PatrolPoints.Add(new Vector2Int(i, j));
+                            string[] patrolList = numberPlusAddition[2].Split('|');
+                            foreach (string patrol in patrolList)
+                            {
+                                string[] points = patrol.Split(",");
+                                int curX = 0;
+                                int curY = 0;
+                                int.TryParse(points[0], out curX);
+                                int.TryParse(points[1], out curY);
+                                theGuard.PatrolPoints.Add(new Vector2Int(curX, curY));
+                            }
+                            print("This guard will patrol!");
+                            foreach (Vector2Int cord in theGuard.PatrolPoints)
+                            {
+                                print("Next point: " + cord);
+                            }
                             break;
                     }
                     try
@@ -705,7 +721,7 @@ public class NewManager : MonoBehaviour
             // Explore neighbors of the current node
             foreach (TileData neighbor in currentNode.ATileData.adjacentTiles)
             {
-                print("for neightbor: " + neighbor.gridPosition);
+                //print("for neightbor: " + neighbor.gridPosition);
                 // Ignore blocked nodes or nodes already in the closed set
                 if (neighbor.myEntity != null)
                 {
@@ -715,12 +731,12 @@ public class NewManager : MonoBehaviour
                     }
                     else if (neighbor.myEntity.MoveCost >= 999)
                     {
-                        print("can't pass");
+                        //print("can't pass");
                         continue;
                     }
                     else if (closedSet.Contains(neighbor))
                     {
-                        print("Tile already viewed");
+                        //print("Tile already viewed");
                         continue;
                     }
                 }
@@ -732,7 +748,8 @@ public class NewManager : MonoBehaviour
                     if (neighbor.gridPosition == targetLocation.gridPosition || neighbor.gridPosition == startLocation.gridPosition)
                     {
                         newGCost = currentNode.GCost + GetDistance(currentNode.ATileData, neighbor) * 1;
-                    } else
+                    }
+                    else
                     {
                         newGCost = currentNode.GCost + GetDistance(currentNode.ATileData, neighbor) * neighbor.myEntity.MoveCost;
                     }
@@ -742,6 +759,7 @@ public class NewManager : MonoBehaviour
                 {
                     newGCost = currentNode.GCost + GetDistance(currentNode.ATileData, neighbor) * 1;
                 }
+                print("this tile " + currentNode.ATileData.gridPosition + "Has a Gcost of " + currentNode.GCost);
                 AStarNode neighborNode;
                 if (!nodeLookup.ContainsKey(neighbor))
                 {
@@ -758,6 +776,7 @@ public class NewManager : MonoBehaviour
                     neighborNode.GCost = newGCost;
                     neighborNode.HCost = GetDistance(neighbor, targetLocation);
                     neighborNode.Parent = currentNode;
+                    print(neighborNode.ATileData.gridPosition + "'s parent is " + currentNode.ATileData.gridPosition);
                     // Add neighbor to the open list if it's not already there
                     if (!openList.Contains(neighborNode))
                     {
@@ -772,22 +791,21 @@ public class NewManager : MonoBehaviour
     //confirm that the current path is valid
     void RetracePath(AStarNode startNode, AStarNode endNode, int actionPoint, bool singleMovement)
     {
+        print("");
+        print("Start retrace");
         // Create an empty list to store the path
         List<TileData> path = new List<TileData>();
         AStarNode currentNode = endNode;
         // Follow parent pointers from the end node to the start node, adding each node to the path
         int iteration = 0;
-        while (currentNode != startNode && iteration < 3)
+        while (currentNode != startNode && iteration < 10)
         {
+            print("path on " + currentNode.ATileData);
+            print("current parent: " + currentNode.Parent.ATileData.gridPosition);
             iteration++;
-            print("Retrace iteration: " + iteration);
+            //print("Retrace iteration: " + iteration);
             path.Add(currentNode.ATileData);
             currentNode = currentNode.Parent;
-            foreach (TileData data in path)
-            {
-                print("path contains " + data.gridPosition);
-            }
-            print("");
         }
         if (iteration == 5)
         {
@@ -826,5 +844,5 @@ public class NewManager : MonoBehaviour
         }
     }
 
-#endregion
+    #endregion
 }
