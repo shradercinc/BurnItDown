@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -417,6 +417,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 529161265}
   m_CullTransparentMesh: 1
+--- !u!1 &539250381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 539250382}
+  - component: {fileID: 539250383}
+  m_Layer: 0
+  m_Name: WwiseBankLoad
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &539250382
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 539250381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &539250383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 539250381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba97c779699a3e24faf9afe025102131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerList: f7e1664c
+  useOtherObject: 0
+  data:
+    idInternal: 0
+    valueGuidInternal: 
+    WwiseObjectReference: {fileID: 11400000, guid: d6a40c7ff3f477e4aadeeaaf244df093, type: 2}
+  decodeBank: 0
+  loadAsynchronous: 0
+  saveDecodedBank: 0
+  unloadTriggerList: 958ca0ea
+  bankNameInternal: 
+  valueGuidInternal: 
 --- !u!1 &568216709
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,12 +542,11 @@ MonoBehaviour:
   openPrefabs: 0
   prefabs: []
   idRef:
-    _Keys: 4504c2ad7a5624799afa7af14a3649566f97e30515fdba5b71ffd7aa11ab681542bd61aee8ed1b5ee40812f10bff495482a4bad811ff2d474b671e7a2dce8b109165320797f73e7f847b15e2f05499724a7cd44a9abfd94162f3841d6e695027901a6480cfa1314cad8f2aee732f54036ddd9f5a33be43791cc5a373eaf0c861fe6fcf4e06be89503e7397b15bbf4e2584474c00baf9560eac624fcdf4f4a575990f6658a90a2a5c777ec688a0fb6d0a37a6789eda164c749f1794213f8c952c4b84cc1b72b33443793d281fed4cdf22348908c907b45150a424466d8af6e215e99ad224c7887d7d8dcbe7e8c1949e53377254c9955f3369cc8388b1933946701f3d355279ba5a44088557d39b391138c399a5fc4babaa756669584300cbea538577c8835e4bd97d1710d01ab60605066b3f8cd320bd4434e8abec106217442c70ab58130194960d8cddeba4833ad35f6352ae3f58bd7442bbfc9ab25fc91a004583ca1c680a4762cca38a615e180729a97e5ffda8e8b751287353ef96fb2b2c209acffe2f486d3dc2ebd8e0b071004ab67b1729e38e145b4c13252de3f6683832487e0617f9a6600a0a09d027da5715ae69fd302ab7cb56eedd3f6b3e68fd66772b1d0dfaaf91608b62c6e51cfeb66eefb9768594d7c2138673b31b223f5a47541011f9ef0762432b48e73e327f654c128cb845bc4d552f00137f5bba74c22ec979e8d2a9fb897b017d462be988c305da000a9686148a5d9abf072377f976497b46f85498c80a16043d453f07294576d78435ba7e59b54cef8a38e9f365030607fcb1a38f6f6c11f7f39249cf4b5670efeeb467ab8fb973856f0503d0cf372ce323702580abc72904ba99f270dfdd62c6c1c7f5885d1846f046b072ecff1c5d1492bded610f3c0ecb38909d94f8282acb2258b6f6a17e2a2e0af06fecb40728e3465b68776b554af7418440a59a305435000334c1b40f6083038e7ec929b21388d6a5573c93c75fbc54e28ace16240ff398b8cef4d91838389c0fe96966d167d861cad5dd81d639877e304f26bbcf45d98563c7863f962b4baaea1716a19e3c2393b9c26f3d1675d9079fc47d85f46dbf9822aae18f4540598855abb448e530d74fcc16d9f26420d115038dc1882b464fb771061a62e04b143c7cc248b4c87f2e77b024796d2324cc8995f730cfe81c54152e7f0dc1e729f658b1ed4a2c126b39376e47cf67f0379eee304e08322c2f1138d6c747eddb20f87b48ed72950f22e617504354cc7d5fa471f7b8146d764468d8f60c4316db310340610b5fa7133414de91ac33486d459025809dbd02776bc405da059ccee0461866d96e1354887487c41268a56be14420e8c6d91ec5bc7967f6973db87db21d2b1d95a6ff748774dc20881474494624a807e5079e1a317d2825a9274f182455de83c83552c6b51835ba9d5a4747ea764ed2d4eaeaba196478ece34403c3130c0ee324e50a5d6760cef718870c13701267b8b58f6f024658f8bcbb6b22adb648dd76d9c679bbd64981fb4932d4a4e25361c1ca0117b8af4d69c2565f1539104b
+    _Keys: 4504c2ad7a5624799afa7af14a3649566f97e30515fdba5b42bd61aee8ed1b5ee40812f10bff495482a4bad811ff2d474b671e7a2dce8b109165320797f73e7f847b15e2f05499724a7cd44a9abfd94162f3841d6e695027901a6480cfa1314cad8f2aee732f54036ddd9f5a33be43791cc5a373eaf0c861fe6fcf4e06be89503e7397b15bbf4e2584474c00baf9560eac624fcdf4f4a575990f6658a90a2a5c777ec688a0fb6d0a37a6789eda164c749f1794213f8c952c4b84cc1b72b33443793d281fed4cdf22348908c907b45150a424466d8af6e215e99ad224c7887d7d8dcbe7e8c1949e53377254c9955f3369cc8388b1933946701f3d355279ba5a44088557d39b391138c399a5fc4babaa756669584300cbea538577c8835e4bd97d1710d01ab60605066b3f8cd320bd4434e8abec106217442c70ab58130194960d8cddeba4833ad35f6352ae3f58bd7442bbfc9ab25fc91a004583ca1c680a4762cca38a615e180729a97e5ffda8e8b751287353ef96fb2b2c209acffe2f486d3dc2ebd8e0b071004ab67b1729e38e145b4c13252de3f6683832487e0617f9a6600a0a09d027da5715ae69fd302ab7cb56eedd3f6b3e68fd66772b1d0dfaaf91608b62c6e51cfeb66eefb9768594d7c2138673b31b223f5a47541011f9ef0762432b48e73e327f654c128cb845bc4d552f00137f5bba74c22ec979e8d2a9fb897b017d462be988c305da000a9686148a5d9abf072377f976497b46f85498c80a16043d453f07294576d78435ba7e59b54cef8a38e9f365030607fcb1a38f6f6c11f7f39249cf4b5670efeeb467ab8fb973856f0503d0cf372ce323702580abc72904ba99f270dfdd62c6c1c7f5885d1846f046b072ecff1c5d1492bded610f3c0ecb38909d94f8282acb2258b6f6a17e2a2e0af06fecb40728e3465b68776b554af7418440a59a305435000334c1b40f6083038e7ec929b21388d6a5573c93c75fbc54e28ace16240ff398b8cef4d91838389c0fe96966d167d861cad5dd81d639877e304f26bbcf45d98563c7863f962b4baaea1716a19e3c2393b9c26f3d1675d9079fc47d85f46dbf9822aae18f4540598855abb448e530d74fcc16d9f26420d115038dc1882b464fb771061a62e04b143c7cc248b4c87f2e77b024796d2324cc8995f730cfe81c54152e7f0dc1e729f658b1ed4a2c126b39376e47cf67f0379eee304e08322c2f1138d6c747eddb20f87b48ed72950f22e617504354cc7d5fa471f7b8146d764468d8f60c4316db310340610b5fa7133414de91ac33486d459025809dbd02776bc405da059ccee0461866d96e1354887487c41268a56be14420e8c6d91ec5bc7967f6973db87db21d2b1d95a6ff748774dc20881474494624a807e5079e1a317d2825a9274f182455de83c83552c6b51835ba9d5a4747ea764ed2d4eaeaba196478ece34403c3130c0ee324e50a5d6760cef718870c13701267b8b58f6f024658f8bcbb6b22adb648dd76d9c679bbd64981fb4932d4a4e25361c1ca0117b8af4dc6519604021c890941a82e4b498e2a552ac3a2884c7963129da765b0676ea800aff4820a8c72311df1a7a27b619c3f3f4c575f557ec68e4f502efa3d1034e2496d7ae11369c7c91ac95aa10f1023614acb3e40caec24605c
     _Values:
     - {fileID: 811098200}
     - {fileID: 811098203}
     - {fileID: 811098202}
-    - {fileID: 811098201}
     - {fileID: 1569130254}
     - {fileID: 1569130256}
     - {fileID: 1569130255}
@@ -626,7 +681,17 @@ MonoBehaviour:
     - {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
     - {fileID: 834510999}
     - {fileID: -8470434959884784418, guid: 1f14a357fb4207e4b91a15e87ed3f428, type: 2}
+    - {fileID: 811098205}
+    - {fileID: 11500000, guid: 976d5d60b090b854b91c1c75e06bd1ce, type: 3}
+    - {fileID: 811098204}
+    - {fileID: 11500000, guid: 1466ca72571d00741bd8b8adde1ed9d7, type: 3}
     - {fileID: 0}
+    - {fileID: 1772818570}
+    - {fileID: 1772818572}
+    - {fileID: 1772818571}
+    - {fileID: 11500000, guid: 533c68d1aeb8b7843b6803809c1021c8, type: 3}
+    - {fileID: 11400000, guid: 106af983a90337a46a612dc92c6e76c7, type: 2}
+    - {fileID: 11500000, guid: c8d7abdd2ea8b5848af267094c2d156e, type: 3}
 --- !u!4 &568216712
 Transform:
   m_ObjectHideFlags: 0
@@ -874,7 +939,8 @@ GameObject:
   m_Component:
   - component: {fileID: 811098203}
   - component: {fileID: 811098202}
-  - component: {fileID: 811098201}
+  - component: {fileID: 811098205}
+  - component: {fileID: 811098204}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -882,14 +948,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &811098201
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 811098200}
-  m_Enabled: 1
 --- !u!20 &811098202
 Camera:
   m_ObjectHideFlags: 0
@@ -956,6 +1014,42 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &811098204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 811098200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1466ca72571d00741bd8b8adde1ed9d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isDefaultListener: 1
+  listenerId: 0
+--- !u!114 &811098205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 811098200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 976d5d60b090b854b91c1c75e06bd1ce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_listeners:
+    initialListenerList: []
+    useDefaultListeners: 1
+  isEnvironmentAware: 0
+  isStaticObject: 0
+  m_positionOffsetData:
+    KeepMe: 0
+    positionOffset: {x: 0, y: 0, z: 0}
+  m_posOffsetData: {fileID: 0}
+  listenerMask: 1
 --- !u!21 &834510999
 Material:
   serializedVersion: 8
@@ -2505,6 +2599,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1763012525}
   m_CullTransparentMesh: 1
+--- !u!1 &1772818570
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1772818572}
+  - component: {fileID: 1772818571}
+  m_Layer: 0
+  m_Name: WwiseGlobal
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1772818571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772818570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533c68d1aeb8b7843b6803809c1021c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  InitializationSettings: {fileID: 11400000, guid: 106af983a90337a46a612dc92c6e76c7, type: 2}
+  basePath: 
+  language: 
+  defaultPoolSize: 0
+  lowerPoolSize: 0
+  streamingPoolSize: 0
+  memoryCutoffThreshold: 0
+  monitorPoolSize: 0
+  monitorQueuePoolSize: 0
+  callbackManagerBufferSize: 0
+  spatialAudioPoolSize: 0
+  maxSoundPropagationDepth: 0
+  engineLogging: 0
+--- !u!4 &1772818572
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772818570}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1843080566
 GameObject:
   m_ObjectHideFlags: 0
@@ -2767,3 +2918,5 @@ SceneRoots:
   - {fileID: 1342655501}
   - {fileID: 1960219728314755867}
   - {fileID: 703530723}
+  - {fileID: 1772818572}
+  - {fileID: 539250382}

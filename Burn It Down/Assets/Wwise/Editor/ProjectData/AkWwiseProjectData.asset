@@ -66,8 +66,22 @@ MonoBehaviour:
     ParentPath: SoundBanks\Default Work Unit
     guid: 006f200beeb91f47a567a3e1a8a95fa5
     GuidInternal: 
-    m_lastTime: -8585033553019926140
-    List: []
+    m_lastTime: -8585033544764716136
+    List:
+    - name: TestBank
+      guid: c802866bfd19084687169f80cd6ee0df
+      id: 3291379323
+      PathAndIcons:
+      - ElementName: SoundBanks
+        ObjectType: 5
+        guid: 00000000000000000000000000000000
+      - ElementName: Default Work Unit
+        ObjectType: 12
+        guid: 006f200beeb91f47a567a3e1a8a95fa5
+      - ElementName: TestBank
+        ObjectType: 7
+        guid: c802866bfd19084687169f80cd6ee0df
+      Path: SoundBanks\Default Work Unit\TestBank
   EventWwu:
   - PhysicalPath: Events\Default Work Unit.wwu
     PathAndIcons:
@@ -139,7 +153,7 @@ MonoBehaviour:
     m_lastTime: -8585033553020405927
     List: []
   ExpandedFileSystemItemIds: 
-  ExpandedWaapiItemIds: 
+  ExpandedWaapiItemIds: 0a0000000b000000
   AutoSyncSelection: 0
   autoPopulateEnabled: 1
   currentDataSource: 0
