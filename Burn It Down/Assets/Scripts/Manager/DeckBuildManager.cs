@@ -8,38 +8,69 @@ using TMPro;
 
 public class DeckBuildManager : MonoBehaviour
 {
-    List<Card> cardsInDeck = new List<Card>();
-    List<Card> cardsInCollection = new List<Card>();
+    List<List<Card>> cardsInDeck = new List<List<Card>>();
+    List<List<Card>> cardsInCollection = new List<List<Card>>();
 
-    [SerializeField] TMP_Dropdown dropdown;
+    Transform handContainer;
+    List<Transform> deckTransforms = new List<Transform>();
+    List<Transform> collectionTransforms = new List<Transform>();
 
-    [SerializeField] RectTransform yourDeck;
-    [SerializeField] RectTransform yourCollection;
+    TMP_Dropdown dropdown;
+    TMP_Text deckSizeText;
+    Button playGameButton;
 
     [SerializeField] int deckSize;
-    [SerializeField] TMP_Text deckSizeText;
-    [SerializeField] Button playGameButton;
     [SerializeField] AudioClip cardMove;
+
+    int currentDeck = 0;
 
     private void Awake()
     {
         dropdown = GameObject.Find("Dropdown").GetComponent<TMP_Dropdown>();
         dropdown.onValueChanged.AddListener(delegate { NewSort(); });
+        deckSizeText = GameObject.Find("Deck Text").GetComponent<TMP_Text>();
+        playGameButton = GameObject.Find("Play Game Button").GetComponent<Button>();
+
+        handContainer = GameObject.Find("All Cards").transform;
+        foreach(Transform child in handContainer.GetChild(0))
+            collectionTransforms.Add(child);
+        foreach (Transform child in handContainer.GetChild(1))
+            deckTransforms.Add(child);
     }
 
     private void Start()
     {
-        if (SaveManager.instance != null)
-            StartCoroutine(Setup());
-        else
-            SceneManager.LoadScene(0);
+        for (int i = 0; i<SaveManager.instance.characterCards.Count; i++)
+        {
+            currentDeck = i;
+            foreach(Card card in SaveManager.instance.characterCards[i])
+            {
+                card.transform.localScale = new Vector3(1, 1, 1);
+                RemoveFromDeck(card, false);
+            }
+        }
+
+        for (int i = 0; i < SaveManager.instance.currentSaveData.savedDecks.Count; i++)
+        {
+            currentDeck = i;
+            foreach(string card in SaveManager.instance.currentSaveData.savedDecks[i])
+            {
+                AddToDeck(collectionTransforms[currentDeck].Find(card).GetComponent<Card>(), false);
+            }
+        }
+
+        currentDeck = 0;
+        StartCoroutine(SwapCards());
     }
 
     public void NewSort()
     {
-        foreach (Card card in cardsInCollection)
+        foreach (List<Card> cardList in cardsInCollection)
         {
-            ApplySorting(card);
+            foreach (Card card in cardList)
+            {
+                ApplySorting(card);
+            }
         }
     }
 
@@ -86,19 +117,14 @@ public class DeckBuildManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        playGameButton.gameObject.SetActive(yourDeck.childCount == deckSize);
-    }
-
     public void AddToDeck(Card newCard, bool save)
     {
-        if (cardsInDeck.Count < deckSize)
+        if (cardsInDeck[currentDeck].Count < deckSize)
         {
             //put that card on the top row
-            cardsInCollection.Remove(newCard);
-            cardsInDeck.Add(newCard);
-            newCard.transform.SetParent(yourDeck);
+            cardsInCollection[currentDeck].Remove(newCard);
+            cardsInDeck[currentDeck].Add(newCard);
+            newCard.transform.SetParent(deckTransforms[currentDeck]);
             ApplySorting(newCard);
 
             SoundManager.instance.PlaySound(cardMove);
@@ -110,49 +136,31 @@ public class DeckBuildManager : MonoBehaviour
 
     public void RemoveFromDeck(Card newCard, bool save)
     {
-        //put that card on the bottom row
-        cardsInDeck.Remove(newCard);
-        cardsInCollection.Add(newCard);
-        newCard.transform.SetParent(yourCollection);
+        playGameButton.gameObject.SetActive(false);
+        cardsInDeck[currentDeck].Remove(newCard);
+        cardsInCollection[currentDeck].Add(newCard);
+        newCard.transform.SetParent(collectionTransforms[currentDeck]);
 
         SoundManager.instance.PlaySound(cardMove);
-
         if (save)
             SaveManager.instance.SaveHand(cardsInDeck);
     }
 
-    IEnumerator Setup()
-    {
-        yield return new WaitForSeconds(0.1f);
-
-        foreach (Card card in SaveManager.instance.allCards)
-        {
-            card.transform.localScale = new Vector3(1, 1, 1);
-            RemoveFromDeck(card, false);
-        }
-
-        if (SaveManager.instance.currentSaveData.chosenDeck != null)
-        {
-            for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
-                AddToDeck(yourCollection.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>(), false);
-        }
-        StartCoroutine(SwapCards());
-
-    }
-
     IEnumerator SwapCards()
     {
-        deckSizeText.text = $"Your Deck ({yourDeck.childCount}/{deckSize})";
-        ChoiceManager.instance.ChooseCard(SaveManager.instance.allCards);
+        deckSizeText.text = $"Your Deck ({cardsInDeck[currentDeck].Count}/{deckSize})";
+        foreach(List<Card> cardList in SaveManager.instance.characterCards)
+            ChoiceManager.instance.ChooseCard(cardList);
+
         while (ChoiceManager.instance.chosenCard == null)
             yield return null;
 
         //swap cards between your deck and collection
-        if (ChoiceManager.instance.chosenCard.transform.parent == yourCollection)
+        if (cardsInCollection[currentDeck].Contains(ChoiceManager.instance.chosenCard))
             AddToDeck(ChoiceManager.instance.chosenCard, true);
         else
             RemoveFromDeck(ChoiceManager.instance.chosenCard, true);
 
-        yield return SwapCards();
+        StartCoroutine(SwapCards());
     }
 }

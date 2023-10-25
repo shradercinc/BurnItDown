@@ -135,7 +135,7 @@ public class GuardEntity : MovingEntity
                 }
                 if (NewManager.instance.GetDistance(currentTile, detectedPlayer.currentTile) <= AttackRange && attacksLeft > 0)
                 {
-                    NewManager.instance.ChangeHealth(-1);
+                    NewManager.instance.ChangeHealth(detectedPlayer, -1);
                     SoundManager.instance.PlaySound(gunshot);
                     attacksLeft--;
                 }

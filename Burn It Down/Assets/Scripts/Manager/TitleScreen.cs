@@ -24,12 +24,12 @@ public class TitleScreen : MonoBehaviour
         errorText = GameObject.Find("Error Text");
     }
 
-    public bool CompareCreationDates(DateTime saveDataCreation)
+    public bool PassCheck(string deck, string saveDataPath)
     {
         DateTime creationDate = File.GetCreationTime(Path.Combine
-        (Application.dataPath, $"Resources/{SaveManager.instance.fileToLoad}.txt"));
+        (Application.dataPath, $"Resources/{deck}.txt"));
 
-        bool answer = creationDate > saveDataCreation;
+        bool answer = creationDate < File.GetCreationTime(saveDataPath);
         errorText.SetActive(answer);
         return answer;
     }

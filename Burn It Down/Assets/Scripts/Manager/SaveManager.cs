@@ -9,11 +9,12 @@ using UnityEditor;
 using UnityEngine.SceneManagement;
 using UnityEngine.Audio;
 using System.IO;
+using MyBox;
 
 [Serializable]
 public class SaveData
 {
-    public List<string> chosenDeck; //the cards you've chosen for each level
+    public List<List<string>> savedDecks;
 
     public SaveData()
     {
@@ -23,10 +24,12 @@ public class SaveData
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager instance;
-    public SaveData currentSaveData;
-    [Tooltip("card prefab")][SerializeField] Card cardPrefab;
-    [Tooltip("the name of the txt file for the card TSV")] public string fileToLoad;
-    public List<Card> allCards = new List<Card>(); //keeps track of all cards in the game
+    Transform canvas;
+    [ReadOnly] public SaveData currentSaveData;
+    [Tooltip("Card prefab")][SerializeField] Card cardPrefab;
+
+    [Tooltip("Put names of the TSVs in here")] public List<string> playerDecks;
+    public List<List<Card>> characterCards = new List<List<Card>>();
 
     private void Awake()
     {
@@ -44,15 +47,23 @@ public class SaveManager : MonoBehaviour
     private void Start()
     {
         string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        if (ES3.FileExists(path) &&
-        !TitleScreen.instance.CompareCreationDates(File.GetCreationTime(path)))
+
+        bool creationCheck = true;
+        foreach (string fileName in playerDecks)
         {
+            if (ES3.FileExists(path) && TitleScreen.instance.PassCheck(fileName, path))
+                creationCheck = true;
+            else
+            {
+                creationCheck = false;
+                break;
+            }
+        }
+
+        if (creationCheck)
             currentSaveData = ES3.Load<SaveData>("saveData", path);
-        }
         else
-        {
             NewFile();
-        }
     }
 
     void NewFile()
@@ -61,23 +72,23 @@ public class SaveManager : MonoBehaviour
         DeleteData();
     }
 
-    public void SaveHand(List<Card> deckToSave)
+    public void SaveHand(List<List<Card>> deckToSave)
     {
         //save the new cards for your deck
-        List<string> newCards = new List<string>();
-        for (int i = 0; i < deckToSave.Count; i++)
-            newCards.Add(deckToSave[i].name);
+        List<List<string>> newCards = new List<List<string>>();
+        for (int i = 0; i<deckToSave.Count; i++)
+        {
+            foreach (Card card in deckToSave[i])
+                newCards[i].Add(card.name);
+        }
 
-        string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        currentSaveData.chosenDeck = newCards;
-        ES3.Save("saveData", currentSaveData, path);
+        currentSaveData.savedDecks = newCards;
+        ES3.Save("saveData", currentSaveData, $"{Application.persistentDataPath}/SaveFile.es3");
     }
 
     public void DeleteData()
     {
-        Debug.Log("deleting save file");
-        string path = $"{Application.persistentDataPath}/SaveFile.es3";
-        ES3.DeleteFile(path);
+        ES3.DeleteFile($"{Application.persistentDataPath}/SaveFile.es3");
         currentSaveData = new SaveData();
     }
 
@@ -93,24 +104,26 @@ public class SaveManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Transform canvas = GameObject.Find("Canvas").transform;
-
         //bring back all other objects
+        canvas = GameObject.Find("Canvas").transform;
         RightClick.instance.transform.SetParent(canvas);
         RightClick.instance.transform.localPosition = new Vector3(0, 0);
 
         FPS.instance.transform.SetParent(canvas);
         FPS.instance.transform.localPosition = new Vector3(-850, -500);
 
-        List<CardData> data = CardDataLoader.ReadCardData(fileToLoad);
-        for (int i = 0; i < data.Count; i++)
+        for (int k = 0; k<playerDecks.Count; k++)
         {
-            for (int j = 0; j < data[i].maxInv; j++)
+            List<CardData> data = CardDataLoader.ReadCardData(playerDecks[k]);
+            for (int i = 0; i < data.Count; i++)
             {
-                Card nextCopy = Instantiate(cardPrefab, canvas);
-                nextCopy.transform.localPosition = new Vector3(10000, 10000);
-                nextCopy.CardSetup(data[i]);
-                allCards.Add(nextCopy);
+                for (int j = 0; j < data[i].maxInv; j++)
+                {
+                    Card nextCopy = Instantiate(cardPrefab, canvas);
+                    nextCopy.transform.localPosition = new Vector3(10000, 10000);
+                    nextCopy.CardSetup(data[i]);
+                    characterCards[k].Add(nextCopy);
+                }
             }
         }
     }
@@ -119,7 +132,7 @@ public class SaveManager : MonoBehaviour
     {
         Preserve(RightClick.instance.gameObject);
         Preserve(FPS.instance.gameObject);
-        allCards.Clear();
+        characterCards.Clear();
     }
 
     void Preserve(GameObject next)
