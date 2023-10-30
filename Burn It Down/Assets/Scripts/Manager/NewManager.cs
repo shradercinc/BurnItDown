@@ -37,14 +37,8 @@ public class NewManager : MonoBehaviour
         [Tooltip("Current Selected Tile")][ReadOnly] public TileData selectedTile;
         [Tooltip("Quick reference to current movable tile")][ReadOnly] public TileData CurrentAvailableMoveTarget;
 
-    [Foldout("Card Zones", true)]
-        [Tooltip("Your hand in the canvas")] RectTransform handTransform;
-        [Tooltip("Reference to card scripts")] [ReadOnly] public List<Card> listOfHand = new List<Card>();
-        [Tooltip("Your deck in the canvas")] Transform deck;
-        [Tooltip("Your discard pile in the canvas")] Transform discardPile;
-        [Tooltip("Your exhausted cards in the canvas")] Transform exhausted;
-
     [Foldout("UI Elements", true)]
+        [Tooltip("Your hand in the canvas")] [ReadOnly] public Transform handContainer;
         [Tooltip("The bar in the bottom center of the screen")] Transform informationImage;
         [Tooltip("All the player's stats in text form")] TMP_Text stats;
         [Tooltip("Instructions for what the player is allowed to do right now")] TMP_Text instructions;
@@ -70,13 +64,11 @@ public class NewManager : MonoBehaviour
     [Foldout("Setup", true)]
         [Tooltip("Amount of turns before a game over")] public int turnCount;
         [Tooltip("Name of the level tsv")] [SerializeField] string levelToLoad;
-        [Tooltip("Starting hand")] Transform startingHand;
 
     public enum TurnSystem { You, Resolving, Environmentals, Enemy };
     [Foldout("Turn System", true)]
-        [Tooltip("Current energy this turn")][ReadOnly] public int energy;
         [Tooltip("What's happening in the game")][ReadOnly] public TurnSystem currentTurn;
-        [Tooltip("effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
+        [Tooltip("Effects to do on future turns")][ReadOnly] public List<Card> futureEffects = new List<Card>();
 
     [Foldout("Sound Effects", true)]
         [SerializeField] AudioClip button;
@@ -91,10 +83,6 @@ public class NewManager : MonoBehaviour
     {
         instance = this;
 
-        deck = GameObject.Find("Deck").transform;
-        discardPile = GameObject.Find("Discard Pile").transform;
-        exhausted = GameObject.Find("Exhausted").transform;
-
         informationImage = GameObject.Find("Information Image").transform;
         stats = informationImage.GetChild(0).GetComponent<TMP_Text>();
         instructions = informationImage.GetChild(1).GetComponent<TMP_Text>();
@@ -105,37 +93,38 @@ public class NewManager : MonoBehaviour
         objectiveButton = GameObject.Find("Objective Button").GetComponent<Button>();
         objectiveButton.onClick.AddListener(ResolveObjective);
 
-        handTransform = GameObject.Find("Player Hand").transform.GetChild(1).transform.GetChild(0).GetComponent<RectTransform>();
+        handContainer = GameObject.Find("Hand Container").transform;
         gridContainer = GameObject.Find("Grid Container").transform;
-        startingHand = GameObject.Find("Starting Hand").transform;
     }
 
     void GetCards()
     {
         Transform emptyObject = new GameObject("Card Container").transform;
-        for (int i = 0; i < SaveManager.instance.allCards.Count; i++)
-            SaveManager.instance.allCards[i].transform.SetParent(emptyObject);
-
-        //get all the cards in the deck
-        for (int i = 0; i < SaveManager.instance.currentSaveData.chosenDeck.Count; i++)
+        handContainer.transform.localPosition = new Vector3(10000, 10000, 0);
+        foreach (List<Card> cardList in SaveManager.instance.characterCards)
         {
-            Card nextCard = emptyObject.transform.Find(SaveManager.instance.currentSaveData.chosenDeck[i]).GetComponent<Card>();
-            nextCard.transform.SetParent(deck);
-            nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
-            nextCard.choiceScript.DisableButton();
+            foreach(Card card in cardList)
+                card.transform.SetParent(emptyObject);
         }
 
-        /*
-        //get the cards in your starting hand
-        for (int i = 0; i < startingHand.childCount; i++)
+        for (int i = 0; i < listOfPlayers.Count; i++)
         {
-            Card nextCard = startingHand.GetChild(i).GetComponent<Card>();
-            nextCard.choiceScript.DisableButton();
-            AddCardToHand(nextCard);
+            PlayerEntity player = listOfPlayers[i];
+            player.handTransform = handContainer.GetChild(player.myPosition).GetChild(0);
+            SetEnergy(player, 3);
+
+            foreach (string cardName in SaveManager.instance.currentSaveData.savedDecks[i])
+            {
+                Card nextCard = emptyObject.transform.Find(cardName).GetComponent<Card>();
+                nextCard.transform.SetParent(player.transform);
+                player.myDrawPile.Add(nextCard);
+                nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
+                nextCard.choiceScript.DisableButton();
+            }
+
+            player.myDrawPile.Shuffle(); //shuffle your deck
+            player.DrawCards(5);
         }
-        */
-        deck.Shuffle(); //shuffle your deck
-        DrawCards(5);
     }
 
     void GetTiles()
@@ -163,10 +152,11 @@ public class NewManager : MonoBehaviour
                     {
                         case "1": //create player
                             thisTileEntity = Instantiate(playerPrefab, nextTile.transform);
-                            thisTileEntity.name = "Player";
                             PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
                             player.movementLeft = player.movesPerTurn;
+                            player.myPosition = listOfPlayers.Count;
                             listOfPlayers.Add(player);
+                            thisTileEntity.name = $"Player {listOfPlayers.Count}";
                             FocusOnPlayer();
                             break;
                         case "2": //create exit
@@ -185,7 +175,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
-                            weakWall.WallDirection(numberPlusAddition[1]);
+                            //weakWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(weakWall);
                             weakWall.health = 2;
                             break;
@@ -193,7 +183,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
-                            medWall.WallDirection(numberPlusAddition[1]);
+                            //medWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(medWall);
                             medWall.health = 4;
                             break;
@@ -201,7 +191,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
-                            strongWall.WallDirection(numberPlusAddition[1]);
+                            //strongWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(strongWall);
                             strongWall.health = 6;
                             break;
@@ -240,10 +230,6 @@ public class NewManager : MonoBehaviour
                 }
             }
         }
-
-        SetEnergy(3);
-        SetHealth(3);
-        SetMovement(3);
     }
 
     void Start()
@@ -319,57 +305,77 @@ public class NewManager : MonoBehaviour
     public void FocusOnPlayer()
     {
         Camera.main.transform.position = new Vector3(listOfPlayers[0].transform.position.x-13, Camera.main.transform.position.y, listOfPlayers[0].transform.position.z+12);
+        Debug.Log("FocusOnPlayer() hasn't been rewritten yet");
     }
 
 #endregion
 
 #region Changing Stats
 
-    public bool EnoughEnergy(int n)//check if n is larger than current energy
+    public void SetEnergy(PlayerEntity player, int n) //if you want to set energy to 2, type SetEnergy(2);
     {
-        return (energy >= n);
+        ChangeEnergy(player, n - (int)player.myEnergy);
     }
-    public void SetEnergy(int n) //if you want to set energy to 2, type SetEnergy(2);
+    public void ChangeEnergy(PlayerEntity player, int n) //if you want to subtract 3 energy, type ChangeEnergy(-3);
     {
-        ChangeEnergy(n - (int)energy);
+        player.myEnergy += n;
+        UpdateStats(player);
     }
-    public void ChangeEnergy(int n) //if you want to subtract 3 energy, type ChangeEnergy(-3);
+    public void SetHealth(PlayerEntity player, int n) //if you want to set health to 2, type SetHealth(2);
     {
-        energy += n;
-        UpdateStats();
+        ChangeHealth(player, n - (int)player.health);
     }
-    public void SetHealth(int n) //if you want to set health to 2, type SetHealth(2);
+    public void ChangeHealth(PlayerEntity player, int n) //if you want to subtract 3 health, type ChangeHealth(-3);
     {
-        ChangeHealth(n - (int)listOfPlayers[0].health);
+        player.health += n;
+        UpdateStats(player);
+        if (player.health <= 0)
+            GameOver($"{player.name} lost all their HP.");
     }
-    public void ChangeHealth(int n) //if you want to subtract 3 health, type ChangeHealth(-3);
+    public void SetMovement(PlayerEntity player, int n) //if you want to set movement to 2, type SetMovement(2);
     {
-        listOfPlayers[0].health += n;
-        UpdateStats();
-   }
-    public void SetMovement(int n) //if you want to set movement to 2, type SetMovement(2);
-    {
-        ChangeMovement(n - (int)listOfPlayers[0].movementLeft);
+        ChangeMovement(player, n - (int)player.movementLeft);
     }
-    public void ChangeMovement(int n) //if you want to subtract 3 movement, type ChangeMovement(-3);
+    public void ChangeMovement(PlayerEntity player, int n) //if you want to subtract 3 movement, type ChangeMovement(-3);
     {
-        listOfPlayers[0].movementLeft += n;
-        UpdateStats();
+        player.movementLeft += n;
+        UpdateStats(player);
     }
-
     public void ResolveObjective()
     {
-        StartCoroutine(listOfPlayers[0].adjacentObjective.ObjectiveComplete());
-        UpdateStats();
+        foreach (PlayerEntity player in listOfPlayers)
+        {
+            try
+            {
+                StartCoroutine(player.adjacentObjective.ObjectiveComplete());
+            }
+            catch (NullReferenceException)
+            {
+                continue;
+            }
+        }
     }
 
-    void UpdateStats()
+    void UpdateStats(PlayerEntity player)
     {
-        stats.text = $"<color=#ffc73b>{listOfPlayers[0].health} Health <color=#ffffff>| <color=#ecff59>{listOfPlayers[0].movementLeft} Movement <color=#ffffff>| <color=#59fff4>{energy} Energy <color=#ffffff>| <color=#75ff59>{listOfObjectives.Count} Objectives Left | {turnCount} Turns Left";
-        deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile \n\n<color=#70f5ff>{deck.childCount} <color=#ffffff>/ <color=#ff9670>{discardPile.childCount}";
+        try
+        {
+            stats.text = $"{player.name} | <color=#ffc73b>{player.health} Health <color=#ffffff>" +
+                $"| <color=#ecff59>{player.movementLeft} Movement <color=#ffffff>" +
+                $"| <color=#59fff4>{player.myEnergy} Energy <color=#ffffff>";
+            deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile " +
+                $"\n\n<color=#70f5ff>{player.myDrawPile.Count} <color=#ffffff>/ <color=#ff9670>{player.myDiscardPile.Count}";
+            handContainer.transform.localPosition = new Vector3(player.myPosition * -2000, -75, 0);
+        }
+        catch
+        {
+            stats.text = "";
+            deckTracker.text = "";
+            handContainer.transform.localPosition = new Vector3(10000, 10000, 0);
+        }
 
-        if (listOfPlayers[0].health <= 0)
-            GameOver("You hit 0 HP.");
+        stats.text += $"\n<color=#75ff59>{listOfObjectives.Count} Objectives Left" +
+            $"| {turnCount} Turns Left";
     }
 
     public void UpdateInstructions(string instructions)
@@ -377,68 +383,6 @@ public class NewManager : MonoBehaviour
         this.instructions.text = instructions;
     }
 
-#endregion
-
-#region Cards
-
-    public void DrawCards(int num)
-    {
-        for (int i = 0; i < num; i++)
-        {
-            try
-            {
-                AddCardToHand(GetTopCard());
-            }
-            catch (NullReferenceException)
-            {
-                break;
-            }
-        }
-        UpdateStats();
-    }
-    public Card GetTopCard()
-    {
-        if (deck.childCount == 0)
-        {
-            discardPile.Shuffle();
-            while (discardPile.childCount > 0)
-                discardPile.GetChild(0).SetParent(deck);
-        }
-
-        UpdateStats();
-
-        if (deck.childCount > 0) //get the top card of the deck if there is one
-            return deck.GetChild(0).GetComponent<Card>();
-        else
-            return null;
-    }
-    public void AddCardToHand(Card newCard)
-    {
-        //add the new card to your hand
-        if (newCard != null)
-        {
-            listOfHand.Add(newCard);
-            newCard.transform.SetParent(handTransform);
-            newCard.transform.localScale = new Vector3(1, 1, 1);
-            SoundManager.instance.PlaySound(newCard.cardMove);
-        }
-    }
-    public void DiscardCard(Card discardMe)
-    {
-        discardMe.transform.SetParent(discardPile);
-        listOfHand.Remove(discardMe);
-        discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
-        UpdateStats();
-        SoundManager.instance.PlaySound(discardMe.cardMove);
-    }
-    public void ExhaustCard(Card exhaustMe)
-    {
-        exhaustMe.transform.SetParent(exhausted);
-        listOfHand.Remove(exhaustMe);
-        exhaustMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
-        UpdateStats();
-        SoundManager.instance.PlaySound(exhaustMe.cardMove);
-    }
 #endregion
 
 #region Turn System
@@ -451,12 +395,24 @@ public class NewManager : MonoBehaviour
 
     IEnumerator StartPlayerTurn()
     {
-        for (int i = 0; i < futureEffects.Count; i++)
-            yield return futureEffects[i].NextRoundEffect();
+        foreach(Card card in futureEffects)
+            yield return card.NextRoundEffect();
         futureEffects.Clear();
+        UpdateStats(null);
+        BackToStart();
+    }
 
-        StartCoroutine(CanPlayCard());
-        yield return null;
+    void BackToStart()
+    {
+        currentTurn = TurnSystem.You;
+        UpdateInstructions("Choose a character to move / play a card.");
+        selectedTile = null;
+
+        ChoiceManager.instance.DisableAllTiles();
+        ChoiceManager.instance.DisableAllCards();
+
+        foreach (PlayerEntity player in listOfPlayers)
+            player.currentTile.moveable = true;
     }
 
     public IEnumerator ChooseMovePlayer(TileData currentTile)
@@ -464,6 +420,8 @@ public class NewManager : MonoBehaviour
         PlayerEntity currentPlayer = currentTile.myEntity.GetComponent<PlayerEntity>();
         List<TileData> possibleTiles = CalculateReachableGrids(currentTile, currentPlayer.movementLeft, true);
         ChoiceManager.instance.ChooseTile(possibleTiles);
+        UpdateStats(currentPlayer);
+        StartCoroutine(ChooseCardPlay(currentPlayer));
 
         while (ChoiceManager.instance.chosenTile == null)
         {
@@ -485,32 +443,22 @@ public class NewManager : MonoBehaviour
     { 
         currentTurn = TurnSystem.Resolving;
         int distanceTraveled = GetDistance(currentPlayer.currentTile, ChoiceManager.instance.chosenTile);
-        currentPlayer.movementLeft -= distanceTraveled;
-        SetMovement(currentPlayer.movementLeft);
+        ChangeMovement(currentPlayer, -distanceTraveled);
         SoundManager.instance.PlaySound(footsteps);
-
         currentPlayer.MoveTile(ChoiceManager.instance.chosenTile);
-        StopCoroutine(CanPlayCard());
-        StartCoroutine(CanPlayCard());
+        BackToStart();
     }
 
-    IEnumerator CanPlayCard() //choose a card to play
+    IEnumerator ChooseCardPlay(PlayerEntity player) //choose a card to play
     {
-        currentTurn = TurnSystem.You;
-        ChoiceManager.instance.DisableAllTiles();
-        ChoiceManager.instance.DisableAllCards();
-        for (int i = 0; i < listOfPlayers.Count; i++)
-            listOfPlayers[i].currentTile.moveable = true;
-
         List<Card> canBePlayed = new List<Card>();
-        foreach (Card card in listOfHand)
+        foreach (Card card in player.myHand)
         {
-            if (card.CanPlay(listOfPlayers[0]))
+            if (card.CanPlay(player))
                 canBePlayed.Add(card);
         }
         ChoiceManager.instance.ChooseCard(canBePlayed);
 
-        UpdateInstructions("Either spend energy to play a card, or click to move around.");
         while (ChoiceManager.instance.chosenCard == null)
         {
             if (currentTurn != TurnSystem.You)
@@ -518,34 +466,36 @@ public class NewManager : MonoBehaviour
                 yield break;
             }
             else
+            {
                 yield return null;
+            }
         }
-        yield return PlayCard(ChoiceManager.instance.chosenCard);
+        yield return PlayCard(player, ChoiceManager.instance.chosenCard);
     }
 
-    IEnumerator PlayCard(Card playMe) //resolve that card
+    IEnumerator PlayCard(PlayerEntity player, Card playMe) //resolve that card
     {
         currentTurn = TurnSystem.Resolving;
-        ChoiceManager.instance.DisableAllCards();
-        ChoiceManager.instance.DisableAllTiles();
-
         SoundManager.instance.PlaySound(playMe.cardPlay);
-        DiscardCard(playMe);
-        ChangeEnergy(-playMe.energyCost);
+
+        player.DiscardFromHand(playMe);
+        ChangeEnergy(player, -playMe.energyCost);
         yield return playMe.OnPlayEffect();
 
         futureEffects.Add(playMe);
-        StartCoroutine(CanPlayCard());
+        player.cardsPlayed.Add(playMe);
+        BackToStart();
     }
 
     public void Regain()
     {
-        SetEnergy(3);
-        DrawCards(5 - listOfHand.Count);
-        for (int i = 0; i < listOfPlayers.Count; i++)
+        StopAllCoroutines();
+        foreach (PlayerEntity player in listOfPlayers)
         {
-            listOfPlayers[i].movementLeft = listOfPlayers[i].movesPerTurn;
-            SetMovement(3);
+            SetEnergy(player, 3);
+            player.movementLeft = player.movesPerTurn;
+            player.DrawCards(5 - player.myHand.Count);
+            player.cardsPlayed.Clear();
         }
         StartCoroutine(EnvironmentalPhase());
     }
@@ -554,17 +504,13 @@ public class NewManager : MonoBehaviour
     {
         selectedTile = null;
         currentTurn = TurnSystem.Environmentals;
-        StopCoroutine(CanPlayCard());
         ChoiceManager.instance.DisableAllTiles();
         ChoiceManager.instance.DisableAllCards();
 
-        for (int i = 0; i < listOfPlayers.Count; i++)
-            yield return listOfPlayers[i].EndOfTurn();
-
         currentTurn = TurnSystem.Environmentals;
-        for (int i = 0; i < listOfEnvironmentals.Count; i++)
+        foreach (EnvironmentalEntity environment in  listOfEnvironmentals)
         {
-            yield return listOfEnvironmentals[i].EndOfTurn();
+            yield return environment.EndOfTurn();
         }
         StartCoroutine(EndTurn());
         yield return null;
@@ -573,8 +519,8 @@ public class NewManager : MonoBehaviour
     IEnumerator EndTurn() //Starts Guard Phase
     {
         SoundManager.instance.PlaySound(endTurnSound);
-        for (int i = 0; i < listOfPlayers.Count; i++)
-            yield return listOfPlayers[i].EndOfTurn();
+        foreach (PlayerEntity player in listOfPlayers)
+            yield return player.EndOfTurn();
 
         //sets turn to the enemies, and counts through the grid activating all enemies simultaniously
         currentTurn = TurnSystem.Enemy;

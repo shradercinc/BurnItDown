@@ -65,8 +65,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public AudioClip cardMove;
     public AudioClip cardPlay;
-
-    int debugger = 0;
     
 #endregion
 
@@ -93,7 +91,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void CardSetup(CardData data)
     {
-        name = data.name;
         TextName.text = data.name;
         TextDescr.text = data.desc;
 
@@ -148,7 +145,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         };
     }
 
-#endregion
+    #endregion
 
 #region Play Condition
 
@@ -170,7 +167,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     bool Check(PlayerEntity player)
     {
-        if (NewManager.instance.EnoughEnergy(energyCost))
+        if (player.myEnergy >= energyCost)
         {
             return selectCondition switch
             {
@@ -242,7 +239,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
         foreach(string nextMethod in methodsInStrings)
         {
-            debugger = 0;
             if (nextMethod == "" || nextMethod == "NONE")
             {
                 continue;
@@ -250,8 +246,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
             else if (dic.dictionary.TryGetValue(nextMethod, out IEnumerator method))
             {
                 yield return method;
-                if (debugger == 0)
-                    Debug.Log($"{this.name} failed to run");
             }
             else
             {
@@ -262,28 +256,40 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator OnPlayEffect()
     {
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
         yield return ResolveList(effectsInOrder);
     }
 
     public IEnumerator NextRoundEffect()
     {
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
         yield return ResolveList(nextRoundEffectsInOrder);
     }
 
-    public IEnumerator DrawCards()
+    internal IEnumerator DrawCards()
     {
-        NewManager.instance.DrawCards(changeInDraw);
-        debugger++;
+        currentPlayer.DrawCards(changeInDraw);
         yield return null;
     }
 
-    public Card FindCardType(CardType type)
+    internal IEnumerator AllDrawCards()
+    {
+        foreach(PlayerEntity player in NewManager.instance.listOfPlayers)
+        {
+            currentPlayer = player;
+            yield return DrawCards();
+        }
+    }
+
+    internal Card FindCardType(CardType type)
     {
         List<Card> invalidCards = new List<Card>();
         Card foundCard = null;
         while (foundCard == null)
         {
-            Card nextCard = NewManager.instance.GetTopCard();
+            Card nextCard = currentPlayer.GetTopCard();
             if (nextCard == null)
             {
                 break;
@@ -298,18 +304,19 @@ public class Card : MonoBehaviour, IPointerClickHandler
                 nextCard.transform.SetParent(null);
             }
         }
-        for (int i = 0; i < invalidCards.Count; i++)
-            NewManager.instance.DiscardCard(invalidCards[i]);
+
+        foreach (Card card in invalidCards)
+            currentPlayer.PutIntoDiscard(card);
         return foundCard;
     }
 
-    public Card FindCardCost(int cost)
+    internal Card FindCardCost(int cost)
     {
         List<Card> invalidCards = new List<Card>();
         Card foundCard = null;
         while (foundCard == null)
         {
-            Card nextCard = NewManager.instance.GetTopCard();
+            Card nextCard = currentPlayer.GetTopCard();
             if (nextCard == null)
             {
                 break;
@@ -324,54 +331,61 @@ public class Card : MonoBehaviour, IPointerClickHandler
                 nextCard.transform.SetParent(null);
             }
         }
-        for (int i = 0; i < invalidCards.Count; i++)
-            NewManager.instance.DiscardCard(invalidCards[i]);
+        foreach (Card card in invalidCards)
+            currentPlayer.PutIntoDiscard(card);
 
         return foundCard;
     }
 
-    public IEnumerator DiscardHand()
+    internal IEnumerator DiscardHand()
     {
-        debugger++;
-        while (NewManager.instance.listOfHand.Count>0)
+        while (currentPlayer.myHand.Count>0)
         {
-            yield return NewManager.Wait(0.1f);
-            NewManager.instance.DiscardCard(NewManager.instance.listOfHand[0]);
+            yield return NewManager.Wait(0.05f);
+            currentPlayer.DiscardFromHand(currentPlayer.myHand[0]);
         }
     }
 
-    public IEnumerator FindOne()
+    internal IEnumerator FindOne()
     {
-        debugger++;
         for (int i = 0; i < 2; i++)
         {
-            yield return NewManager.Wait(0.1f);
-            NewManager.instance.AddCardToHand(FindCardCost(1));
+            yield return NewManager.Wait(0.05f);
+            currentPlayer.PutIntoHand(FindCardCost(1));
         }
     }
 
-    public IEnumerator ChangeHealth()
+    internal IEnumerator ChangeHealth()
     {
-        debugger++;
-        NewManager.instance.ChangeHealth(changeInHP);
+        NewManager.instance.ChangeHealth(currentPlayer, changeInHP);
         yield return null;
     }
 
-    public IEnumerator ChangeEnergy()
+    internal IEnumerator ChangeEnergy()
     {
-        debugger++;
-        NewManager.instance.ChangeEnergy(changeInEP);
+        NewManager.instance.ChangeEnergy(currentPlayer, changeInEP);
         yield return null;
     }
 
-    public IEnumerator ChangeMovement()
+    internal IEnumerator ZeroEnergy()
     {
-        debugger++;
-        NewManager.instance.ChangeMovement(changeInMP);
+        NewManager.instance.SetEnergy(currentPlayer, 0);
         yield return null;
     }
 
-    public IEnumerator AffectAdjacentWall()
+    internal IEnumerator ChangeMovement()
+    {
+        NewManager.instance.ChangeMovement(currentPlayer, changeInMP);
+        yield return null;
+    }
+
+    internal IEnumerator ZeroMovement()
+    {
+        NewManager.instance.SetMovement(currentPlayer, 0);
+        yield return null;
+    }
+
+    internal IEnumerator AffectAdjacentWall()
     {
         WallEntity targetWall = null;
 
@@ -387,12 +401,10 @@ public class Card : MonoBehaviour, IPointerClickHandler
                 yield return null;
             targetWall = ChoiceManager.instance.chosenTile.myEntity.GetComponent<WallEntity>();
         }
-
         targetWall.AffectWall(changeInWall);
-        debugger++;
     }
 
-    public IEnumerator StunAdjacentGuard()
+    internal IEnumerator StunAdjacentGuard()
     {
         GuardEntity targetGuard = null;
 
@@ -411,7 +423,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
         SoundManager.instance.PlaySound(targetGuard.stunSound);
         targetGuard.stunned += stunDuration;
-        debugger++;
     }
 
 #endregion

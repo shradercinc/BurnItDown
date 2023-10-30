@@ -57,7 +57,7 @@ public class ChoiceManager : MonoBehaviour
     {
         chosenCard = null;
         chosenTile = null;
-        //turn on all tiles that can be pressed
+
         for (int i = 0; i < choices.Count; i++)
         {
             choices[i].moveable = true;
@@ -86,7 +86,7 @@ public class ChoiceManager : MonoBehaviour
     {
         chosenCard = null;
         chosenTile = null;
-        //turn on all cards that can be pressed
+
         for (int i = 0; i < choices.Count; i++)
             choices[i].choiceScript.EnableButton(true);
     }
@@ -96,7 +96,10 @@ public class ChoiceManager : MonoBehaviour
         chosenCard = null;
         chosenTile = null;
 
-        foreach(Card card in SaveManager.instance.allCards)
-            card.choiceScript.DisableButton();
+        foreach (List<Card> cardList in SaveManager.instance.characterCards)
+        {
+            foreach (Card card in cardList)
+                card.choiceScript.DisableButton();
+        }
     }
 }
