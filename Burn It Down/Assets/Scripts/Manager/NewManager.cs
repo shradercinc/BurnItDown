@@ -476,11 +476,9 @@ public class NewManager : MonoBehaviour
     IEnumerator PlayCard(PlayerEntity player, Card playMe) //resolve that card
     {
         currentTurn = TurnSystem.Resolving;
-        ChoiceManager.instance.DisableAllCards();
-        ChoiceManager.instance.DisableAllTiles();
-
         SoundManager.instance.PlaySound(playMe.cardPlay);
-        player.DiscardCard(playMe);
+
+        player.DiscardFromHand(playMe);
         ChangeEnergy(player, -playMe.energyCost);
         yield return playMe.OnPlayEffect();
 

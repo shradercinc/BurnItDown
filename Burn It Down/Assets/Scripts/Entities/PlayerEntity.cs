@@ -72,7 +72,7 @@ public class PlayerEntity : MovingEntity
         {
             try
             {
-                AddCardToHand(GetTopCard());
+                PutIntoHand(GetTopCard());
             }
             catch (NullReferenceException)
             {
@@ -103,7 +103,7 @@ public class PlayerEntity : MovingEntity
             return null;
     }
 
-    public void AddCardToHand(Card drawMe)
+    public void PutIntoHand(Card drawMe)
     {
         if (drawMe != null)
         {
@@ -114,7 +114,13 @@ public class PlayerEntity : MovingEntity
         }
     }
 
-    public void DiscardCard(Card discardMe)
+    public void DiscardFromHand(Card discardMe)
+    {
+        myHand.Remove(discardMe);
+        PutIntoDiscard(discardMe);
+    }
+
+    public void PutIntoDiscard(Card discardMe)
     {
         if (discardMe != null)
         {

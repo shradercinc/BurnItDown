@@ -256,11 +256,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public IEnumerator OnPlayEffect()
     {
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
         yield return ResolveList(effectsInOrder);
     }
 
     public IEnumerator NextRoundEffect()
     {
+        ChoiceManager.instance.DisableAllCards();
+        ChoiceManager.instance.DisableAllTiles();
         yield return ResolveList(nextRoundEffectsInOrder);
     }
 
@@ -302,7 +306,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
 
         foreach (Card card in invalidCards)
-            currentPlayer.DiscardCard(card);
+            currentPlayer.PutIntoDiscard(card);
         return foundCard;
     }
 
@@ -328,7 +332,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
             }
         }
         foreach (Card card in invalidCards)
-            currentPlayer.DiscardCard(card);
+            currentPlayer.PutIntoDiscard(card);
 
         return foundCard;
     }
@@ -338,7 +342,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         while (currentPlayer.myHand.Count>0)
         {
             yield return NewManager.Wait(0.05f);
-            currentPlayer.DiscardCard(currentPlayer.myHand[0]);
+            currentPlayer.DiscardFromHand(currentPlayer.myHand[0]);
         }
     }
 
@@ -347,7 +351,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         for (int i = 0; i < 2; i++)
         {
             yield return NewManager.Wait(0.05f);
-            currentPlayer.AddCardToHand(FindCardCost(1));
+            currentPlayer.PutIntoHand(FindCardCost(1));
         }
     }
 
