@@ -15,19 +15,21 @@ public class WallEntity : Entity
         return "Current Health: " + health;
     }
 
-    public void WallDirection(string data)
+    public void WallSprite(string data)
     {
-        switch (data)
-        {
-            case "l":
-                direction = new Vector2Int(-1, 0);
-                spriteRenderer.sprite = leftWall;
-                break;
-            case "r":
-                direction = new Vector2Int(1, 0);
-                spriteRenderer.sprite = rightWall;
-                break;
-        }
+        //switch (data)
+        //{
+        //    case "l":
+        //        direction = new Vector2Int(-1, 0);
+        //        spriteRenderer.sprite = leftWall;
+        //        break;
+        //    case "r":
+        //        direction = new Vector2Int(1, 0);
+        //        spriteRenderer.sprite = rightWall;
+        //        break;
+        //}
+
+        spriteRenderer.sprite = Resources.Load(data) as Sprite;
     }
 
     public void AffectWall(int effect)

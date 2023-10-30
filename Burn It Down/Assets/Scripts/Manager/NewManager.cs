@@ -185,7 +185,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
-                            weakWall.WallDirection(numberPlusAddition[1]);
+                            weakWall.WallSprite(numberPlusAddition[1]);
                             listOfWalls.Add(weakWall);
                             weakWall.health = 2;
                             break;
@@ -193,7 +193,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
-                            medWall.WallDirection(numberPlusAddition[1]);
+                            medWall.WallSprite(numberPlusAddition[1]);
                             listOfWalls.Add(medWall);
                             medWall.health = 4;
                             break;
@@ -201,7 +201,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
-                            strongWall.WallDirection(numberPlusAddition[1]);
+                            strongWall.WallSprite(numberPlusAddition[1]);
                             listOfWalls.Add(strongWall);
                             strongWall.health = 6;
                             break;
@@ -212,6 +212,12 @@ public class NewManager : MonoBehaviour
                             theGuard.movementLeft = theGuard.movesPerTurn;
                             theGuard.direction = StringToDirection(numberPlusAddition[1]);
                             listOfGuards.Add(theGuard);
+                            break;
+                        default:
+                            if (numberPlusAddition.Length > 1)
+                            {
+                                GameObject tileAsset = Instantiate(Resources.Load(numberPlusAddition[1]) as GameObject, nextTile.transform);
+                            }
                             break;
                     }
                     try

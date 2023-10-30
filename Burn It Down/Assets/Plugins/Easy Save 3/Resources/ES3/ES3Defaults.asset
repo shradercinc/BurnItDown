@@ -30,19 +30,13 @@ MonoBehaviour:
     referenceMode: 2
     serializationDepthLimit: 64
     assemblyNames:
-    - Ak.Wwise.Api.WAAPI
-    - AK.Wwise.Unity.API
-    - AK.Wwise.Unity.API.WwiseTypes
-    - AK.Wwise.Unity.MonoBehaviour
-    - AK.Wwise.Unity.Timeline
-    - Assembly-CSharp
     - Assembly-CSharp-firstpass
-    - MyBox
+    - Assembly-CSharp
     showAdvancedSettings: 0
   addMgrToSceneAutomatically: 0
   autoUpdateReferences: 1
   addAllPrefabsToManager: 1
   collectDependenciesDepth: 4
   logDebugInfo: 0
-  logWarnings: 0
+  logWarnings: 1
   logErrors: 1
