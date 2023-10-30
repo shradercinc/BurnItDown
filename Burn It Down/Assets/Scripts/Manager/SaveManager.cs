@@ -28,6 +28,7 @@ public class SaveManager : MonoBehaviour
     public static SaveManager instance;
     Transform canvas;
     [ReadOnly] public SaveData currentSaveData;
+    [ReadOnly] public string saveFileName;
     [Tooltip("Card prefab")][SerializeField] Card cardPrefab;
 
     [Tooltip("Put names of the TSVs in here")] public List<string> playerDecks;
@@ -50,6 +51,7 @@ public class SaveManager : MonoBehaviour
     {
         string path = $"{Application.persistentDataPath}/{fileName}.es3";
         currentSaveData = ES3.Load<SaveData>("saveData", path);
+        saveFileName = fileName;
         Debug.Log($"file loaded: {fileName}.es3");
     }
 
@@ -57,10 +59,11 @@ public class SaveManager : MonoBehaviour
     {
         currentSaveData = new SaveData();
         ES3.Save("saveData", currentSaveData, $"{Application.persistentDataPath}/{fileName}.es3");
+        saveFileName = fileName;
         Debug.Log($"file loaded: {fileName}.es3");
     }
 
-    public void SaveHand(List<List<Card>> deckToSave)
+    public void SaveHand(List<List<Card>> deckToSave, string fileName)
     {
         List<List<string>> newCards = new List<List<string>>();
         for (int i = 0; i<deckToSave.Count; i++)
@@ -71,7 +74,8 @@ public class SaveManager : MonoBehaviour
         }
 
         currentSaveData.savedDecks = newCards;
-        ES3.Save("saveData", currentSaveData);
+        ES3.Save("saveData", currentSaveData, $"{Application.persistentDataPath}/{fileName}.es3");
+        saveFileName = fileName;
     }
 
     public void DeleteData(string fileName)
@@ -109,6 +113,7 @@ public class SaveManager : MonoBehaviour
                 for (int j = 0; j < data[i].maxInv; j++)
                 {
                     Card nextCopy = Instantiate(cardPrefab, canvas);
+                    nextCopy.name = $"{data[i].name} (P{k})";
                     nextCopy.transform.localPosition = new Vector3(10000, 10000);
                     nextCopy.CardSetup(data[i]);
                     characterCards[k].Add(nextCopy);

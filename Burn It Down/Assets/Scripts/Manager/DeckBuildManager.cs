@@ -144,7 +144,7 @@ public class DeckBuildManager : MonoBehaviour
             SoundManager.instance.PlaySound(cardMove);
 
             if (save)
-                SaveManager.instance.SaveHand(cardsInDeck);
+                SaveManager.instance.SaveHand(cardsInDeck, SaveManager.instance.saveFileName);
         }
     }
 
@@ -157,7 +157,7 @@ public class DeckBuildManager : MonoBehaviour
 
         SoundManager.instance.PlaySound(cardMove);
         if (save)
-            SaveManager.instance.SaveHand(cardsInDeck);
+            SaveManager.instance.SaveHand(cardsInDeck, SaveManager.instance.saveFileName);
     }
 
     bool CheckDecks()

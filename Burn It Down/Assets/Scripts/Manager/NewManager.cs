@@ -100,6 +100,7 @@ public class NewManager : MonoBehaviour
     void GetCards()
     {
         Transform emptyObject = new GameObject("Card Container").transform;
+        handContainer.transform.localPosition = new Vector3(10000, 10000, 0);
         foreach (List<Card> cardList in SaveManager.instance.characterCards)
         {
             foreach(Card card in cardList)
@@ -109,12 +110,13 @@ public class NewManager : MonoBehaviour
         for (int i = 0; i < listOfPlayers.Count; i++)
         {
             PlayerEntity player = listOfPlayers[i];
-            player.handTransform = handContainer.GetChild(player.myPosition);
+            player.handTransform = handContainer.GetChild(player.myPosition).GetChild(0);
             SetEnergy(player, 3);
 
             foreach (string cardName in SaveManager.instance.currentSaveData.savedDecks[i])
             {
                 Card nextCard = emptyObject.transform.Find(cardName).GetComponent<Card>();
+                nextCard.transform.SetParent(player.transform);
                 player.myDrawPile.Add(nextCard);
                 nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
                 nextCard.choiceScript.DisableButton();
@@ -150,12 +152,11 @@ public class NewManager : MonoBehaviour
                     {
                         case "1": //create player
                             thisTileEntity = Instantiate(playerPrefab, nextTile.transform);
-                            thisTileEntity.name = "Player";
                             PlayerEntity player = thisTileEntity.GetComponent<PlayerEntity>();
                             player.movementLeft = player.movesPerTurn;
                             player.myPosition = listOfPlayers.Count;
-                            player.handTransform = handContainer.GetChild(player.myPosition);
                             listOfPlayers.Add(player);
+                            thisTileEntity.name = $"Player {listOfPlayers.Count}";
                             FocusOnPlayer();
                             break;
                         case "2": //create exit
@@ -174,7 +175,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity weakWall = thisTileEntity.GetComponent<WallEntity>();
-                            weakWall.WallDirection(numberPlusAddition[1]);
+                            //weakWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(weakWall);
                             weakWall.health = 2;
                             break;
@@ -182,7 +183,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity medWall = thisTileEntity.GetComponent<WallEntity>();
-                            medWall.WallDirection(numberPlusAddition[1]);
+                            //medWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(medWall);
                             medWall.health = 4;
                             break;
@@ -190,7 +191,7 @@ public class NewManager : MonoBehaviour
                             thisTileEntity = Instantiate(wallPrefab, nextTile.transform);
                             thisTileEntity.name = "Wall";
                             WallEntity strongWall = thisTileEntity.GetComponent<WallEntity>();
-                            strongWall.WallDirection(numberPlusAddition[1]);
+                            //strongWall.WallDirection(numberPlusAddition[1]);
                             listOfWalls.Add(strongWall);
                             strongWall.health = 6;
                             break;
@@ -359,21 +360,21 @@ public class NewManager : MonoBehaviour
     {
         try
         {
-            stats.text = $"<color=#ffc73b>{player.health} Health <color=#ffffff>" +
+            stats.text = $"{player.name} | <color=#ffc73b>{player.health} Health <color=#ffffff>" +
                 $"| <color=#ecff59>{player.movementLeft} Movement <color=#ffffff>" +
                 $"| <color=#59fff4>{player.myEnergy} Energy <color=#ffffff>";
             deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile " +
                 $"\n\n<color=#70f5ff>{player.myDrawPile.Count} <color=#ffffff>/ <color=#ff9670>{player.myDiscardPile.Count}";
-            handContainer.transform.localPosition = new Vector3(player.myPosition * -2000, -110, 0);
+            handContainer.transform.localPosition = new Vector3(player.myPosition * -2000, -75, 0);
         }
         catch
         {
             stats.text = "";
             deckTracker.text = "";
-            handContainer.transform.localPosition = new Vector3(0, -500, 0);
+            handContainer.transform.localPosition = new Vector3(10000, 10000, 0);
         }
 
-        stats.text += $"| <color=#75ff59>{listOfObjectives.Count} Objectives Left" +
+        stats.text += $"\n<color=#75ff59>{listOfObjectives.Count} Objectives Left" +
             $"| {turnCount} Turns Left";
     }
 
@@ -397,6 +398,7 @@ public class NewManager : MonoBehaviour
         foreach(Card card in futureEffects)
             yield return card.NextRoundEffect();
         futureEffects.Clear();
+        UpdateStats(null);
         BackToStart();
     }
 

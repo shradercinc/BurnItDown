@@ -94,7 +94,11 @@ public class PlayerEntity : MovingEntity
         }
 
         if (myDrawPile.Count > 0) //get the top card of the deck if there is one
-            return myDrawPile[0];
+        {
+            Card card = myDrawPile[0];
+            myDrawPile.RemoveAt(0);
+            return card;
+        }
         else
             return null;
     }
@@ -104,9 +108,6 @@ public class PlayerEntity : MovingEntity
         if (drawMe != null)
         {
             myHand.Add(drawMe);
-            myDrawPile.Remove(drawMe);
-            myDiscardPile.Remove(drawMe);
-
             drawMe.transform.SetParent(handTransform);
             drawMe.transform.localScale = new Vector3(1, 1, 1);
             SoundManager.instance.PlaySound(drawMe.cardMove);
@@ -117,12 +118,9 @@ public class PlayerEntity : MovingEntity
     {
         if (discardMe != null)
         {
-            myHand.Remove(discardMe);
-            myDrawPile.Remove(discardMe);
             myDiscardPile.Add(discardMe);
-
             discardMe.transform.SetParent(null);
-            discardMe.transform.localPosition = new Vector3(1000, 1000, 0); //send the card far away where you can't see it anymore
+            discardMe.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
             SoundManager.instance.PlaySound(discardMe.cardMove);
         }
     }

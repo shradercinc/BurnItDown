@@ -110,6 +110,7 @@ public class TitleScreen : MonoBehaviour
         if (fileChoose.options.Count > 0)
         {
             SaveManager.instance.DeleteData(fileChoose.options[fileChoose.value].text);
+            fileChoose.options.RemoveAt(fileChoose.value);
             fileChoose.RefreshShownValue();
         }
     }

@@ -91,7 +91,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void CardSetup(CardData data)
     {
-        name = data.name;
         TextName.text = data.name;
         TextDescr.text = data.desc;
 
