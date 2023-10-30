@@ -115,12 +115,12 @@ public class NewManager : MonoBehaviour
             foreach (string cardName in SaveManager.instance.currentSaveData.savedDecks[i])
             {
                 Card nextCard = emptyObject.transform.Find(cardName).GetComponent<Card>();
-                player.myDeck.Add(nextCard);
+                player.myDrawPile.Add(nextCard);
                 nextCard.transform.localPosition = new Vector3(10000, 10000, 0); //send the card far away where you can't see it anymore
                 nextCard.choiceScript.DisableButton();
             }
 
-            player.myDeck.Shuffle(); //shuffle your deck
+            player.myDrawPile.Shuffle(); //shuffle your deck
             player.DrawCards(5);
         }
     }
@@ -354,6 +354,7 @@ public class NewManager : MonoBehaviour
             }
         }
     }
+
     void UpdateStats(PlayerEntity player)
     {
         try
@@ -362,7 +363,7 @@ public class NewManager : MonoBehaviour
                 $"| <color=#ecff59>{player.movementLeft} Movement <color=#ffffff>" +
                 $"| <color=#59fff4>{player.myEnergy} Energy <color=#ffffff>";
             deckTracker.text = $"<color=#70f5ff>Draw Pile <color=#ffffff>/ <color=#ff9670>Discard Pile " +
-                $"\n\n<color=#70f5ff>{player.myDeck.Count} <color=#ffffff>/ <color=#ff9670>{player.myDiscardPile.Count}";
+                $"\n\n<color=#70f5ff>{player.myDrawPile.Count} <color=#ffffff>/ <color=#ff9670>{player.myDiscardPile.Count}";
             handContainer.transform.localPosition = new Vector3(player.myPosition * -2000, -110, 0);
         }
         catch
@@ -393,8 +394,8 @@ public class NewManager : MonoBehaviour
 
     IEnumerator StartPlayerTurn()
     {
-        for (int i = 0; i < futureEffects.Count; i++)
-            yield return futureEffects[i].NextRoundEffect();
+        foreach(Card card in futureEffects)
+            yield return card.NextRoundEffect();
         futureEffects.Clear();
         BackToStart();
     }
@@ -482,16 +483,19 @@ public class NewManager : MonoBehaviour
         yield return playMe.OnPlayEffect();
 
         futureEffects.Add(playMe);
+        player.cardsPlayed.Add(playMe);
         BackToStart();
     }
 
     public void Regain()
     {
+        StopAllCoroutines();
         foreach (PlayerEntity player in listOfPlayers)
         {
             SetEnergy(player, 3);
             player.movementLeft = player.movesPerTurn;
             player.DrawCards(5 - player.myHand.Count);
+            player.cardsPlayed.Clear();
         }
         StartCoroutine(EnvironmentalPhase());
     }

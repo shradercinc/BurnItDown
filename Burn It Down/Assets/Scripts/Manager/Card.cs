@@ -265,13 +265,22 @@ public class Card : MonoBehaviour, IPointerClickHandler
         yield return ResolveList(nextRoundEffectsInOrder);
     }
 
-    public IEnumerator DrawCards()
+    internal IEnumerator DrawCards()
     {
         currentPlayer.DrawCards(changeInDraw);
         yield return null;
     }
 
-    public Card FindCardType(CardType type)
+    internal IEnumerator AllDrawCards()
+    {
+        foreach(PlayerEntity player in NewManager.instance.listOfPlayers)
+        {
+            currentPlayer = player;
+            yield return DrawCards();
+        }
+    }
+
+    internal Card FindCardType(CardType type)
     {
         List<Card> invalidCards = new List<Card>();
         Card foundCard = null;
@@ -298,7 +307,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         return foundCard;
     }
 
-    public Card FindCardCost(int cost)
+    internal Card FindCardCost(int cost)
     {
         List<Card> invalidCards = new List<Card>();
         Card foundCard = null;
@@ -325,7 +334,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         return foundCard;
     }
 
-    public IEnumerator DiscardHand()
+    internal IEnumerator DiscardHand()
     {
         while (currentPlayer.myHand.Count>0)
         {
@@ -334,7 +343,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public IEnumerator FindOne()
+    internal IEnumerator FindOne()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -343,25 +352,37 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public IEnumerator ChangeHealth()
+    internal IEnumerator ChangeHealth()
     {
         NewManager.instance.ChangeHealth(currentPlayer, changeInHP);
         yield return null;
     }
 
-    public IEnumerator ChangeEnergy()
+    internal IEnumerator ChangeEnergy()
     {
         NewManager.instance.ChangeEnergy(currentPlayer, changeInEP);
         yield return null;
     }
 
-    public IEnumerator ChangeMovement()
+    internal IEnumerator ZeroEnergy()
+    {
+        NewManager.instance.SetEnergy(currentPlayer, 0);
+        yield return null;
+    }
+
+    internal IEnumerator ChangeMovement()
     {
         NewManager.instance.ChangeMovement(currentPlayer, changeInMP);
         yield return null;
     }
 
-    public IEnumerator AffectAdjacentWall()
+    internal IEnumerator ZeroMovement()
+    {
+        NewManager.instance.SetMovement(currentPlayer, 0);
+        yield return null;
+    }
+
+    internal IEnumerator AffectAdjacentWall()
     {
         WallEntity targetWall = null;
 
@@ -380,7 +401,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         targetWall.AffectWall(changeInWall);
     }
 
-    public IEnumerator StunAdjacentGuard()
+    internal IEnumerator StunAdjacentGuard()
     {
         GuardEntity targetGuard = null;
 

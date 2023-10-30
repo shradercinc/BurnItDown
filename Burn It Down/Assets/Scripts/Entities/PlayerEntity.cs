@@ -15,13 +15,14 @@ public class PlayerEntity : MovingEntity
         [Tooltip("adjacent objective")][ReadOnly] public ObjectiveEntity adjacentObjective;
 
     [Foldout("Player's Cards", true)]
-        [Tooltip("adjacent objective")][ReadOnly] public int myEnergy;
-        [Tooltip("adjacent objective")][ReadOnly] public Transform handTransform;
-        [Tooltip("adjacent objective")][ReadOnly] public List<Card> myHand;
-        [Tooltip("adjacent objective")][ReadOnly] public List<Card> myDeck;
-        [Tooltip("adjacent objective")][ReadOnly] public List<Card> myDiscardPile;
+        [Tooltip("energy count")][ReadOnly] public int myEnergy;
+        [Tooltip("keep cards in hand here")][ReadOnly] public Transform handTransform;
+        [Tooltip("list of cards in hand")][ReadOnly] public List<Card> myHand;
+        [Tooltip("list of cards in draw pile")][ReadOnly] public List<Card> myDrawPile;
+        [Tooltip("list of cards in discard pile")][ReadOnly] public List<Card> myDiscardPile;
+        [Tooltip("list of cards played this turn")][ReadOnly] public List<Card> cardsPlayed;
 
-#region Entity stuff
+    #region Entity stuff
 
     public override string HoverBoxText()
     {
@@ -82,18 +83,18 @@ public class PlayerEntity : MovingEntity
 
     public Card GetTopCard()
     {
-        if (myDeck.Count == 0)
+        if (myDrawPile.Count == 0)
         {
             myDiscardPile.Shuffle();
             while (myDiscardPile.Count > 0)
             {
-                myDeck.Add(myDiscardPile[0]);
+                myDrawPile.Add(myDiscardPile[0]);
                 myDiscardPile.RemoveAt(0);
             }
         }
 
-        if (myDeck.Count > 0) //get the top card of the deck if there is one
-            return myDeck[0];
+        if (myDrawPile.Count > 0) //get the top card of the deck if there is one
+            return myDrawPile[0];
         else
             return null;
     }
@@ -103,7 +104,7 @@ public class PlayerEntity : MovingEntity
         if (drawMe != null)
         {
             myHand.Add(drawMe);
-            myDeck.Remove(drawMe);
+            myDrawPile.Remove(drawMe);
             myDiscardPile.Remove(drawMe);
 
             drawMe.transform.SetParent(handTransform);
@@ -117,7 +118,7 @@ public class PlayerEntity : MovingEntity
         if (discardMe != null)
         {
             myHand.Remove(discardMe);
-            myDeck.Remove(discardMe);
+            myDrawPile.Remove(discardMe);
             myDiscardPile.Add(discardMe);
 
             discardMe.transform.SetParent(null);

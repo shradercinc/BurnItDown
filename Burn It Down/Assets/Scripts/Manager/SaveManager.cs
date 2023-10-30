@@ -14,10 +14,12 @@ using MyBox;
 [Serializable]
 public class SaveData
 {
-    public List<List<string>> savedDecks;
+    public List<List<string>> savedDecks = new List<List<string>>();
 
     public SaveData()
     {
+        for (int i = 0; i < 3; i++)
+            savedDecks.Add(new List<string>());
     }
 }
 
@@ -29,7 +31,7 @@ public class SaveManager : MonoBehaviour
     [Tooltip("Card prefab")][SerializeField] Card cardPrefab;
 
     [Tooltip("Put names of the TSVs in here")] public List<string> playerDecks;
-    public List<List<Card>> characterCards = new List<List<Card>>();
+    public List<List<Card>> characterCards;
 
     private void Awake()
     {
@@ -44,52 +46,37 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    public void LoadFile(string fileName)
     {
-        string path = $"{Application.persistentDataPath}/SaveFile.es3";
-
-        bool creationCheck = true;
-        foreach (string fileName in playerDecks)
-        {
-            if (ES3.FileExists(path) && TitleScreen.instance.PassCheck(fileName, path))
-                creationCheck = true;
-            else
-            {
-                creationCheck = false;
-                break;
-            }
-        }
-
-        if (creationCheck)
-            currentSaveData = ES3.Load<SaveData>("saveData", path);
-        else
-            NewFile();
+        string path = $"{Application.persistentDataPath}/{fileName}.es3";
+        currentSaveData = ES3.Load<SaveData>("saveData", path);
+        Debug.Log($"file loaded: {fileName}.es3");
     }
 
-    void NewFile()
+    public void NewFile(string fileName)
     {
         currentSaveData = new SaveData();
-        DeleteData();
+        ES3.Save("saveData", currentSaveData, $"{Application.persistentDataPath}/{fileName}.es3");
+        Debug.Log($"file loaded: {fileName}.es3");
     }
 
     public void SaveHand(List<List<Card>> deckToSave)
     {
-        //save the new cards for your deck
         List<List<string>> newCards = new List<List<string>>();
         for (int i = 0; i<deckToSave.Count; i++)
         {
+            newCards.Add(new List<string>());
             foreach (Card card in deckToSave[i])
                 newCards[i].Add(card.name);
         }
 
         currentSaveData.savedDecks = newCards;
-        ES3.Save("saveData", currentSaveData, $"{Application.persistentDataPath}/SaveFile.es3");
+        ES3.Save("saveData", currentSaveData);
     }
 
-    public void DeleteData()
+    public void DeleteData(string fileName)
     {
-        ES3.DeleteFile($"{Application.persistentDataPath}/SaveFile.es3");
-        currentSaveData = new SaveData();
+        ES3.DeleteFile($"{Application.persistentDataPath}/{fileName}.es3");
     }
 
     private void OnEnable()
@@ -104,7 +91,6 @@ public class SaveManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        //bring back all other objects
         canvas = GameObject.Find("Canvas").transform;
         RightClick.instance.transform.SetParent(canvas);
         RightClick.instance.transform.localPosition = new Vector3(0, 0);
@@ -112,9 +98,12 @@ public class SaveManager : MonoBehaviour
         FPS.instance.transform.SetParent(canvas);
         FPS.instance.transform.localPosition = new Vector3(-850, -500);
 
+        characterCards = new List<List<Card>>();
         for (int k = 0; k<playerDecks.Count; k++)
         {
             List<CardData> data = CardDataLoader.ReadCardData(playerDecks[k]);
+            characterCards.Add(new List<Card>());
+
             for (int i = 0; i < data.Count; i++)
             {
                 for (int j = 0; j < data[i].maxInv; j++)

@@ -5,62 +5,77 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class DeckBuildManager : MonoBehaviour
 {
-    List<List<Card>> cardsInDeck = new List<List<Card>>();
     List<List<Card>> cardsInCollection = new List<List<Card>>();
+    List<List<Card>> cardsInDeck = new List<List<Card>>();
 
     Transform handContainer;
-    List<Transform> deckTransforms = new List<Transform>();
     List<Transform> collectionTransforms = new List<Transform>();
+    List<Transform> deckTransforms = new List<Transform>();
 
-    TMP_Dropdown dropdown;
+    TMP_Dropdown cardDropdown;
+    TMP_Dropdown characterDropdown;
     TMP_Text deckSizeText;
     Button playGameButton;
 
     [SerializeField] int deckSize;
     [SerializeField] AudioClip cardMove;
 
-    int currentDeck = 0;
-
     private void Awake()
     {
-        dropdown = GameObject.Find("Dropdown").GetComponent<TMP_Dropdown>();
-        dropdown.onValueChanged.AddListener(delegate { NewSort(); });
-        deckSizeText = GameObject.Find("Deck Text").GetComponent<TMP_Text>();
-        playGameButton = GameObject.Find("Play Game Button").GetComponent<Button>();
+        for (int i = 0; i<3; i++)
+        {
+            cardsInCollection.Add(new List<Card>());
+            cardsInDeck.Add(new List<Card>());
+        }
 
         handContainer = GameObject.Find("All Cards").transform;
-        foreach(Transform child in handContainer.GetChild(0))
-            collectionTransforms.Add(child);
-        foreach (Transform child in handContainer.GetChild(1))
-            deckTransforms.Add(child);
+        for (int i = 0; i<3; i++)
+        {
+            collectionTransforms.Add(handContainer.GetChild(0).GetChild(i).GetChild(0).GetChild(0));
+            deckTransforms.Add(handContainer.GetChild(1).GetChild(i).GetChild(0).GetChild(0));
+        }
+
+        cardDropdown = GameObject.Find("Card Dropdown").GetComponent<TMP_Dropdown>();
+        cardDropdown.onValueChanged.AddListener(delegate { NewSort(); });
+        characterDropdown = GameObject.Find("Character Dropdown").GetComponent<TMP_Dropdown>();
+        characterDropdown.onValueChanged.AddListener(delegate { SwitchDecks(); });
+
+        deckSizeText = GameObject.Find("Deck Text").GetComponent<TMP_Text>();
+        playGameButton = GameObject.Find("Play Game Button").GetComponent<Button>();
     }
 
     private void Start()
     {
         for (int i = 0; i<SaveManager.instance.characterCards.Count; i++)
         {
-            currentDeck = i;
+            characterDropdown.value = i;
             foreach(Card card in SaveManager.instance.characterCards[i])
             {
-                card.transform.localScale = new Vector3(1, 1, 1);
+                card.transform.localScale = new Vector3(0.8f, 0.8f, 1);
                 RemoveFromDeck(card, false);
             }
         }
 
         for (int i = 0; i < SaveManager.instance.currentSaveData.savedDecks.Count; i++)
         {
-            currentDeck = i;
-            foreach(string card in SaveManager.instance.currentSaveData.savedDecks[i])
+            characterDropdown.value = i;
+            foreach (string card in SaveManager.instance.currentSaveData.savedDecks[i])
             {
-                AddToDeck(collectionTransforms[currentDeck].Find(card).GetComponent<Card>(), false);
+                AddToDeck(collectionTransforms[characterDropdown.value].Find(card).GetComponent<Card>(), false);
             }
         }
 
-        currentDeck = 0;
+        characterDropdown.value = 0;
         StartCoroutine(SwapCards());
+    }
+
+    public void SwitchDecks()
+    {
+        handContainer.transform.localPosition = new Vector3(characterDropdown.value * -2000, 0, 0);
     }
 
     public void NewSort()
@@ -76,7 +91,7 @@ public class DeckBuildManager : MonoBehaviour
 
     void ApplySorting(Card card)
     {
-        switch (dropdown.options[dropdown.value].text)
+        switch (cardDropdown.options[cardDropdown.value].text)
         {
             case "":
                 card.gameObject.SetActive(true);
@@ -119,12 +134,11 @@ public class DeckBuildManager : MonoBehaviour
 
     public void AddToDeck(Card newCard, bool save)
     {
-        if (cardsInDeck[currentDeck].Count < deckSize)
+        if (cardsInDeck[characterDropdown.value].Count < deckSize)
         {
-            //put that card on the top row
-            cardsInCollection[currentDeck].Remove(newCard);
-            cardsInDeck[currentDeck].Add(newCard);
-            newCard.transform.SetParent(deckTransforms[currentDeck]);
+            cardsInCollection[characterDropdown.value].Remove(newCard);
+            cardsInDeck[characterDropdown.value].Add(newCard);
+            newCard.transform.SetParent(deckTransforms[characterDropdown.value]);
             ApplySorting(newCard);
 
             SoundManager.instance.PlaySound(cardMove);
@@ -137,18 +151,29 @@ public class DeckBuildManager : MonoBehaviour
     public void RemoveFromDeck(Card newCard, bool save)
     {
         playGameButton.gameObject.SetActive(false);
-        cardsInDeck[currentDeck].Remove(newCard);
-        cardsInCollection[currentDeck].Add(newCard);
-        newCard.transform.SetParent(collectionTransforms[currentDeck]);
+        cardsInDeck[characterDropdown.value].Remove(newCard);
+        cardsInCollection[characterDropdown.value].Add(newCard);
+        newCard.transform.SetParent(collectionTransforms[characterDropdown.value]);
 
         SoundManager.instance.PlaySound(cardMove);
         if (save)
             SaveManager.instance.SaveHand(cardsInDeck);
     }
 
+    bool CheckDecks()
+    {
+        foreach(List<Card> deck in cardsInDeck)
+        {
+            if (deck.Count != deckSize)
+                return false;
+        }
+        return true;
+    }
+
     IEnumerator SwapCards()
     {
-        deckSizeText.text = $"Your Deck ({cardsInDeck[currentDeck].Count}/{deckSize})";
+        playGameButton.gameObject.SetActive(CheckDecks());
+        deckSizeText.text = $"Deck ({cardsInDeck[characterDropdown.value].Count}/{deckSize})";
         foreach(List<Card> cardList in SaveManager.instance.characterCards)
             ChoiceManager.instance.ChooseCard(cardList);
 
@@ -156,7 +181,7 @@ public class DeckBuildManager : MonoBehaviour
             yield return null;
 
         //swap cards between your deck and collection
-        if (cardsInCollection[currentDeck].Contains(ChoiceManager.instance.chosenCard))
+        if (cardsInCollection[characterDropdown.value].Contains(ChoiceManager.instance.chosenCard))
             AddToDeck(ChoiceManager.instance.chosenCard, true);
         else
             RemoveFromDeck(ChoiceManager.instance.chosenCard, true);
